@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>가구다방 — 이사 전 가구 접수 (프로토타입)</title>
+  <title>가구다방: 이사 전 가구 접수 (프로토타입)</title>
   <meta name="description" content="이사 전에 가구 사진과 이사일을 남기면 위탁 판매와 방문 수거를 맡는 서비스의 고객 화면 프로토타입입니다.">
   <meta name="robots" content="noindex">
   <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
   <link rel="stylesheet" href="customer.css">
 </head>
 <body>
-  <a class="visually-hidden" href="#view">본문으로 건너뛰기</a>
+  <a class="skip" href="#view">본문으로 건너뛰기</a>
   <header class="top">
     <div class="container top-in">
-      <a class="brand" href="#home"><img src="assets/icon.svg" alt="" width="32" height="32">가구다방</a>
+      <a class="brand" href="#home" translate="no"><img src="assets/logo.svg" alt="가구다방" width="96" height="36"></a>
       <nav class="top-nav" aria-label="주 메뉴">
         <a href="#home" data-nav="home">홈</a>
         <a href="#apply" data-nav="apply">가구 접수</a>
@@ -41,6 +41,7 @@
   <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
   <script src="data.js"></script>
   <script src="store.js"></script>
+  <script src="assets/photos/credits.js"></script>
   <script src="customer.js"></script>
 </body>
 </html>

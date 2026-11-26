@@ -2,6 +2,8 @@
  * paper: oklch(97.6% 0.006 265) · accent: oklch(28.1% 0.07 261) · display: Pretendard · body: Pretendard · hero: 왼쪽 제목과 행동 오른쪽 거실 사진 · nav: 로고와 메뉴 네 개 좁은 화면은 하단 탭 · footer: 상호와 사진 출처 · imagery: photographs · signature: 이사일에서 거꾸로 잡는 일정 줄
  * axes: cool-paper/sans/navy · posture: split · contrast: pass · fold: pass · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V3 · weakest: E, 대체 사진이라 실제 가구 사진으로 바꿔야 한다 */
+/* Hallmark · hero-review: not run, the page was built before the render tier was set up · finish-review: subagent · 7 findings · 5 resolved 2 partial · gap: the schedule line carries no dates because the service fixes no day offsets */
+/* Hallmark · dismissed 58 · the window holds three notices and four questions that the admin page writes, and seven sample badges count as words */
 @import url("./tokens.css");
 @import url("./base.css");
 @import url("./ui.css");
@@ -20,29 +22,110 @@ main { min-height: 60vh; }
 .foot { margin-top: var(--section-gap-s); padding-block: var(--space-xl); border-top: var(--rule-hair) solid var(--color-rule); color: var(--color-muted); font-size: var(--text-sm); }
 .foot-in { display: grid; gap: var(--space-sm); }
 .foot strong { color: var(--color-ink); font-size: var(--text-md); }
-.foot a { color: var(--color-ink-2); }
+.foot a { color: var(--color-ink-2); white-space: nowrap; }
 .foot summary { width: fit-content; cursor: pointer; }
 .foot ul { margin: var(--space-xs) 0 0; padding-left: var(--space-md); }
 @media (max-width: 40rem) {
+  html { scroll-padding-bottom: calc(var(--tabbar-h) + var(--space-md)); } /* 키보드로 옮긴 초점이 하단 탭에 가리지 않게 */
   body { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
   .top-nav { display: none; }
   .top-in .icon-btn { margin-left: auto; }
   .tabbar { position: fixed; inset: auto 0 0 0; z-index: var(--z-sticky-nav); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); height: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); border-top: var(--rule-hair) solid var(--color-rule); background: var(--color-paper-2); }
-  .tabbar a { display: grid; place-items: center; align-content: center; gap: 2px; color: var(--color-muted); font-size: var(--text-xs); text-decoration: none; }
+  .tabbar a { display: grid; place-items: center; align-content: center; gap: var(--space-3xs); color: var(--color-muted); font-size: var(--text-xs); text-decoration: none; }
   .tabbar a[aria-current="page"] { color: var(--color-accent); font-weight: var(--weight-bold); }
 }
 
 /* ---------- 홈: 첫 화면 ---------- */
-.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2xl); align-items: center; padding-block: var(--space-2xl) var(--space-3xl); }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2xl); align-items: center; padding-block: var(--space-2xl); }
 .hero h1 { font-size: var(--text-display); font-weight: var(--weight-bold); line-height: var(--leading-head); letter-spacing: var(--tracking-display); }
 .hero h1 span { display: block; }
 .hero p { margin-top: var(--space-md); color: var(--color-ink-2); font-size: var(--text-lead); line-height: var(--leading-body); }
 .actions { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-top: var(--space-lg); }
-.hero-photo { aspect-ratio: 4 / 3; border-radius: var(--radius-card); overflow: hidden; background: var(--color-paper-3); }
+.hero-photo { aspect-ratio: 5 / 4; border-radius: var(--radius-card); overflow: hidden; background: var(--color-paper-3); color: var(--color-ink); }
 .hero-photo img { width: 100%; height: 100%; object-fit: cover; }
 @media (max-width: 60rem) {
   .hero { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); padding-block: var(--space-lg) var(--space-2xl); }
   .hero-photo { aspect-ratio: 16 / 10; }
 }
 
-/* AREA:next */
+/* ---------- 홈: 본문 영역 ---------- */
+/* 구분 방식을 영역마다 다르게: 일정은 옅은 면, 가구 종류는 여백, 공지와 질문은 선, 마무리는 남색 면 */
+.sec { margin-top: var(--section-gap-s); }
+.sec h2 { font-size: var(--text-section); font-weight: var(--weight-bold); line-height: var(--leading-head); letter-spacing: var(--tracking-display); }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-md); margin-bottom: var(--space-lg); }
+.sec-head a { color: var(--color-ink-2); font-size: var(--text-sm); white-space: nowrap; }
+.band { margin-top: 0; padding: var(--space-2xl) var(--space-xl); border-radius: var(--radius-card); background: var(--color-paper-3); color: var(--color-ink); }
+/* 일정 줄: 선 하나에 점 네 개, 마지막 큰 남색 점이 이사일이고 선은 거기서 끝난다 */
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: var(--space-xl) 0 0; padding: 0; list-style: none; }
+.steps li { position: relative; padding: var(--space-lg) var(--space-lg) 0 0; border-top: 2px solid var(--color-control-rule); }
+.steps li::before { content: ""; position: absolute; top: -8px; left: 0; width: 14px; height: 14px; border: 2px solid var(--color-control-rule); border-radius: var(--radius-pill); background: var(--color-paper-2); }
+.steps li:last-child { border-top-color: transparent; }
+.steps li:last-child::before { top: -12px; width: 22px; height: 22px; border-color: var(--color-accent); background: var(--color-accent); }
+.steps b { display: block; font-size: var(--text-xl); }
+.steps p { margin-top: var(--space-2xs); color: var(--color-ink-2); }
+.kinds { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-md); margin: 0; padding: 0; list-style: none; }
+.kinds a { display: block; color: var(--color-ink); text-decoration: none; }
+.kinds a:hover b { text-decoration: underline; }
+.kinds img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius-card); background: var(--color-paper-3); }
+.kinds b { display: block; margin-top: var(--space-xs); }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2xl); margin-top: var(--section-gap); padding-top: var(--space-2xl); border-top: var(--rule-hair) solid var(--color-rule); }
+.rows { margin: 0; padding: 0; list-style: none; }
+.rows > li, .rows > details { padding-block: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); }
+.rows a { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-md); color: var(--color-ink); text-decoration: none; }
+.rows a:hover span { text-decoration: underline; }
+.rows time { color: var(--color-muted); font-size: var(--text-sm); white-space: nowrap; }
+.rows summary { font-weight: var(--weight-medium); cursor: pointer; }
+.rows details p { margin-top: var(--space-xs); color: var(--color-ink-2); }
+/* 접어 둔 나머지 질문: 펼치면 위의 질문들과 같은 모양으로 이어진다 */
+.fold > summary { color: var(--color-ink-2); }
+.fold > details { padding-block: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); }
+.fold > details:first-of-type { margin-top: var(--space-md); }
+.fold > details:last-of-type { padding-bottom: 0; }
+.closing { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-md) var(--space-lg); margin-top: var(--section-gap-s); padding: var(--space-xl); border-radius: var(--radius-card); background: var(--color-accent); color: var(--color-accent-ink); }
+.closing h2 { font-size: var(--text-2xl); font-weight: var(--weight-bold); line-height: var(--leading-head); }
+@media (max-width: 60rem) {
+  .band { padding: var(--space-xl) var(--space-lg); }
+  .kinds { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .two { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); padding-top: var(--space-xl); }
+}
+@media (max-width: 40rem) {
+  .band { padding: var(--space-lg) var(--space-md); }
+  .steps { grid-template-columns: minmax(0, 1fr); margin-top: var(--space-lg); }
+  .steps li { padding: 0 0 var(--space-lg) var(--space-lg); border-top: 0; border-left: 2px solid var(--color-control-rule); }
+  .steps li::before { top: var(--space-xs); left: -8px; }
+  .steps li:last-child { padding-bottom: 0; border-left-color: transparent; }
+  .steps li:last-child::before { top: var(--space-2xs); left: -12px; }
+  .kinds { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .closing { padding: var(--space-lg); }
+  .closing .btn { width: 100%; }
+}
+
+/* ---------- 접수, 진행 조회, 공지사항 ---------- */
+.form { max-width: 760px; margin-inline: auto; padding-block: var(--space-xl); }
+.form h1 { font-size: var(--text-section); font-weight: var(--weight-bold); line-height: var(--leading-head); letter-spacing: var(--tracking-display); }
+.lead { margin-top: var(--space-xs); color: var(--color-ink-2); }
+.form > .btn-block { margin-top: var(--space-lg); }
+.file-row { display: inline-flex; align-items: center; gap: var(--space-sm); }
+.file { position: relative; }
+.file input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.file:focus-within { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.done { text-align: center; }
+.done strong { display: block; margin-block: var(--space-2xs) var(--space-sm); font-size: var(--text-2xl); font-variant-numeric: tabular-nums; }
+.done p { max-width: none; }
+.done .actions { justify-content: center; }
+.lookup-form { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto; gap: var(--space-md); align-items: end; margin-block: var(--space-lg) var(--space-xs); }
+.result { margin-top: var(--space-lg); }
+.result h2 { font-size: var(--text-xl); font-weight: var(--weight-bold); font-variant-numeric: tabular-nums; }
+.items { margin: var(--space-md) 0 0; padding: 0; list-style: none; }
+.items li { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: var(--space-md); padding-block: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); }
+.items img { width: 96px; height: 72px; object-fit: cover; border-radius: var(--radius-control); background: var(--color-paper-3); }
+.item-title { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs); }
+.result .actions { align-items: center; margin-top: var(--space-sm); }
+.notice-list { margin-top: var(--space-lg); }
+.notice-list time { margin-left: var(--space-xs); color: var(--color-muted); font-size: var(--text-sm); font-weight: var(--weight-regular); }
+@media (max-width: 40rem) {
+  .form { padding-block: var(--space-lg); }
+  .lookup-form { grid-template-columns: minmax(0, 1fr); }
+  .items li { grid-template-columns: 72px minmax(0, 1fr); }
+  .items img { width: 72px; height: 54px; }
+}

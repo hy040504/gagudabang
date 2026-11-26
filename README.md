@@ -319,9 +319,9 @@ npm test
 npm run perf
 ```
 
-### 분리형 정적 프로토타입 (`prototype/`, 진행중)
+### 분리형 정적 프로토타입 (`prototype/`, 6단계 완료)
 
-고객 웹([prototype/customer.html](prototype/customer.html))과 관리자 웹(`prototype/admin.html`, 예정)을 6단계로 분리 제작 중입니다. 현재 1~3단계(유사 앱 분석·관리자 구성요소 기획·`prototype/tokens.css` 확정 및 CC 라이선스 가구 사진 7종 배치)를 마치고 4단계(고객 웹) 구현 중입니다.
+고객 웹([prototype/customer.html](prototype/customer.html))과 관리자 웹([prototype/admin.html](prototype/admin.html))을 6단계로 나눠 만들었습니다. 서버 없이 열리고 데이터는 브라우저(`localStorage`)에 있습니다. 관리자 웹에서 접수, 자주 묻는 질문, 공지사항을 추가·수정·삭제하면 고객 웹에 바로 반영됩니다. 공용 값은 `tokens.css`, 샘플 데이터는 `data.js` 한 파일에 있습니다. 주소 끝에 `?data=worst`, `?data=empty`, `?data=one`, `?data=huge`를 붙이면 깨짐 점검용 데이터로 열립니다. 자세한 내용은 [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md).
 
 ---
 
@@ -338,7 +338,7 @@ npm run perf
 | `TASK-02` | 실서버 백엔드(`Express + TypeScript + node:sqlite`) DB·인증·보안·REST API 18종 | **완료** | `src/shared/*`, `src/server/*` |
 | `TASK-03` | 실서버 무번들러 프론트엔드(고객 포털·관리자 콘솔)·PWA·Electron 연동 | **진행중 (부분 완료)** | `public/*`, `src/client/*`, `desktop/main.cjs` |
 | `TASK-04` | 자동화 테스트(`node:test` 46개)·성능 측정(`500`/`5,000`건) 및 품질 검수 | **부분 완료** | `tests/*.test.ts`, `scripts/perf.ts` |
-| **프로토타입 분리** | 고객 웹(`customer.html`)·관리자 웹(`admin.html`) 6단계 정적 프로토타입 분리 | **진행중 (4단계 착수)** | `prototype/*`, [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md) |
+| **프로토타입 분리** | 고객 웹(`customer.html`)·관리자 웹(`admin.html`) 6단계 정적 프로토타입 분리 | **완료 (6단계 마무리 점검까지)** | `prototype/*`, [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md) |
 
 ### 확정 기술 스택
 
@@ -370,10 +370,10 @@ gagudabang/
 ├── public/                                # 실서버 정적 엔트리·스타일·PWA·자체 호스팅 폰트
 │   ├── index.html / admin.html / manifest.webmanifest / sw.js
 │   ├── styles/{tokens.css, customer.css, admin.css, responsive.css}
-│   └── assets/{brand/icon.svg, fonts/PretendardVariable.woff2}
-├── prototype/                             # 분리형 정적 프로토타입 (4단계 고객 웹 진행중)
-│   ├── customer.{html,css,js} / tokens.css / base.css / ui.css / data.js / store.js
-│   └── assets/{icon.svg, fonts/, photos/}
+│   └── assets/{brand/logo.svg, brand/icon.svg, fonts/PretendardVariable.woff2}
+├── prototype/                             # 분리형 정적 프로토타입 (고객 웹 + 관리자 웹, 6단계 완료)
+│   ├── customer.{html,css,js} / admin.{html,css,js} / tokens.css / base.css / ui.css / data.js / store.js
+│   └── assets/{logo.svg, icon.svg, fonts/, photos/}
 ├── desktop/main.cjs                       # Electron 운영자 데스크탑 래퍼
 ├── tests/                                 # node:test 자동화 테스트 스위트 (46개)
 │   └── {api.test.ts, security-media.test.ts, time.test.ts, helpers.ts}

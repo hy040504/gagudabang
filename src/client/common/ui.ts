@@ -98,4 +98,4 @@ export function registerServiceWorker() {
 
 /** 가로형 로고. 글자는 HTML로 그려서 화면과 같은 글꼴·테마 색을 쓴다 (<img> SVG 안의 글자는 웹 글꼴을 못 쓴다). */
 export const logo = (height = 40) =>
-  `<span class="gd-logo"><img src="/assets/brand/icon.svg" alt="" width="${height - 6}" height="${height - 6}"><b>가구다방</b></span>`;
+  `<span class="gd-logo"><img src="/assets/brand/logo.svg" alt="가구다방" width="${Math.round(height * 2.66)}" height="${height}"></span>`; // 글자 로고 그림(남색 바탕, 흰 글자). 가로세로 비는 2.66:1

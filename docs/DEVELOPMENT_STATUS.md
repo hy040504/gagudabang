@@ -17,6 +17,7 @@
 | `TASK-02` | 실서버 백엔드(`Express + TypeScript + node:sqlite`) DB 스키마·인증·매직바이트/EXIF 제거·REST API 18종 구현 | Grok 4.7 (`grok-4.7-build-fast`) | 완료 | **완료** | `package.json`, `tsconfig*.json`, `src/shared/*`, `src/server/*` |
 | `TASK-03` | 실서버 무번들러 프론트엔드(`순수 HTML/CSS/Vanilla TS`) 고객 포털·관리자 콘솔 및 PWA/Electron 래퍼 연동 | Grok 4.7 (`grok-4.7-build-fast`) | 부분 완료 | **진행중** | `public/*`, `src/client/*`, `desktop/main.cjs` |
 | `TASK-04` | 통합 자동화 테스트(`node:test`) 및 브라우저 E2E·접근성 최종 검수 | Grok 4.7 + Claude 검증 | 자동화 테스트 완료 | **부분 완료** | `tests/*.test.ts` |
+| `PROTO-01` | `demo.html`을 고객 웹과 관리자 웹으로 나눈 정적 프로토타입 (6단계, 단계마다 확인) | Claude (hallmark) | 6단계(마무리 점검)까지 완료, 확인 대기 | **완료(확인 대기)** | `prototype/*`, `docs/프로토타입_분리_기획안.md` |
 
 ---
 
@@ -37,6 +38,12 @@
 ### TASK-04 테스트 — 부분 완료
 - `npm test`: 46개 통과(API 32, 보안·미디어 6, 시간 의존 8). `npm run perf`: 500/5천 건 모두 성능 목표 통과.
 - 미진행: 접근성 정식 검수, rate limit 시간 경과 테스트(시계 미주입).
+
+### PROTO-01 분리형 프로토타입 — 6단계까지 완료
+- `prototype/customer.html`(고객 웹)과 `prototype/admin.html`(관리자 웹). 실서버 없이 동작하고, 데이터는 `localStorage`에 있다. 공용 값은 `tokens.css`, 샘플 데이터는 `data.js` 한 파일.
+- 관리자 웹에서 접수·자주 묻는 질문·공지사항을 추가·수정·삭제하면 고객 웹에 바로 반영된다. 상태 변경 규칙은 실서버의 `TRANSITIONS`와 같다.
+- 6단계에서 긴 이름·빈 목록·접수 1,284건으로 깨짐을 점검해 고쳤고, 접근성 점검과 콘솔 오류 점검을 마쳤다. 점검용 데이터는 주소 끝에 `?data=worst|empty|one|huge`를 붙이면 열린다.
+- 남은 것: 실제 가구 사진과 사업자 정보, 정해야 할 것 3건(홈의 질문 개수, 공지 목록 나누기, 게시일이 미래인 공지). 자세한 내용은 `docs/프로토타입_분리_기획안.md`.
 
 ### 알려진 사항
 - `demo.html`은 TASK-01 프로토타입으로 보존. 미확정 사업자 정보는 `[TBD]`.

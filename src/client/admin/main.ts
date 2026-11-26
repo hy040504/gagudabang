@@ -9,7 +9,7 @@ const resetWire = () => { wire.fn = null; }; // 함수 호출로 감싸 TS의 �
 const filter = { status: '', handling: '', q: '', hideDemo: true, page: 1 };
 
 const nav = () => `<header class="gd-admin-top gd-admin-bar"><div class="gd-admin-bar-in">
-  <img src="/assets/brand/icon.svg" alt="" width="32" height="32"><strong>가구다방 파트너스 스튜디오</strong>
+  <img src="/assets/brand/logo.svg" alt="가구다방" width="85" height="32"><strong>파트너스 스튜디오</strong>
   <span style="flex:1"></span><a class="btn ghost sm" href="#dashboard">접수 목록</a><a class="btn ghost sm" href="#schedule">일정</a><a class="btn ghost sm" href="#settings">설정</a>
   <a class="btn ghost sm" href="/api/admin/export/csv?hideDemo=${filter.hideDemo ? 1 : 0}">CSV</a>
   ${themeButton()}<button class="btn outline sm" id="logout">로그아웃</button></div></header>`;

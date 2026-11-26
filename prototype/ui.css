@@ -1,15 +1,28 @@
 /* 고객 웹과 관리자 웹이 함께 쓰는 부품: 버튼 2종, 입력칸, 상태 표시, 카드, 알림. 값은 모두 tokens.css에서 온다. */
 
+/* 긴 글 다루기: 한글은 낱말 단위로만 줄을 바꾸되(각 화면의 keep-all), 띄어쓰기 없는 긴 이름·주소·링크는 칸을 넘기 전에 끊는다 */
+body { overflow-wrap: anywhere; }
+/* 손가락으로 누를 때: 두 번 누르기 확대를 기다리지 않게 하고, 누른 자리를 주색으로 옅게 보여 준다 */
+a, button, input, select, textarea, summary, label { touch-action: manipulation; }
+html { -webkit-tap-highlight-color: color-mix(in oklab, var(--color-accent) 14%, transparent); }
+.nowrap { display: inline-block; max-width: 100%; } /* 접수번호처럼 중간에 끊기면 안 되는 값: 통째로 다음 줄로 넘기고, 한 줄에도 못 들어갈 때만 끊는다 */
+.multiline { white-space: pre-line; } /* 여러 줄로 입력한 안내문·메모·공지 내용의 줄바꿈을 그대로 보여 준다 */
+
+/* 건너뛰기 링크: 키보드로 처음 탭했을 때만 보인다 */
+.skip { position: absolute; left: var(--space-md); top: var(--space-xs); z-index: var(--z-tooltip); padding: var(--space-xs) var(--space-md); border-radius: var(--radius-control); background: var(--color-ink); color: var(--color-paper); transform: translateY(-200%); }
+.skip:focus { transform: none; }
+
 /* 버튼: 주 버튼 하나, 보조 버튼 하나. 위험한 동작은 보조 버튼에 .is-danger를 붙인다. */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-xs); min-height: var(--control-h); padding: 0 var(--space-lg); border: var(--rule-hair) solid transparent; border-radius: var(--radius-pill); font-size: var(--text-md); font-weight: var(--weight-medium); line-height: 1; text-decoration: none; white-space: nowrap; cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
 .btn:active { transform: scale(0.98); }
-.btn[disabled] { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn[disabled] { border-color: var(--color-rule); background: var(--color-paper-3); color: var(--color-muted); cursor: not-allowed; transform: none; }
 .btn-primary { background: var(--color-accent); color: var(--color-accent-ink); }
 .btn-primary:hover:not([disabled]) { background: var(--color-accent-hover); }
 .btn-secondary { background: var(--color-paper-2); border-color: var(--color-control-rule); color: var(--color-ink); }
 .btn-secondary:hover:not([disabled]) { background: var(--color-paper-3); }
 .btn-secondary.is-danger { color: var(--color-error); }
 .btn-sm { min-height: var(--control-h-sm); padding: 0 var(--space-md); font-size: var(--text-sm); }
+@media (max-width: 40rem) { .btn-sm { min-height: 44px; } } /* 손가락으로 누르는 폭에서는 작은 버튼도 44px */
 .btn-block { width: 100%; }
 .icon-btn { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--color-ink-2); cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out); }
 .icon-btn:hover { background: var(--color-paper-3); }
@@ -19,19 +32,29 @@
 /* 입력칸 */
 .field { display: grid; gap: var(--space-2xs); align-content: start; min-width: 0; }
 .field > label, .field > .label { font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--color-ink-2); }
-.input { width: 100%; min-height: var(--control-h); padding: 0 var(--space-md); border: var(--rule-hair) solid var(--color-control-rule); border-radius: var(--radius-control); background: var(--color-paper-2); color: var(--color-ink); font-size: var(--text-md); transition: border-color var(--dur-micro) var(--ease-out); }
+.input { width: 100%; min-width: 0; min-height: var(--control-h); padding: 0 var(--space-md); border: var(--rule-hair) solid var(--color-control-rule); border-radius: var(--radius-control); background: var(--color-paper-2); color: var(--color-ink); font-size: var(--text-md); transition: border-color var(--dur-micro) var(--ease-out); }
 textarea.input { min-height: 96px; padding: var(--space-sm) var(--space-md); resize: vertical; }
 .input::placeholder { color: var(--color-muted); }
 .input:hover { border-color: var(--color-ink-2); }
 .input[aria-invalid="true"] { border-color: var(--color-error); }
-.input[disabled] { opacity: 0.6; }
+.input[disabled] { border-color: var(--color-rule); background: var(--color-paper-3); color: var(--color-muted); cursor: not-allowed; }
 .field-hint { font-size: var(--text-sm); color: var(--color-muted); }
 .field-error { font-size: var(--text-sm); color: var(--color-error); }
 .check { display: flex; align-items: flex-start; gap: var(--space-xs); font-size: var(--text-md); color: var(--color-ink); cursor: pointer; }
-.check input { width: 20px; height: 20px; margin: 3px 0 0; accent-color: var(--color-accent); }
+.check input { width: 20px; height: 20px; margin: var(--space-2xs) 0 0; accent-color: var(--color-accent); }
+
+/* 폼 묶음: 접수 폼(고객)과 접수 추가·수정 폼(관리자)이 같이 쓴다 */
+.fsec { display: grid; gap: var(--space-md); margin-top: var(--space-lg); padding-top: var(--space-lg); border-top: var(--rule-hair) solid var(--color-rule); }
+.fsec h2 { font-size: var(--text-lg); font-weight: var(--weight-bold); }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-md); }
+.item { min-width: 0; margin: 0 0 var(--space-md); padding: var(--space-md); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-card); background: var(--color-paper-2); }
+.item legend { padding: 0 var(--space-xs); font-weight: var(--weight-medium); }
+.item-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-sm); margin-top: var(--space-md); }
+#items > :only-child [data-remove] { display: none; }
+@media (max-width: 40rem) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
 
 /* 상태 표시: 색과 글자를 같이 쓴다 (색만으로 구분하지 않는다) */
-.badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: var(--radius-pill); font-size: var(--text-xs); font-weight: var(--weight-medium); line-height: 1.5; white-space: nowrap; }
+.badge { display: inline-flex; align-items: center; padding: var(--space-3xs) var(--space-sm); border-radius: var(--radius-pill); font-size: var(--text-xs); font-weight: var(--weight-medium); line-height: 1.5; white-space: nowrap; }
 .badge.is-pending { background: var(--status-pending-bg); color: var(--status-pending-ink); }
 .badge.is-progress { background: var(--status-progress-bg); color: var(--status-progress-ink); }
 .badge.is-scheduled { background: var(--status-scheduled-bg); color: var(--status-scheduled-ink); }
@@ -40,9 +63,16 @@ textarea.input { min-height: 96px; padding: var(--space-sm) var(--space-md); res
 .badge.is-sample { border: var(--rule-hair) dashed var(--color-control-rule); color: var(--color-muted); font-weight: var(--weight-regular); }
 
 /* 카드: 그림자 없이 면 색으로 구분 */
-.card { padding: var(--space-lg); border-radius: var(--radius-card); background: var(--color-paper-2); }
+.card { padding: var(--space-lg); border-radius: var(--radius-card); background: var(--color-paper-2); color: var(--color-ink); }
 .muted { color: var(--color-muted); }
+.more { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-sm); margin-top: var(--space-md); } /* 목록 아래의 "더 보기" 줄 */
 .empty { padding: var(--space-xl) var(--space-md); text-align: center; color: var(--color-muted); }
+
+/* 점검용 데이터 전환 막대(개발 전용): 주소에 ?data= 가 있을 때만 store.js가 넣는다 */
+.dev-data { position: fixed; left: 50%; bottom: var(--space-md); z-index: var(--z-modal); display: flex; gap: var(--space-3xs); padding: var(--space-3xs); border-radius: var(--radius-pill); background: var(--color-paper-3); box-shadow: var(--shadow-float); color: var(--color-ink-2); font-size: var(--text-xs); white-space: nowrap; transform: translateX(-50%); }
+.dev-data a { padding: var(--space-2xs) var(--space-sm); border-radius: var(--radius-pill); color: inherit; text-decoration: none; }
+.dev-data a[aria-current="true"] { background: var(--color-paper-2); color: var(--color-ink); }
+@media (max-width: 40rem) { .dev-data { bottom: calc(var(--tabbar-h) + var(--space-xs)); } }
 
 /* 알림: 화면 아래에 잠깐 뜬다 */
 .toasts { position: fixed; left: 50%; bottom: calc(var(--tabbar-h) + var(--space-md)); z-index: var(--z-toast); display: grid; gap: var(--space-xs); width: min(92vw, 420px); transform: translateX(-50%); pointer-events: none; }

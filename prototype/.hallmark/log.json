@@ -1,0 +1,58 @@
+[
+ {
+  "scope": "app",
+  "shape": "app screen",
+  "theme": "custom",
+  "axes": "cool-paper/sans/navy",
+  "nav": "sidebar of five at 1440, rail at 768, bottom tabs at 390",
+  "imagery": "none",
+  "photos": [],
+  "signature": "the queue ordered by days left until moving day",
+  "sections": [
+   "today",
+   "applications table",
+   "application detail",
+   "application form",
+   "calendar",
+   "questions and notices",
+   "settings"
+  ],
+  "waived": [],
+  "prompt": "admin web for the same prototype: add, edit and delete through localStorage, reflected in the customer web",
+  "file": "admin.html",
+  "date": "2026-11-26",
+  "mode": "build"
+ },
+ {
+  "shape": "service front with task views",
+  "theme": "custom",
+  "axes": "cool-paper/sans/navy",
+  "hero": "split: head and two actions left, living-room photograph right",
+  "nav": "wordmark and four links, bottom tabs under 640px",
+  "footer": "business line, sample note, photo credits",
+  "imagery": "photographs",
+  "photos": [
+   "commons:2022-08-26_14_13_44_A_Corvara_Sofa_and_Loveseat",
+   "commons:Berlin_Museum_Europaeischer_Kulturen_NIK_5979",
+   "commons:Moss_Lee_Grange_Deluxe_Double_Bedroom_1",
+   "commons:Markedshallen_Dining_table",
+   "commons:EXPEDIT_5x2",
+   "commons:Computer_desk_Rostov-on-Don",
+   "commons:Bookcase-saam_1966.11.7"
+  ],
+  "entry": "hero",
+  "sections": [
+   "hero",
+   "schedule line in a tinted band",
+   "six category tiles linking to the form",
+   "notices and questions",
+   "closing band"
+  ],
+  "signature": "a schedule line that ends on a large navy moving-day node",
+  "waived": [],
+  "prompt": "split demo.html into a customer web and an admin web, navy and white, Pretendard only",
+  "file": "customer.html",
+  "date": "2026-11-26",
+  "mode": "build"
+ }
+]
