@@ -59,7 +59,7 @@ async function dashboardView() {
   };
   const k = d.kpis;
   const pages = Math.max(1, Math.ceil(d.total / 20));
-  return `<main class="main"><div class="main-inner">
+  return `<main class="main"><div class="main-inner"><h1 class="vh">접수 목록</h1>
     <ul class="gd-stats" aria-label="오늘 확인할 항목">
       <li>접수대기 품목 <b>${k.pendingItems}</b></li>
       <li${k.movingSoonApplications ? ' class="alert"' : ''}>이사일 D-3 이내 <b>${k.movingSoonApplications}</b></li>
@@ -82,7 +82,7 @@ async function dashboardView() {
 }
 
 const itemForm = (it: AdminItemDto) => `<form class="card" data-item="${it.id}" data-version="${it.version}" style="padding:18px;margin-bottom:14px" novalidate>
-  <h3 class="card-title">${esc(it.itemName)} <span class="muted small">${esc(CATEGORY_LABEL[it.category])} · 고객 희망 ${esc(PREFERENCE_LABEL[it.customerPreference])} · 상태 ${esc(CONDITION_LABEL[it.conditionGrade])}</span></h3>
+  <h2 class="card-title">${esc(it.itemName)} <span class="muted small">${esc(CATEGORY_LABEL[it.category])} · 고객 희망 ${esc(PREFERENCE_LABEL[it.customerPreference])} · 상태 ${esc(CONDITION_LABEL[it.conditionGrade])}</span></h2>
   <div class="row" style="gap:6px;margin-bottom:10px">${it.photos.map((p) => `<a class="gd-thumb" data-photo href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.url)}" alt="${esc(it.itemName)} ${p.photoTag === 'DETAIL' ? '디테일' : '전체'}" width="96" height="96" style="object-fit:cover;border-radius:8px"></a>`).join('')}</div>
   <div class="grid2">
     <div class="field"><label>처리 구분</label><select name="handlingType">${options(HANDLING_LABEL, it.handlingType)}</select></div>
@@ -254,9 +254,9 @@ async function scheduleView() {
       const evs = byDate.get(date) ?? [];
       const kinds = [...new Set(evs.map((e) => e.kind))];
       return `<button type="button" class="cal-cell${date === cal.selected ? ' sel' : ''}${date === today ? ' today' : ''}" data-date="${date}"
-        aria-label="${m}월 ${i + 1}일${evs.length ? `, 일정 ${evs.length}건` : ''}" aria-pressed="${date === cal.selected}">
-        <span class="cal-n">${i + 1}</span>
-        <span class="cal-dots">${kinds.map((k) => `<i style="background:${KIND[k].color}"></i>`).join('')}${evs.length > 1 ? `<small>${evs.length}</small>` : ''}</span></button>`;
+        aria-pressed="${date === cal.selected}">
+        <span class="vh">${m}월 </span><span class="cal-n">${i + 1}</span><span class="vh">일${evs.length ? `, 일정 ${evs.length}건` : ''}</span>
+        <span class="cal-dots" aria-hidden="true">${kinds.map((k) => `<i style="background:${KIND[k].color}"></i>`).join('')}${evs.length > 1 ? `<small>${evs.length}</small>` : ''}</span></button>`;
     }),
   ].join('');
 

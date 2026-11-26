@@ -1,4 +1,4 @@
-﻿import { Router, type Request } from 'express';
+import { Router, type Request } from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import multer from 'multer';
@@ -36,7 +36,7 @@ export function publicRouter(ctx: Ctx) {
   const { db, signer } = ctx;
   const r = Router();
   const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024, files: 60, fields: 10 } });
-  const lookupLimit = rateLimiter(20, 60_000);
+  const lookupLimit = rateLimiter(20, 60_000, ctx.clock);
   const pinLock = new FailureLock(5, 60_000, ctx.clock);
   const customerUser = (req: Request) => {
     const id = authOf(ctx, req).customerId;
@@ -55,7 +55,7 @@ export function publicRouter(ctx: Ctx) {
   }));
 
   // FN-06/08: 신청 생성 (multipart: payload + photos_{품목index})
-  r.post('/applications', rateLimiter(30, 60_000), upload.any(), wrap((req, res) => {
+  r.post('/applications', rateLimiter(30, 60_000, ctx.clock), upload.any(), wrap((req, res) => {
     let payload: ApplicationPayload;
     try { payload = JSON.parse(String(req.body?.payload ?? '')) as ApplicationPayload; }
     catch { throw new AppError(400, 'BAD_REQUEST', '신청 데이터(payload)가 올바른 JSON이 아닙니다.'); }
@@ -114,7 +114,7 @@ export function publicRouter(ctx: Ctx) {
   // ---- 회원 ----
   r.get('/auth/me', wrap((req, res) => { const u = customerUser(req); ok(res, { user: u ? profile(u) : null }); }));
 
-  r.post('/auth/signup', rateLimiter(10, 60_000), wrap((req, res) => {
+  r.post('/auth/signup', rateLimiter(10, 60_000, ctx.clock), wrap((req, res) => {
     const phone = normalizePhone(req.body?.phone);
     const password = String(req.body?.password ?? '');
     const name = String(req.body?.name ?? '').trim().slice(0, 50);
@@ -131,7 +131,7 @@ export function publicRouter(ctx: Ctx) {
     ok(res, { user: profile(db.prepare('SELECT * FROM users WHERE id = ?').get(id) as Row) }, 201);
   }));
 
-  r.post('/auth/login', rateLimiter(20, 60_000), wrap((req, res) => {
+  r.post('/auth/login', rateLimiter(20, 60_000, ctx.clock), wrap((req, res) => {
     const u = db.prepare("SELECT * FROM users WHERE login_id = ? AND role = 'CUSTOMER' AND is_active = 1").get(normalizePhone(req.body?.phone)) as Row | undefined;
     if (!u || !verifySecret(String(req.body?.password ?? ''), u.password_hash)) throw new AppError(401, 'UNAUTHORIZED', '번호 또는 비밀번호가 올바르지 않습니다.');
     setCookie(res, COOKIES.customer, signer.sign({ uid: u.id }, CUSTOMER_TTL), CUSTOMER_TTL);
@@ -157,7 +157,7 @@ export function publicRouter(ctx: Ctx) {
   }));
 
   // FN-14: 비회원 신청 건 승계
-  r.post('/my/claim', rateLimiter(20, 60_000), wrap((req, res) => {
+  r.post('/my/claim', rateLimiter(20, 60_000, ctx.clock), wrap((req, res) => {
     const u = requireCustomer(req);
     const app = getApplicationByCode(db, String(req.body?.requestCode ?? '').trim().toUpperCase());
     const pin = String(req.body?.pin ?? '');

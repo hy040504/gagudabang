@@ -1,5 +1,5 @@
 // 정적 셸만 캐시. /api(개인정보·사진 포함)는 절대 캐시하지 않는다.
-const CACHE = 'gagudabang-shell-v7';
+const CACHE = 'gagudabang-shell-v8';
 const SHELL = ['/', '/admin.html', '/styles/tokens.css', '/styles/customer.css', '/styles/admin.css', '/styles/responsive.css', '/assets/brand/icon.svg', '/assets/brand/logo.svg', '/assets/fonts/PretendardVariable.woff2'];
 self.addEventListener('install', (e) => e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', (e) => e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim())));

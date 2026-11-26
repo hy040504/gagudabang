@@ -29,6 +29,20 @@ describe('잠금·쿠키 만료 (FN-16, FN-10)', () => {
     } finally { s.close(); }
   });
 
+  test('요청 횟수 제한(가입 10회/분)은 60초가 지나면 풀린다', async () => {
+    const clk = fakeClock('2099-12-20T03:00:00Z');
+    const s = startServer(clk.now);
+    try {
+      const c = client(s.base);
+      for (let i = 0; i < 10; i++) assert.notEqual((await c.call('POST', '/api/auth/signup', {})).status, 429, `${i + 1}번째: 허용`);
+      const over = await c.call('POST', '/api/auth/signup', {});
+      assert.equal(over.status, 429);
+      assert.equal(over.json.error.code, 'RATE_LIMITED');
+      clk.advance(61 * SEC);
+      assert.notEqual((await c.call('POST', '/api/auth/signup', {})).status, 429, '61초: 해제');
+    } finally { s.close(); }
+  });
+
   test('잠금 해제 직후 1회 실패로 곧바로 재잠금되지 않는다 (카운터 재시작)', async () => {
     const clk = fakeClock('2099-12-20T03:00:00Z');
     const s = startServer(clk.now);

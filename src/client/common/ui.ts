@@ -74,7 +74,7 @@ export const themeButton = (icon = false) => {
   const label = `${themeLabel()}로 전환`;
   return icon
     ? `<button type="button" class="btn ghost sm gd-theme-icon" data-theme-toggle data-icon aria-label="${label}" title="${label}">${THEME_ICONS}</button>`
-    : `<button type="button" class="btn ghost sm" data-theme-toggle aria-label="${label}">${themeLabel()}</button>`;
+    : `<button type="button" class="btn ghost sm" data-theme-toggle>${themeLabel()}</button>`;
 };
 
 export function initTheme() {
@@ -86,8 +86,7 @@ export function initTheme() {
     applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
     const label = `${themeLabel()}로 전환`;
     document.querySelectorAll('[data-theme-toggle]').forEach((b) => {
-      b.setAttribute('aria-label', label);
-      if (b.hasAttribute('data-icon')) b.setAttribute('title', label); else b.textContent = themeLabel();
+      if (b.hasAttribute('data-icon')) { b.setAttribute('aria-label', label); b.setAttribute('title', label); } else b.textContent = themeLabel(); // 글자 버튼은 보이는 글자가 곧 이름이다
     });
   });
 }

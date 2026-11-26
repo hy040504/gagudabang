@@ -62,10 +62,10 @@ export function setCookie(res: Response, name: CookieName, value: string, maxAge
 export function clearCookie(res: Response, name: CookieName) { setCookie(res, name, '', 0); }
 
 // ---- 슬라이딩 윈도우 Rate Limiter ----
-export function rateLimiter(max: number, windowMs: number) {
+export function rateLimiter(max: number, windowMs: number, clock: Clock = Date.now) {
   const hits = new Map<string, number[]>();
   return (req: Request, _res: Response, next: NextFunction) => {
-    const now = Date.now();
+    const now = clock();
     const key = req.ip ?? 'unknown';
     const recent = (hits.get(key) ?? []).filter((t) => now - t < windowMs);
     recent.push(now);
