@@ -1,6 +1,7 @@
 import { api, ApiError } from '../common/api.js';
 import { $, decorate, logo, CATEGORY_LABEL, CONDITION_LABEL, HANDLING_LABEL, PREFERENCE_LABEL, STATUS_LABEL, esc, initTheme, themeButton, options, registerServiceWorker, showError, toast } from '../common/ui.js';
-import type { AdminApplicationDetailDto, AdminApplicationSummaryDto, AdminItemDto, AdminKpis, PublicConfig, ScheduleCalendarEventDto, StatusHistoryDto } from '../../shared/types.js';
+import { BRAND_NAME, DEFAULT_PUBLIC_NOTICE, TRANSITIONS } from '../../shared/types.js';
+import type { AdminApplicationDetailDto, AdminApplicationSummaryDto, AdminItemDto, AdminKpis, ItemStatus, PublicConfig, ScheduleCalendarEventDto, StatusHistoryDto } from '../../shared/types.js';
 
 const app = document.getElementById('app')!;
 let loggedIn = false;
@@ -8,11 +9,19 @@ const wire: { fn: (() => void) | null } = { fn: null };
 const resetWire = () => { wire.fn = null; }; // 함수 호출로 감싸 TS의 대입 후 타입 좁힘을 피한다 // 뷰가 등록하고 render()가 innerHTML 설정 뒤에 실행
 const filter = { status: '', handling: '', q: '', hideDemo: true, page: 1 };
 
-const nav = () => `<header class="gd-admin-top gd-admin-bar"><div class="gd-admin-bar-in">
+const TABS = [['dashboard', '접수 목록'], ['schedule', '일정'], ['settings', '설정']] as const;
+// 같은 목적지를 넓은 화면에서는 상단 링크로, 640px 이하에서는 하단 탭으로 보여 준다 (전환은 admin.css)
+const nav = () => {
+  const hash = location.hash.slice(1);
+  const cur = hash === 'schedule' || hash === 'settings' ? hash : 'dashboard'; // 상세 화면은 접수 목록에 속한다
+  const links = (cls: string) => TABS.map(([h, l]) => `<a class="${cls}" href="#${h}"${h === cur ? ' aria-current="page"' : ''}>${l}</a>`).join('');
+  return `<header class="gd-admin-top gd-admin-bar"><div class="gd-admin-bar-in">
   <img src="/assets/brand/logo.svg" alt="가구다방" width="85" height="32"><strong>파트너스 스튜디오</strong>
-  <span style="flex:1"></span><a class="btn ghost sm" href="#dashboard">접수 목록</a><a class="btn ghost sm" href="#schedule">일정</a><a class="btn ghost sm" href="#settings">설정</a>
+  <span style="flex:1"></span>${links('btn ghost sm gd-top-link')}
   <a class="btn ghost sm" href="/api/admin/export/csv?hideDemo=${filter.hideDemo ? 1 : 0}">CSV</a>
-  ${themeButton()}<button class="btn outline sm" id="logout">로그아웃</button></div></header>`;
+  ${themeButton()}<button class="btn outline sm" id="logout">로그아웃</button></div></header>
+  <nav class="gd-tabbar" aria-label="주요 메뉴">${links('')}</nav>`;
+};
 function loginView() {
   wire.fn = () => {
     const form = $<HTMLFormElement>('#loginForm')!;
@@ -74,33 +83,119 @@ async function dashboardView() {
 
 const itemForm = (it: AdminItemDto) => `<form class="card" data-item="${it.id}" data-version="${it.version}" style="padding:18px;margin-bottom:14px" novalidate>
   <h3 class="card-title">${esc(it.itemName)} <span class="muted small">${esc(CATEGORY_LABEL[it.category])} · 고객 희망 ${esc(PREFERENCE_LABEL[it.customerPreference])} · 상태 ${esc(CONDITION_LABEL[it.conditionGrade])}</span></h3>
-  <div class="row" style="gap:6px;margin-bottom:10px">${it.photos.map((p) => `<a href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.url)}" alt="${esc(it.itemName)} ${p.photoTag === 'DETAIL' ? '디테일' : '전체'}" width="96" height="96" style="object-fit:cover;border-radius:8px"></a>`).join('')}</div>
+  <div class="row" style="gap:6px;margin-bottom:10px">${it.photos.map((p) => `<a class="gd-thumb" data-photo href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.url)}" alt="${esc(it.itemName)} ${p.photoTag === 'DETAIL' ? '디테일' : '전체'}" width="96" height="96" style="object-fit:cover;border-radius:8px"></a>`).join('')}</div>
   <div class="grid2">
     <div class="field"><label>처리 구분</label><select name="handlingType">${options(HANDLING_LABEL, it.handlingType)}</select></div>
-    <div class="field"><label>상태</label><select name="status">${options(STATUS_LABEL, it.status)}</select></div>
+    <div class="field"><label>상태</label><select name="status">${options(Object.fromEntries([it.status, ...TRANSITIONS[it.status]].map((s) => [s, STATUS_LABEL[s]])), it.status)}</select></div>
     <div class="field"><label>판매 마감일</label><input name="saleDeadline" type="date" value="${esc(it.saleDeadline)}"></div>
     <div class="field"><label>확정 반출 일정 (예: 2026-12-15 10:00)</label><input name="pickupSchedule" value="${esc(it.pickupSchedule)}"></div>
   </div>
   <div class="field"><label>고객 공개 안내문</label><input name="publicNotice" value="${esc(it.publicNotice)}" maxlength="500"></div>
   <div class="field"><label>내부 메모 (고객 비공개)</label><input name="adminItemMemo" value="${esc(it.adminItemMemo)}" maxlength="1000"></div>
-  <button class="btn primary sm">변경사항 저장</button></form>`;
+  <div class="gd-confirm" role="group" aria-label="상태 변경 확인" hidden></div>
+  <button class="btn primary sm" data-save>변경사항 저장</button>
+  <details class="gd-sms"><summary>문자 문구</summary>
+    <p class="muted small">저장된 내용으로 문구를 채웁니다. 문자는 발송되지 않으니 복사해서 직접 보내세요.</p>
+    <div class="field"><label>상황</label><select data-sms-kind>${options(SMS_LABEL, it.status)}</select></div>
+    <div class="field"><label>문구</label><textarea data-sms-text rows="5"></textarea></div>
+    <button type="button" class="btn outline sm" data-sms-copy>복사</button></details></form>`;
+
+// 상황은 품목 상태와 하나씩 대응한다. 비어 있는 값은 지어내지 않고 대괄호로 남겨 운영자가 채우게 한다.
+const SMS_LABEL: Record<ItemStatus, string> = { PENDING: '접수 확인', IN_PROGRESS: '판매 진행', SCHEDULED: '반출 일정 확정', COMPLETED: '처리 완료', CANCELED: '취소' };
+function smsText(a: AdminApplicationDetailDto, it: AdminItemDto, kind: ItemStatus) {
+  const body: Record<ItemStatus, string> = {
+    PENDING: '신청이 접수되었습니다. 담당자가 사진과 일정을 확인한 뒤 안내드리겠습니다.',
+    IN_PROGRESS: `판매를 진행합니다. 판매 마감일: ${it.saleDeadline || '[판매 마감일]'}. 진행 상황은 접수 조회에서 확인하실 수 있습니다.`,
+    SCHEDULED: `반출 일정이 확정되었습니다. 일정: ${it.pickupSchedule || '[반출 일정]'}`,
+    COMPLETED: '반출과 처리가 모두 끝났습니다. 이용해 주셔서 감사합니다.',
+    CANCELED: '신청이 취소되었습니다. 자세한 내용은 접수 조회에서 확인하실 수 있습니다.',
+  };
+  return `[${BRAND_NAME}] ${a.applicantName}님, 접수번호 ${a.requestCode} '${it.itemName}' ${body[kind]}`;
+}
+
+async function copyText(ta: HTMLTextAreaElement) {
+  try { await navigator.clipboard.writeText(ta.value); }
+  catch { ta.select(); if (!document.execCommand('copy')) { toast('복사하지 못했습니다. 문구를 직접 선택해 복사해 주세요.', 'bad'); return; } } // HTTP 접속이나 권한 거부 환경
+  toast('문구를 복사했습니다.', 'ok');
+}
 
 async function detailView(id: number) {
   const d = await api.get<{ application: AdminApplicationDetailDto; history: StatusHistoryDto[] }>(`/api/admin/applications/${id}`);
   const a = d.application;
   wire.fn = () => {
-    document.querySelectorAll<HTMLFormElement>('form[data-item]').forEach((f) => f.addEventListener('submit', async (ev) => {
-      ev.preventDefault();
+    document.querySelectorAll<HTMLFormElement>('form[data-item]').forEach((f) => {
+      const it = a.items.find((i) => i.id === Number(f.dataset.item))!;
       const v = (n: string) => (f.elements.namedItem(n) as HTMLInputElement).value;
-      try {
-        await api.patch(`/api/admin/items/${f.dataset.item}`, {
-          handlingType: v('handlingType'), status: v('status'), saleDeadline: v('saleDeadline'), pickupSchedule: v('pickupSchedule').trim(),
-          publicNotice: v('publicNotice').trim(), adminItemMemo: v('adminItemMemo').trim(), version: Number(f.dataset.version),
-        });
-        toast('저장되었습니다.', 'ok');
-      } catch (e) { showError(e, f); }
-      render(); // 성공·VERSION_CONFLICT 모두 최신 상태로 다시 불러온다
+      const box = $('.gd-confirm', f)!;
+      const save = $('[data-save]', f)!;
+      const closeConfirm = () => { box.hidden = true; save.hidden = false; };
+      // 확인 문구를 본 뒤 값을 바꾸면 문구가 틀려지므로 확인 단계를 닫는다 (문자 문구 칸은 name이 없어 제외)
+      f.addEventListener('input', (ev) => { if ((ev.target as HTMLInputElement).name) closeConfirm(); });
+      f.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const next = v('status') as ItemStatus;
+        const pickup = v('pickupSchedule').trim();
+        // 안내문 칸에는 현재 상태의 기본 문구가 채워져 온다. 손대지 않았으면 비워 보내야 새 상태의 기본 문구가 나가고, 취소 사유 검사도 동작한다.
+        const notice = v('publicNotice').trim() === DEFAULT_PUBLIC_NOTICE[it.status] ? '' : v('publicNotice').trim();
+        if (next !== it.status && box.hidden) {
+          // 서버와 같은 조건을 먼저 확인해, 확정을 누른 뒤에야 거절되는 일을 막는다
+          if (next === 'SCHEDULED' && !pickup) { showError(new ApiError(422, 'VALIDATION_ERROR', '반출예정 상태로 변경하려면 확정 반출 일정을 입력해야 합니다.', { pickupSchedule: '확정 반출 일정이 필요합니다.' }), f); return; }
+          if (next === 'CANCELED' && !notice) { showError(new ApiError(422, 'VALIDATION_ERROR', '취소·반려 사유를 고객 안내문에 입력해야 합니다.', { publicNotice: '사유가 필요합니다.' }), f); return; }
+          const shown = [STATUS_LABEL[next], v('saleDeadline') && `판매 마감 ${v('saleDeadline')}`, pickup && `반출 ${pickup}`].filter(Boolean).join(' · ');
+          box.innerHTML = `<p>상태를 <b>${STATUS_LABEL[it.status]}</b>에서 <b>${STATUS_LABEL[next]}</b> 상태로 바꿉니다.${TRANSITIONS[next].length ? '' : ' 바꾼 뒤에는 다른 상태로 되돌릴 수 없습니다.'}</p>
+            <p class="small">고객 조회 화면에 보이는 내용: ${esc(shown)}<br>${esc(notice || DEFAULT_PUBLIC_NOTICE[next])}</p>
+            <div class="row"><button class="btn primary sm">변경 확정</button><button type="button" class="btn outline sm" data-back>돌아가기</button></div>`;
+          $('[data-back]', box)!.addEventListener('click', () => { closeConfirm(); save.focus(); });
+          f.querySelectorAll('.err-msg').forEach((e) => e.remove()); // 앞선 시도에서 남은 오류 표시를 지운다
+          f.querySelectorAll('[aria-invalid]').forEach((e) => e.removeAttribute('aria-invalid'));
+          box.hidden = false;
+          save.hidden = true;
+          $('button', box)!.focus();
+          return;
+        }
+        try {
+          await api.patch(`/api/admin/items/${f.dataset.item}`, {
+            handlingType: v('handlingType'), status: next, saleDeadline: v('saleDeadline'), pickupSchedule: pickup,
+            publicNotice: notice, adminItemMemo: v('adminItemMemo').trim(), version: Number(f.dataset.version),
+          });
+          toast('저장되었습니다.', 'ok');
+        } catch (e) { showError(e, f); }
+        render(); // 성공·VERSION_CONFLICT 모두 최신 상태로 다시 불러온다
+      });
+
+      const kind = $<HTMLSelectElement>('[data-sms-kind]', f)!;
+      const text = $<HTMLTextAreaElement>('[data-sms-text]', f)!;
+      const fill = () => { text.value = smsText(a, it, kind.value as ItemStatus); };
+      kind.addEventListener('change', fill);
+      fill();
+      $('[data-sms-copy]', f)!.addEventListener('click', () => void copyText(text));
+    });
+
+    const dlg = $<HTMLDialogElement>('#photoDlg')!;
+    const big = $<HTMLImageElement>('img', dlg)!;
+    let group: HTMLAnchorElement[] = [], at = 0, opener: HTMLElement | null = null;
+    const show = (i: number) => {
+      at = (i + group.length) % group.length;
+      big.src = group[at]!.href;
+      big.alt = group[at]!.querySelector('img')!.alt;
+      $('#photoCap', dlg)!.textContent = `${big.alt} · ${at + 1} / ${group.length}`;
+    };
+    document.querySelectorAll<HTMLAnchorElement>('a[data-photo]').forEach((link) => link.addEventListener('click', (ev) => {
+      if (ev.ctrlKey || ev.metaKey || ev.shiftKey) return; // 새 탭으로 열려는 클릭은 그대로 둔다
+      ev.preventDefault();
+      opener = link;
+      group = [...link.parentElement!.querySelectorAll<HTMLAnchorElement>('a[data-photo]')];
+      dlg.querySelectorAll<HTMLElement>('[data-step]').forEach((b) => { b.hidden = group.length < 2; });
+      show(group.indexOf(link));
+      dlg.showModal();
     }));
+    dlg.addEventListener('click', (ev) => {
+      const t = ev.target as HTMLElement;
+      if (t === dlg || t.closest('[data-close]')) dlg.close(); // 대화상자 바깥(배경)을 눌러도 닫는다
+      else if (t.closest<HTMLElement>('[data-step]')) show(at + Number(t.closest<HTMLElement>('[data-step]')!.dataset.step));
+    });
+    dlg.addEventListener('keydown', (ev) => { if (group.length > 1 && (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight')) show(at + (ev.key === 'ArrowLeft' ? -1 : 1)); });
+    dlg.addEventListener('close', () => opener?.focus()); // Safari는 링크에 포커스를 주지 않아 직접 돌려준다
     const m = $<HTMLFormElement>('#memoForm')!;
     m.addEventListener('submit', async (ev) => {
       ev.preventDefault();
@@ -119,6 +214,11 @@ async function detailView(id: number) {
     ${a.items.map(itemForm).join('')}
     <section class="card" style="padding:18px"><h2 class="card-title">변경 이력</h2>
       ${d.history.map((h) => `<div class="small" style="padding:6px 0;border-top:1px solid var(--border)">${esc(h.createdAt)} · ${esc(h.actorName)} · ${esc(h.actionType)} ${esc(h.note)}</div>`).join('')}</section>
+    <dialog id="photoDlg" class="gd-lightbox" aria-label="사진 크게 보기"><div class="gd-lightbox-in">
+      <img alt="">
+      <div class="row"><button type="button" class="btn outline" data-step="-1">이전</button><button type="button" class="btn outline" data-step="1">다음</button>
+        <span id="photoCap" class="small" aria-live="polite" style="flex:1"></span><button type="button" class="btn primary" data-close autofocus>닫기</button></div>
+    </div></dialog>
   </div></main>`;
 }
 

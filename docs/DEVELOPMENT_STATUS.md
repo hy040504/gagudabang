@@ -15,7 +15,7 @@
 | `TASK-01` | `PCB (ICT 프로젝트)\demo.html` 동일 양식의 환경별 뷰어 내장 단일 파일 인터랙티브 프로토타입 데모 UI 구현 (`C-01~C-08`, `A-01~A-04s` 전 화면 + 실시간 양방향 연동) | Grok 4.7 → Gemini 4 Neon + Claude 통합검증 | 완료 | **완료** | `demo.html`, `docs/assets/brand/icon.svg` |
 | `TASK-01-R1` | 앱 브랜드명 **「가구다방 (`GaguDabang`)」** 리브랜딩, 전용 심볼·가로형 로고 신규 제작 및 `PCB` 공구형 스타일 탈피 에디토리얼 리빙 디자인 전면 개편 | Grok 4.7 → **Gemini 4 Neon** + Claude 통합검증 | 완료 | **완료** | `demo.html`, `docs/assets/brand/icon.svg`, `docs/assets/brand/logo-horizontal.svg` |
 | `TASK-02` | 실서버 백엔드(`Express + TypeScript + node:sqlite`) DB 스키마·인증·매직바이트/EXIF 제거·REST API 18종 구현 | Grok 4.7 (`grok-4.7-build-fast`) | 완료 | **완료** | `package.json`, `tsconfig*.json`, `src/shared/*`, `src/server/*` |
-| `TASK-03` | 실서버 무번들러 프론트엔드(`순수 HTML/CSS/Vanilla TS`) 고객 포털·관리자 콘솔 및 PWA/Electron 래퍼 연동 | Grok 4.7 (`grok-4.7-build-fast`) | 부분 완료 | **진행중** | `public/*`, `src/client/*`, `desktop/main.cjs` |
+| `TASK-03` | 실서버 무번들러 프론트엔드(`순수 HTML/CSS/Vanilla TS`) 고객 포털·관리자 콘솔 및 PWA/Electron 래퍼 연동 | Grok 4.7 (`grok-4.7-build-fast`) | 화면 기능 완료, 기기 확인 남음 | **부분 완료** | `public/*`, `src/client/*`, `desktop/main.cjs` |
 | `TASK-04` | 통합 자동화 테스트(`node:test`) 및 브라우저 E2E·접근성 최종 검수 | Grok 4.7 + Claude 검증 | 자동화 테스트 완료 | **부분 완료** | `tests/*.test.ts` |
 | `PROTO-01` | `demo.html`을 고객 웹과 관리자 웹으로 나눈 정적 프로토타입 (6단계, 단계마다 확인) | Claude (hallmark) | 6단계와 추가 결정 3건, 사진 교체까지 완료 | **완료** | `prototype/*`, `docs/프로토타입_분리_기획안.md` |
 | `BRAND-02` | 새 글자 로고 적용: 원본(남색 글자)의 바탕과 글자 색을 뒤집어 남색 바탕에 흰 글자로, 색은 화면의 남색(`#14284b`)과 흰색에 맞춤 | Claude | 완료 | **완료** | `public/assets/brand/{logo,icon}.svg`, `prototype/assets/{logo,icon}.svg`, `docs/assets/brand/icon.svg` |
@@ -32,10 +32,10 @@
 ### TASK-03 프론트엔드 — 부분 완료
 - 완료: 고객 홈(히어로+이사일 기준 일정, 가구 종류, 처리 방식, 자주 묻는 질문, 마무리 안내)·신청·완료·조회/취소·로그인·가입·마이페이지, 이용약관·개인정보 처리방침(초안, `[TBD]` 항목과 법률 검토 남음), 관리자 로그인·대시보드·상세·캘린더·설정, 테마 전환 버튼(FN-02), PWA(매니페스트·서비스 워커, Chrome 설치 가능 조건 통과), Electron 래퍼(`desktop/main.cjs`).
 - 디자인 기준: 남색·흰색 팔레트(`public/styles/tokens.css` 1697행 이후 블록), 글꼴은 Pretendard 하나로 통일(자체 호스팅 `public/assets/fonts/`).
-- 로고: 글자 로고 그림 `logo.svg`(남색 바탕, 흰 글자)를 `ui.ts`의 `logo()`와 관리자 `main.ts`가 쓴다. 정사각 `icon.svg`는 탭 아이콘과 PWA 아이콘이다. 로고에 이름이 들어 있어 옆에 쓰던 "가구다방" 글자는 뺐다. 서비스 워커 캐시는 `gagudabang-shell-v6`.
+- 로고: 글자 로고 그림 `logo.svg`(남색 바탕, 흰 글자)를 `ui.ts`의 `logo()`와 관리자 `main.ts`가 쓴다. 정사각 `icon.svg`는 탭 아이콘과 PWA 아이콘이다. 로고에 이름이 들어 있어 옆에 쓰던 "가구다방" 글자는 뺐다. 
 - 홈 시안은 Figma 「가구다방 프론트 진단」 파일에 있고(원본·개선안 프레임), 승인된 7개 항목을 코드에 반영함. 홈 문구는 실제 동작 기준이므로 검증 규칙(품목 1~20개, 취소 조건, 이사일 이전 제한)을 바꾸면 `src/client/customer/main.ts`의 `home()`도 같이 고친다.
 - 접수 폼: 품목별 오류 표시와 첫 오류 칸 포커스, 가구 삭제, 사진 1~6장 필수(서버 검증)·미리 보기, 주소 검색(카카오 우편번호 서비스, 실패 시 직접 입력), 라벨-입력 연결(공용 `decorate()`).
-- 미완료: 관리자 모바일 하단 4탭, 관리자 SMS 템플릿·전이 모달·사진 라이트박스.
+- 관리자 추가분(2026-11-27): 640px 이하에서 하단 탭 3개(접수 목록, 일정, 설정. 목적지가 세 개라 네 개가 아니다), 품목별 문자 문구 5종과 복사, 상태 변경 전 확인 줄(바꾸기 전·후 상태와 고객에게 보이는 내용), 사진 크게 보기(이전·다음, Esc). 서비스 워커 캐시는 `gagudabang-shell-v7`.
 - 미검증: PWA 실제 기기 설치, Electron 설치형 패키징.
 
 ### TASK-04 테스트 — 부분 완료
