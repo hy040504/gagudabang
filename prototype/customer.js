@@ -15,7 +15,7 @@
         <p>사진과 이사일만 남기면 판매와 수거를 맡습니다.</p>
         <div class="actions"><a class="btn btn-primary" href="#apply">가구 접수하기</a><a class="btn btn-secondary" href="#lookup">진행 조회</a></div>
       </div>
-      <div class="hero-photo"><img src="assets/photos/hero.jpg" alt="햇빛이 드는 거실에 회색 소파 두 개와 낮은 탁자가 놓인 모습" width="960" height="720" fetchpriority="high"></div>
+      <div class="hero-photo"><img src="assets/photos/hero.jpg" alt="밝은 거실에 회색 소파와 유리 탁자, 흰 수납장이 놓인 모습" width="960" height="720" fetchpriority="high"></div>
     </section>`;
   // 일정 줄: 왼쪽이 오늘, 오른쪽 끝의 큰 점이 이사일. 날짜는 모두 이사일에서 거꾸로 정해진다.
   const STEPS = [['접수', '오늘 사진과 이사일을 남깁니다.'], ['위탁 판매', '담당자가 정한 마감일까지 대신 팝니다.'], ['방문 수거', '이사 전 약속한 날 남은 가구를 가져갑니다.'], ['이사일', '모든 날짜를 이날에서 거꾸로 잡습니다.']];

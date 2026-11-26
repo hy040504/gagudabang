@@ -179,5 +179,6 @@ main { min-width: 0; }
 .crud > li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-sm) var(--space-md); align-items: start; padding: var(--space-md) 0; border-bottom: var(--rule-hair) solid var(--color-rule); }
 .crud > li > form { grid-column: 1 / -1; }
 .crud p { display: -webkit-box; margin-top: var(--space-2xs); overflow: hidden; color: var(--color-ink-2); font-size: var(--text-sm); -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; } /* 긴 내용은 세 줄까지만, 전체는 수정 화면에서 본다 */
+.crud time { white-space: nowrap; } /* 날짜가 "12월"과 "27일"로 갈라지지 않게 */
 .inline-form { display: grid; gap: var(--space-sm); padding: var(--space-md); border-radius: var(--radius-card); background: var(--color-paper-2); }
 @media (max-width: 40rem) { .crud > li { grid-template-columns: minmax(0, 1fr); } }
