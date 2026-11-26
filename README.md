@@ -321,7 +321,7 @@ npm run perf
 
 ### 분리형 정적 프로토타입 (`prototype/`, 6단계 완료)
 
-고객 웹([prototype/customer.html](prototype/customer.html))과 관리자 웹([prototype/admin.html](prototype/admin.html))을 6단계로 나눠 만들었습니다. 서버 없이 열리고 데이터는 브라우저(`localStorage`)에 있습니다. 관리자 웹에서 접수, 자주 묻는 질문, 공지사항을 추가·수정·삭제하면 고객 웹에 바로 반영됩니다. 공용 값은 `tokens.css`, 샘플 데이터는 `data.js` 한 파일에 있습니다. 주소 끝에 `?data=worst`, `?data=empty`, `?data=one`, `?data=huge`를 붙이면 깨짐 점검용 데이터로 열립니다. 자세한 내용은 [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md).
+고객 웹([prototype/customer.html](prototype/customer.html))과 관리자 웹([prototype/admin.html](prototype/admin.html))을 6단계로 나눠 만들었습니다. 서버 없이 열리고 데이터는 브라우저(`localStorage`)에 있습니다. 관리자 웹에서 접수, 자주 묻는 질문, 공지사항을 추가·수정·삭제하면 고객 웹에 바로 반영됩니다. 공용 값은 `tokens.css`, 샘플 데이터는 `data.js` 한 파일에 있습니다. 주소 끝에 `?data=worst`, `?data=empty`, `?data=one`, `?data=huge`를 붙이면 깨짐 점검용 데이터로 열립니다. 자세한 내용은 [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md). 가구 사진은 Pexels의 무료 이용 사진이고 출처는 고객 화면 푸터에 있습니다. 로고는 남색 바탕에 흰 글자인 글자 로고(`assets/logo.svg`)입니다.
 
 ---
 
@@ -378,6 +378,7 @@ gagudabang/
 ├── tests/                                 # node:test 자동화 테스트 스위트 (46개)
 │   └── {api.test.ts, security-media.test.ts, time.test.ts, helpers.ts}
 ├── scripts/perf.ts                        # 500건 / 5,000건 성능 벤치마크 스크립트
+├── scripts/split-demo.mjs                 # 로컬 demo.html을 고객 화면과 관리자 화면 파일로 나눔 (결과물 demo/는 저장소에 올리지 않음)
 └── docs/                                  # 기획서·벤치마킹·진행 현황 및 README 시각 자산
     ├── DEVELOPMENT_STATUS.md              # 단계별 개발 진행 현황 및 잔여 항목
     ├── 프로토타입_분리_기획안.md              # 고객/관리자 분리 프로토타입 기획안 및 기준안

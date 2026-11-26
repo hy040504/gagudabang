@@ -1,7 +1,7 @@
 /* Hallmark · shape: service front with task views · genre: modern-minimal · theme: custom · job: book · idea: "이사일 전에 가구를 대신 팔고 비운다" · vibe: "차분하고 믿음직한 남색과 흰색"
  * paper: oklch(97.6% 0.006 265) · accent: oklch(28.1% 0.07 261) · display: Pretendard · body: Pretendard · hero: 왼쪽 제목과 행동 오른쪽 거실 사진 · nav: 로고와 메뉴 네 개 좁은 화면은 하단 탭 · footer: 상호와 사진 출처 · imagery: photographs · signature: 이사일에서 거꾸로 잡는 일정 줄
  * axes: cool-paper/sans/navy · posture: split · contrast: pass · fold: pass · v2.0.0 */
-/* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V3 · weakest: E, 대체 사진이라 실제 가구 사진으로 바꿔야 한다 */
+/* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V3 · weakest: E, 사진이 서비스 고유의 것이 아니라 무료 이용 사진(Pexels)이다 */
 /* Hallmark · hero-review: not run, the page was built before the render tier was set up · finish-review: subagent · 7 findings · 5 resolved 2 partial · gap: the schedule line carries no dates because the service fixes no day offsets */
 /* Hallmark · second finish-review (stage 6 additions): subagent · 6 findings · 6 resolved */
 /* Hallmark · dismissed 58 · the window holds three notices and four questions that the admin page writes, and seven sample badges count as words */
