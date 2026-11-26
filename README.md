@@ -312,7 +312,7 @@ npm start
 # 서버 · 클라이언트 · 테스트 전체 strict 타입 검사
 npm run check
 
-# 자동화 테스트 (46개 통과: API 32 + 보안·미디어 6 + 시간 의존 8)
+# 자동화 테스트 (47개 통과: API 32 + 보안·미디어 6 + 시간 의존 9)
 npm test
 
 # 성능 벤치마크 (500건 · 5,000건 기준 p95 측정)
@@ -336,8 +336,8 @@ npm run perf
 | `DOC-01` | 국내 7개 플랫폼 벤치마킹, 서비스 종합 설계기획서·상세 기술 기획서 작성 | **완료** | `docs/*.md`, `docs/*.pdf`, `docs/assets/design/*.svg` |
 | `TASK-01` / `R1` | 「가구다방」 리브랜딩 및 인터랙티브 프로토타입 제작 | **완료** | `docs/assets/brand/*.svg` (내부 데모본 별도 보관) |
 | `TASK-02` | 실서버 백엔드(`Express + TypeScript + node:sqlite`) DB·인증·보안·REST API 18종 | **완료** | `src/shared/*`, `src/server/*` |
-| `TASK-03` | 실서버 무번들러 프론트엔드(고객 포털·관리자 콘솔)·PWA·Electron 연동 | **진행중 (부분 완료)** | `public/*`, `src/client/*`, `desktop/main.cjs` |
-| `TASK-04` | 자동화 테스트(`node:test` 46개)·성능 측정(`500`/`5,000`건) 및 품질 검수 | **부분 완료** | `tests/*.test.ts`, `scripts/perf.ts` |
+| `TASK-03` | 실서버 무번들러 프론트엔드(고객 포털·관리자 콘솔)·PWA·Electron 연동 | **부분 완료** (화면 기능 완료, 실제 기기 확인 남음) | `public/*`, `src/client/*`, `desktop/main.cjs` |
+| `TASK-04` | 자동화 테스트(`node:test` 47개)·접근성 자동 검사(axe-core)·성능 측정(`500`/`5,000`건) 및 품질 검수 | **부분 완료** | `tests/*.test.ts`, `scripts/perf.ts` |
 | **프로토타입 분리** | 고객 웹(`customer.html`)·관리자 웹(`admin.html`) 6단계 정적 프로토타입 분리 | **완료 (6단계 마무리 점검까지)** | `prototype/*`, [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md) |
 
 ### 확정 기술 스택
@@ -375,7 +375,7 @@ gagudabang/
 │   ├── customer.{html,css,js} / admin.{html,css,js} / tokens.css / base.css / ui.css / data.js / store.js
 │   └── assets/{logo.svg, icon.svg, fonts/, photos/}
 ├── desktop/main.cjs                       # Electron 운영자 데스크탑 래퍼
-├── tests/                                 # node:test 자동화 테스트 스위트 (46개)
+├── tests/                                 # node:test 자동화 테스트 스위트 (47개)
 │   └── {api.test.ts, security-media.test.ts, time.test.ts, helpers.ts}
 ├── scripts/perf.ts                        # 500건 / 5,000건 성능 벤치마크 스크립트
 ├── scripts/split-demo.mjs                 # 로컬 demo.html을 고객 화면과 관리자 화면 파일로 나눔 (결과물 demo/는 저장소에 올리지 않음)
