@@ -3,6 +3,7 @@
  * axes: cool-paper/sans/navy · posture: split · contrast: pass · fold: pass · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V3 · weakest: E, 대체 사진이라 실제 가구 사진으로 바꿔야 한다 */
 /* Hallmark · hero-review: not run, the page was built before the render tier was set up · finish-review: subagent · 7 findings · 5 resolved 2 partial · gap: the schedule line carries no dates because the service fixes no day offsets */
+/* Hallmark · second finish-review (stage 6 additions): subagent · 6 findings · 6 resolved */
 /* Hallmark · dismissed 58 · the window holds three notices and four questions that the admin page writes, and seven sample badges count as words */
 @import url("./tokens.css");
 @import url("./base.css");
@@ -74,15 +75,20 @@ main { min-height: 60vh; }
 .rows a { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-md); color: var(--color-ink); text-decoration: none; }
 .rows a:hover span { text-decoration: underline; }
 .rows time { color: var(--color-muted); font-size: var(--text-sm); white-space: nowrap; }
-.rows summary { font-weight: var(--weight-medium); cursor: pointer; }
+.rows summary { margin-left: 1.25em; font-weight: var(--weight-medium); list-style-position: outside; cursor: pointer; } /* 세모 표시는 글 밖에 두어 긴 질문의 둘째 줄이 첫 줄과 나란히 선다 */
+.fold > summary { margin-left: 0; }
 .rows details p { margin-top: var(--space-xs); color: var(--color-ink-2); }
 /* 접어 둔 나머지 질문: 펼치면 위의 질문들과 같은 모양으로 이어진다 */
-.fold > summary { color: var(--color-ink-2); }
+.fold > summary { width: fit-content; list-style: none; }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold[open] .when-closed, .fold:not([open]) .when-open { display: none; }
 .fold > details { padding-block: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); }
 .fold > details:first-of-type { margin-top: var(--space-md); }
 .fold > details:last-of-type { padding-bottom: 0; }
 .closing { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-md) var(--space-lg); margin-top: var(--section-gap-s); padding: var(--space-xl); border-radius: var(--radius-card); background: var(--color-accent); color: var(--color-accent-ink); }
 .closing h2 { font-size: var(--text-2xl); font-weight: var(--weight-bold); line-height: var(--leading-head); }
+/* 질문을 펼쳐 오른쪽이 길어져도 왼쪽 공지 목록이 화면에 남는다 */
+@media (min-width: 60.0625rem) { .two > div:first-child { position: sticky; top: calc(64px + var(--space-lg)); align-self: start; } }
 @media (max-width: 60rem) {
   .band { padding: var(--space-xl) var(--space-lg); }
   .kinds { grid-template-columns: repeat(3, minmax(0, 1fr)); }

@@ -31,9 +31,9 @@ main { min-width: 0; }
 @media (min-width: 40.0625rem) and (max-width: 60rem) {
   .shell { grid-template-columns: 80px minmax(0, 1fr); }
   .side { align-items: stretch; padding-inline: var(--space-2xs); }
-  .brand { justify-content: center; }
+  .brand { justify-content: center; padding-inline: 0; }
   .brand-logo { display: none; }
-  .brand-icon { display: block; }
+  .brand-icon { display: block; flex: none; width: 56px; height: 56px; }
   .brand span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .nav a, .side-link { flex-direction: column; justify-content: center; gap: var(--space-3xs); min-height: 56px; padding: var(--space-2xs) 0; font-size: var(--text-xs); }
   .side-foot { flex-direction: column; }
@@ -178,6 +178,6 @@ main { min-width: 0; }
 .crud { margin: 0; padding: 0; list-style: none; }
 .crud > li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-sm) var(--space-md); align-items: start; padding: var(--space-md) 0; border-bottom: var(--rule-hair) solid var(--color-rule); }
 .crud > li > form { grid-column: 1 / -1; }
-.crud p { margin-top: var(--space-2xs); color: var(--color-ink-2); font-size: var(--text-sm); }
+.crud p { display: -webkit-box; margin-top: var(--space-2xs); overflow: hidden; color: var(--color-ink-2); font-size: var(--text-sm); -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; } /* 긴 내용은 세 줄까지만, 전체는 수정 화면에서 본다 */
 .inline-form { display: grid; gap: var(--space-sm); padding: var(--space-md); border-radius: var(--radius-card); background: var(--color-paper-2); }
 @media (max-width: 40rem) { .crud > li { grid-template-columns: minmax(0, 1fr); } }

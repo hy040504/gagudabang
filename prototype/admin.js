@@ -180,7 +180,7 @@
     const cell = (n) => {
       if (!n) return '<td></td>';
       const iso = `${m}-${String(n).padStart(2, '0')}`, list = evs.filter((e) => e.date === iso);
-      return `<td><a href="#schedule?m=${m}&d=${iso}"${iso === d ? ' aria-current="date"' : ''}${iso === t ? ' class="is-today"' : ''} aria-label="${mo}월 ${n}일${iso === t ? ' 오늘' : ''}, 일정 ${list.length}건"><span class="day">${n}</span>${Object.keys(TYPE).map((k) => { const c = list.filter((e) => e.type === k).length; return c ? mark(k, c) : ''; }).join('')}</a></td>`;
+      return `<td><a href="#schedule?m=${m}&d=${iso}"${iso === d ? ' aria-current="date"' : ''}${iso === t ? ' class="is-today"' : ''}<span class="day">${n}</span><span class="visually-hidden">일${iso === t ? ' 오늘' : ''}, 일정 ${list.length}건 </span>${Object.keys(TYPE).map((k) => { const c = list.filter((e) => e.type === k).length; return c ? mark(k, c) : ''; }).join('')}</a></td>`;
     };
     const cells = [...Array(lead).fill(0), ...Array.from({ length: days }, (_, i) => i + 1)];
     while (cells.length % 7) cells.push(0);
@@ -210,10 +210,10 @@
     const shown = Math.max(20, Number(r.q.get('n')) || 20); // 20건씩 보인다 (주소의 n)
     const add = `<button type="button" class="btn btn-primary" data-edit="new">${k.add}</button>`;
     const row = (x) => (ui.edit === x.id ? `<li>${contentForm(kind, x)}</li>` : `<li>
-        <div><b>${esc(x.q ?? x.title)}</b>${GD.sampleTag(x)}${x.date ? ` <time class="sub" datetime="${esc(x.date)}">${GD.fmtDate(x.date)}${x.date > GD.today() ? ' 게시 예정 (그날부터 고객 화면에 보입니다)' : ''}</time>` : ''}<p class="multiline">${esc(x.a ?? x.body)}</p></div>
+        <div><b>${esc(x.q ?? x.title)}</b>${GD.sampleTag(x)}${x.date ? ` <time class="sub" datetime="${esc(x.date)}">${GD.fmtDate(x.date)}</time>${x.date > GD.today() ? ' <span class="badge is-pending">게시 예정</span>' : ''}` : ''}<p class="multiline">${esc(x.a ?? x.body)}</p></div>
         <div class="row-actions"><button type="button" class="btn btn-secondary" data-edit="${x.id}">수정</button>${del(`${kind}:${x.id}`, '삭제', k.ask)}</div></li>`);
     return `<div class="page">
-      ${pageHead('안내 관리', ui.edit ? '' : add, '저장하면 고객 화면에 바로 반영됩니다.')}
+      ${pageHead('안내 관리', ui.edit ? '' : add, '저장하면 고객 화면에 반영됩니다. 게시일이 미래인 공지는 그날부터 보입니다.')}
       <nav class="tabs" aria-label="안내 종류">${Object.entries(KIND).map(([id, v]) => `<a href="#content/${id}"${id === kind ? ' aria-current="page"' : ''}>${v.label} ${num(db[v.list].length)}</a>`).join('')}</nav>
       ${ui.edit === 'new' ? contentForm(kind, null) : ''}
       ${list.length ? `<ul class="crud">${list.slice(0, shown).map(row).join('')}</ul>${list.length > shown ? `<p class="more"><a class="btn btn-secondary" href="#content/${kind}?n=${shown + 20}">${num(Math.min(20, list.length - shown))}건 더 보기</a><span class="sub">${num(list.length)}건 가운데 ${num(shown)}건을 보고 있습니다.</span></p>` : ''}` : ui.edit === 'new' ? '' : empty(k.none)}
@@ -382,9 +382,10 @@
     if (moved && dirty && !confirm(LEAVE)) { restoring = true; location.replace(e.oldURL); return; }
     lastPath = path;
     if (moved) ui.edit = null;
+    const rowsBefore = view.querySelectorAll('.table tbody tr, .crud > li').length;
     render();
     // 화면이 바뀌면 맨 위로, 같은 화면에서 조건만 바뀌면(달력 날짜 선택) 자리를 지킨다
-    if (moved) { window.scrollTo(0, 0); view.focus({ preventScroll: true }); } else view.querySelector('[aria-current="date"]')?.focus({ preventScroll: true });
+    if (moved) { window.scrollTo(0, 0); view.focus({ preventScroll: true }); } else { const rows = view.querySelectorAll('.table tbody tr, .crud > li'); (rows.length > rowsBefore ? rows[rowsBefore].querySelector('a, button') : view.querySelector('[aria-current="date"]'))?.focus({ preventScroll: true }); } // "더 보기" 뒤에는 새로 나온 첫 줄로
   });
   GD.on((next, remote) => {
     db = next;

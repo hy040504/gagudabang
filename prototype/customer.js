@@ -41,7 +41,7 @@
       </div>
       <div>
         <div class="sec-head"><h2>자주 묻는 질문</h2></div>
-        ${db.faqs.length ? `<div class="rows">${db.faqs.slice(0, FAQ_MAX).map(faqRow).join('')}${db.faqs.length > FAQ_MAX ? `<details class="fold"><summary>질문 ${db.faqs.length - FAQ_MAX}개 더 보기</summary>${db.faqs.slice(FAQ_MAX).map(faqRow).join('')}</details>` : ''}</div>` : '<p class="empty">등록된 질문이 없습니다.</p>'}
+        ${db.faqs.length ? `<div class="rows">${db.faqs.slice(0, FAQ_MAX).map(faqRow).join('')}${db.faqs.length > FAQ_MAX ? `<details class="fold"><summary class="btn btn-secondary btn-sm"><span class="when-closed">질문 ${db.faqs.length - FAQ_MAX}개 더 보기</span><span class="when-open">접기</span></summary>${db.faqs.slice(FAQ_MAX).map(faqRow).join('')}</details>` : ''}</div>` : '<p class="empty">등록된 질문이 없습니다.</p>'}
       </div>
     </section>`;
   const closing = () => `<section class="closing"><h2>이사 날짜가 정해졌다면 지금 접수해 두세요</h2><a class="btn btn-secondary" href="#apply">가구 접수하기</a></section>`;
@@ -238,8 +238,10 @@
     const moved = r !== lastRoute;
     lastRoute = r;
     if (r !== 'apply') state.done = null;
+    const shown = view.querySelectorAll('.notice-list summary').length;
     render();
-    if (moved) { window.scrollTo(0, 0); view.focus({ preventScroll: true }); } // 같은 화면에서 "더 보기"를 누르면 보던 자리를 지킨다
+    // 화면이 바뀌면 맨 위로. 같은 화면에서 "더 보기"를 누르면 보던 자리를 지키고 초점은 새로 나온 첫 줄로 옮긴다.
+    if (moved) { window.scrollTo(0, 0); view.focus({ preventScroll: true }); } else view.querySelectorAll('.notice-list summary')[shown]?.focus({ preventScroll: true });
   });
   window.addEventListener('beforeunload', (e) => { if (typing()) e.preventDefault(); });
   GD.on((next, remote) => { db = next; if (remote && dirty) return; render(); });
