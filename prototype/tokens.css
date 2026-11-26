@@ -1,0 +1,120 @@
+/* 가구다방 프로토타입 공용 값 (3단계 기준안, 확인 전 초안)
+ * 고객 웹(customer.html)과 관리자 웹(admin.html)이 함께 쓴다. 색과 글꼴은 여기에서만 정하고, 화면 CSS에는 값을 직접 쓰지 않는다.
+ * 기준: 글꼴 1종, 모서리 3단계, 버튼 2종(주 1 + 보조 1), 색은 남색과 흰색 바탕에 상태색 5쌍.
+ * 화면 구간: 스마트폰 390px, 태블릿 768px, 데스크톱 1440px. 배치는 40rem(640px)과 60rem(960px)에서 바뀐다. */
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('assets/fonts/PretendardVariable.woff2') format('woff2-variations'), url('assets/fonts/PretendardVariable.woff2') format('woff2');
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* 글꼴: Pretendard 하나. 제목과 본문은 굵기와 크기로만 구분한다. */
+  --font-body: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  --font-display: var(--font-body);
+  --font-outlier: var(--font-body);
+  --weight-regular: 400;
+  --weight-medium: 600;
+  --weight-bold: 700;
+  --leading-head: 1.25;
+  --leading-body: 1.6;
+  --tracking-display: -0.02em;
+
+  /* 글자 크기: 본문 16px이 바닥, 가장 작은 글자는 13px */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-lead: clamp(1.0625rem, 0.3vw + 1rem, 1.1875rem);
+  --text-title: clamp(1.125rem, 0.5vw + 1rem, 1.375rem);
+  --text-section: clamp(1.5rem, 1.4vw + 1.1rem, 2.25rem);
+  --text-display: clamp(2rem, 3.2vw + 1rem, 3.5rem);
+
+  /* 색: 바탕 3, 글자 3, 선 2, 주색 1 (괄호 안은 같은 색의 16진수) */
+  --color-paper: oklch(97.6% 0.006 265);        /* #f5f7fb 화면 바탕 */
+  --color-paper-2: oklch(100% 0 0);             /* #ffffff 카드·입력칸 면 */
+  --color-paper-3: oklch(94.5% 0.012 260);      /* #e8edf5 눌림·선택된 면 */
+  --color-ink: oklch(22.5% 0.05 263);           /* #0f1b33 제목·본문 */
+  --color-ink-2: oklch(38% 0.052 264);          /* #34425e 설명 글 */
+  --color-muted: oklch(52.7% 0.044 264);        /* #5e6b85 보조 정보 (바탕 대비 5.0) */
+  --color-rule: oklch(91.1% 0.018 261);         /* #dbe2ee 구분선 */
+  --color-control-rule: oklch(63% 0.04 262);    /* 입력칸·보조 버튼 테두리 (흰 면 대비 3 이상) */
+  --color-accent: oklch(28.1% 0.07 261);        /* #14284b 주색 남색 */
+  --color-accent-hover: oklch(22.6% 0.057 261); /* #0c1b36 */
+  --color-accent-ink: oklch(100% 0 0);          /* 주색 위 글자 */
+  --color-focus: oklch(53.2% 0.127 260);        /* #3e6bb5 포커스 테두리·링크 */
+  --color-error: oklch(52.6% 0.158 28);         /* #b43b32 */
+  --color-success: oklch(46.4% 0.076 160);      /* #2e664a */
+
+  /* 상태색: 접수 상태 5가지에만 쓴다. 면과 글자 한 쌍씩, 대비 6 이상 */
+  --status-pending-bg: oklch(94.5% 0.01 262);   --status-pending-ink: oklch(43.5% 0.046 264);
+  --status-progress-bg: oklch(94.1% 0.022 261); --status-progress-ink: oklch(42.3% 0.131 260);
+  --status-scheduled-bg: oklch(95.7% 0.028 79); --status-scheduled-ink: oklch(48% 0.108 57);
+  --status-done-bg: oklch(94.4% 0.02 160);      --status-done-ink: oklch(42% 0.082 156);
+  --status-canceled-bg: oklch(93.9% 0.02 25);   --status-canceled-ink: oklch(46.6% 0.144 28);
+
+  /* 모서리 3단계: 입력하는 것, 담는 것, 누르는 것 */
+  --radius-control: 12px; /* 입력칸, 썸네일 */
+  --radius-card: 16px;    /* 카드, 패널, 시트 */
+  --radius-pill: 999px;   /* 버튼(알약형), 상태 표시, 필터 칩 */
+  --rule-hair: 1px;
+
+  /* 버튼 2종이 쓰는 값. 주 버튼: 주색 면 + 흰 글자. 보조 버튼: 흰 면 + 테두리 + 본문색 글자. */
+  --control-h: 48px;    /* 손가락으로 누르는 최소 높이를 넘는다 */
+  --control-h-sm: 40px; /* 표 안, 관리자 화면의 좁은 자리 */
+  --tabbar-h: 56px;     /* 스마트폰 하단 탭 */
+
+  /* 간격: 4px 배수 */
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px;
+  --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
+
+  /* 틀: 본문 폭은 1280px에서 멈추고, 그보다 넓으면 좌우 여백만 늘어난다 */
+  --container: 1280px;
+  --gutter: 40px;       /* 960px 이하 24px, 640px 이하 16px */
+  --gap-columns: 32px;
+  --section-gap-s: 120px; --section-gap: 144px; --section-gap-l: 176px;
+
+  /* 그림자: 카드는 그림자 없이 면 색으로 구분하고, 떠 있는 것(알림, 시트)에만 쓴다 */
+  --shadow-card: none;
+  --shadow-float: 0 12px 32px oklch(22.5% 0.05 263 / 0.14), 0 2px 6px oklch(22.5% 0.05 263 / 0.08);
+
+  /* 움직임: 짧게, 끝에서 느려지게 */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
+
+  /* 쌓임 순서 */
+  --z-base: 1; --z-raised: 10; --z-dropdown: 100; --z-sticky: 200; --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
+}
+
+/* 다크 모드: 같은 이름의 값만 바꾼다. 주색은 어두운 바탕에서 밝은 남색이 된다. */
+:root { color-scheme: light; }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-paper: oklch(17% 0.03 264);
+  --color-paper-2: oklch(22% 0.035 264);
+  --color-paper-3: oklch(28% 0.04 264);
+  --color-ink: oklch(95% 0.01 262);
+  --color-ink-2: oklch(85% 0.02 262);
+  --color-muted: oklch(72% 0.035 262);
+  --color-rule: oklch(32% 0.04 264);
+  --color-control-rule: oklch(58% 0.045 262);
+  --color-accent: oklch(80% 0.095 262);
+  --color-accent-hover: oklch(86% 0.08 262);
+  --color-accent-ink: oklch(20% 0.04 264);
+  --color-focus: oklch(80% 0.095 262);
+  --color-error: oklch(76% 0.13 25);
+  --color-success: oklch(78% 0.11 158);
+  --status-pending-bg: oklch(30% 0.03 264);   --status-pending-ink: oklch(86% 0.02 262);
+  --status-progress-bg: oklch(31% 0.07 260);  --status-progress-ink: oklch(86% 0.07 258);
+  --status-scheduled-bg: oklch(32% 0.05 70);  --status-scheduled-ink: oklch(88% 0.09 80);
+  --status-done-bg: oklch(30% 0.05 158);      --status-done-ink: oklch(87% 0.09 158);
+  --status-canceled-bg: oklch(31% 0.06 25);   --status-canceled-ink: oklch(86% 0.08 25);
+  --shadow-float: 0 12px 32px oklch(0% 0 0 / 0.5), 0 2px 6px oklch(0% 0 0 / 0.3);
+}

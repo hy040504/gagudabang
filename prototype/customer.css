@@ -1,0 +1,48 @@
+/* Hallmark · shape: service front with task views · genre: modern-minimal · theme: custom · job: book · idea: "이사일 전에 가구를 대신 팔고 비운다" · vibe: "차분하고 믿음직한 남색과 흰색"
+ * paper: oklch(97.6% 0.006 265) · accent: oklch(28.1% 0.07 261) · display: Pretendard · body: Pretendard · hero: 왼쪽 제목과 행동 오른쪽 거실 사진 · nav: 로고와 메뉴 네 개 좁은 화면은 하단 탭 · footer: 상호와 사진 출처 · imagery: photographs · signature: 이사일에서 거꾸로 잡는 일정 줄
+ * axes: cool-paper/sans/navy · posture: split · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V3 · weakest: E, 대체 사진이라 실제 가구 사진으로 바꿔야 한다 */
+@import url("./tokens.css");
+@import url("./base.css");
+@import url("./ui.css");
+
+/* ---------- 틀: 상단 바, 하단 탭, 푸터 ---------- */
+body { word-break: keep-all; }
+.top { position: sticky; top: 0; z-index: var(--z-sticky-nav); border-bottom: var(--rule-hair) solid var(--color-rule); background: var(--color-paper); }
+.top-in { display: flex; align-items: center; gap: var(--space-md); min-height: 64px; }
+.brand { display: inline-flex; align-items: center; gap: var(--space-xs); color: var(--color-ink); font-size: var(--text-lg); font-weight: var(--weight-bold); letter-spacing: var(--tracking-display); text-decoration: none; }
+.top-nav { display: flex; gap: var(--space-2xs); margin-left: auto; }
+.top-nav a { padding: var(--space-xs) var(--space-sm); border-radius: var(--radius-pill); color: var(--color-ink-2); font-size: var(--text-sm); font-weight: var(--weight-medium); text-decoration: none; transition: background-color var(--dur-micro) var(--ease-out); }
+.top-nav a:hover { background: var(--color-paper-3); }
+.top-nav a[aria-current="page"] { background: var(--color-paper-3); color: var(--color-ink); }
+.tabbar { display: none; }
+main { min-height: 60vh; }
+.foot { margin-top: var(--section-gap-s); padding-block: var(--space-xl); border-top: var(--rule-hair) solid var(--color-rule); color: var(--color-muted); font-size: var(--text-sm); }
+.foot-in { display: grid; gap: var(--space-sm); }
+.foot strong { color: var(--color-ink); font-size: var(--text-md); }
+.foot a { color: var(--color-ink-2); }
+.foot summary { width: fit-content; cursor: pointer; }
+.foot ul { margin: var(--space-xs) 0 0; padding-left: var(--space-md); }
+@media (max-width: 40rem) {
+  body { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
+  .top-nav { display: none; }
+  .top-in .icon-btn { margin-left: auto; }
+  .tabbar { position: fixed; inset: auto 0 0 0; z-index: var(--z-sticky-nav); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); height: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); border-top: var(--rule-hair) solid var(--color-rule); background: var(--color-paper-2); }
+  .tabbar a { display: grid; place-items: center; align-content: center; gap: 2px; color: var(--color-muted); font-size: var(--text-xs); text-decoration: none; }
+  .tabbar a[aria-current="page"] { color: var(--color-accent); font-weight: var(--weight-bold); }
+}
+
+/* ---------- 홈: 첫 화면 ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2xl); align-items: center; padding-block: var(--space-2xl) var(--space-3xl); }
+.hero h1 { font-size: var(--text-display); font-weight: var(--weight-bold); line-height: var(--leading-head); letter-spacing: var(--tracking-display); }
+.hero h1 span { display: block; }
+.hero p { margin-top: var(--space-md); color: var(--color-ink-2); font-size: var(--text-lead); line-height: var(--leading-body); }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-top: var(--space-lg); }
+.hero-photo { aspect-ratio: 4 / 3; border-radius: var(--radius-card); overflow: hidden; background: var(--color-paper-3); }
+.hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 60rem) {
+  .hero { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); padding-block: var(--space-lg) var(--space-2xl); }
+  .hero-photo { aspect-ratio: 16 / 10; }
+}
+
+/* AREA:next */

@@ -1,0 +1,51 @@
+[
+    {
+        "file":  "hero.jpg",
+        "title":  "Living room in apartment of Condomínio do Edifício Zaher, Le Blond, Rio de Janeiro, Brazil.jpg",
+        "artist":  "Wilfredor",
+        "license":  "CC0",
+        "page":  "https://commons.wikimedia.org/wiki/File:Living_room_in_apartment_of_Condom%C3%ADnio_do_Edif%C3%ADcio_Zaher,_Le_Blond,_Rio_de_Janeiro,_Brazil.jpg"
+    },
+    {
+        "file":  "sofa.jpg",
+        "title":  "Berlin, Museum Europäischer Kulturen, GLAM on Tour im Museum Europäischer Kulturen (2018) NIK 5979.jpg",
+        "artist":  "Nightflyer",
+        "license":  "CC BY 4.0",
+        "page":  "https://commons.wikimedia.org/wiki/File:Berlin,_Museum_Europ%C3%A4ischer_Kulturen,_GLAM_on_Tour_im_Museum_Europ%C3%A4ischer_Kulturen_(2018)_NIK_5979.jpg"
+    },
+    {
+        "file":  "bed.jpg",
+        "title":  "Moss Lee Grange Bed \u0026 Breakfast - Deluxe Double En-Suite Bedroom 1.jpg",
+        "artist":  "Mossleegrange",
+        "license":  "CC BY-SA 4.0",
+        "page":  "https://commons.wikimedia.org/wiki/File:Moss_Lee_Grange_Bed_%26_Breakfast_-_Deluxe_Double_En-Suite_Bedroom_1.jpg"
+    },
+    {
+        "file":  "dining.jpg",
+        "title":  "Markedshallen (Dining table).jpg",
+        "artist":  "RhinoMind",
+        "license":  "CC BY-SA 4.0",
+        "page":  "https://commons.wikimedia.org/wiki/File:Markedshallen_(Dining_table).jpg"
+    },
+    {
+        "file":  "closet.jpg",
+        "title":  "EXPEDIT 5x2.jpg",
+        "artist":  "laurenbosak",
+        "license":  "CC BY-SA 2.0",
+        "page":  "https://commons.wikimedia.org/wiki/File:EXPEDIT_5x2.jpg"
+    },
+    {
+        "file":  "desk.jpg",
+        "title":  "Brown and beige, Computer desk, Rostov-on-Don, Russia.jpg",
+        "artist":  "Vyacheslav Argenberg",
+        "license":  "CC BY 4.0",
+        "page":  "https://commons.wikimedia.org/wiki/File:Brown_and_beige,_Computer_desk,_Rostov-on-Don,_Russia.jpg"
+    },
+    {
+        "file":  "etc.jpg",
+        "title":  "Bookcase-saam 1966.11.7.jpg",
+        "artist":  "AnonymousUnknown author",
+        "license":  "CC0",
+        "page":  "https://commons.wikimedia.org/wiki/File:Bookcase-saam_1966.11.7.jpg"
+    }
+]

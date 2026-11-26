@@ -1,0 +1,26 @@
+﻿# Build & runtime artifacts
+node_modules
+dist
+dist-test
+public/dist
+data
+
+# Secrets, local env & DB files
+.env
+.env.*
+*.pem
+*.key
+*.sqlite
+*.sqlite-*
+*.db
+.session-secret
+
+# Client/supplier PII, contract quotations & internal operational files
+docs/견적서_*
+docs/서비스_종합_설계기획서.pdf
+docs/assets/design/03_고객_랜딩과_모바일_신청폼_화면설계.svg
+docs/assets/design/04_로그인과_비회원_신청조회_화면설계.svg
+docs/assets/design/06_관리자_품목상세와_이력관리_화면설계.svg
+demo.html
+CLAUDE_KO.md
+CLAUDE_EN.md

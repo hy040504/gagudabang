@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none" role="img" aria-label="가구다방">
+  <rect width="64" height="64" rx="18" fill="#0F1F3D"/>
+  <rect x="1.25" y="1.25" width="61.5" height="61.5" rx="16.75" stroke="#1F3A6B" stroke-width="1.25"/>
+  <path d="M11.5 53V29.5A20.5 20.5 0 0 1 52.5 29.5V53H11.5Z" fill="#14284B" stroke="#1F3A6B" stroke-width="2.1"/>
+  <path d="M14 52V29.8A18 18 0 0 1 50 29.8V52" stroke="#8FB0EE" stroke-width="1.05" stroke-opacity="0.72" stroke-linecap="round"/>
+  <line x1="10.5" y1="53" x2="53.5" y2="53" stroke="#8FB0EE" stroke-width="1.2" stroke-opacity="0.65" stroke-linecap="round"/>
+  <ellipse cx="32" cy="51.4" rx="14" ry="1.7" fill="#081329" fill-opacity="0.5"/>
+  <circle cx="41.6" cy="20.6" r="4.8" fill="#A8C1F3" fill-opacity="0.2"/>
+  <circle cx="41.6" cy="20.6" r="2.9" fill="#A8C1F3"/>
+  <path d="M24.2 44.4L22.8 49.4M39.8 44.4L41.2 49.4" stroke="#3E6BB5" stroke-width="1.7" stroke-linecap="round"/>
+  <path d="M21.8 29.2L20.6 38.2M42.2 29.2L43.4 38.2" stroke="#3E6BB5" stroke-width="1.65" stroke-linecap="round"/>
+  <path d="M22.6 28.8C22.6 26.3 24.6 24.5 27.1 24.5H36.9C39.4 24.5 41.4 26.3 41.4 28.8L40.8 36.6C40.7 37.7 39.8 38.5 38.7 38.5H25.3C24.2 38.5 23.3 37.7 23.2 36.6L22.6 28.8Z" fill="#FFFFFF"/>
+  <path d="M23.7 35.6H40.3L40.1 37.1C40 37.9 39.3 38.5 38.5 38.5H25.5C24.7 38.5 24 37.9 23.9 37.1L23.7 35.6Z" fill="#DCE5F4"/>
+  <line x1="29.2" y1="30.8" x2="34.8" y2="30.8" stroke="#C9D6EC" stroke-width="1.1" stroke-linecap="round"/>
+  <rect x="20.8" y="37.4" width="22.4" height="5.6" rx="2.3" fill="#FFFFFF"/>
+  <path d="M21.2 41H42.8V41.5C42.8 42.3 42.1 43 41.3 43H22.7C21.9 43 21.2 42.3 21.2 41.5V41Z" fill="#D3DFF3"/>
+  <rect x="19.6" y="42.7" width="24.8" height="2.4" rx="1.2" fill="#8FB0EE"/>
+  <path d="M16.8 35.4H19.4C20 35.4 20.4 35.8 20.4 36.4V43.8L18.4 51.3" stroke="#8FB0EE" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M47.2 35.4H44.6C44 35.4 43.6 35.8 43.6 36.4V43.8L45.6 51.3" stroke="#8FB0EE" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="16.4" y1="35.1" x2="20.6" y2="35.1" stroke="#A8C1F3" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="43.4" y1="35.1" x2="47.6" y2="35.1" stroke="#A8C1F3" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

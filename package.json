@@ -1,0 +1,27 @@
+{
+    "name": "furni-resale",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build:server": "tsc -p tsconfig.server.json",
+        "build:client": "tsc -p tsconfig.client.json",
+        "build": "npm run build:server && npm run build:client",
+        "start": "npm run build && node dist/server/index.js",
+        "desktop": "electron desktop/main.cjs",
+        "test": "tsc -p tsconfig.test.json && node --test dist-test/tests/",
+        "check": "tsc -p tsconfig.server.json --noEmit && tsc -p tsconfig.client.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+        "perf": "tsc -p tsconfig.test.json && node dist-test/scripts/perf.js"
+    },
+    "dependencies": {
+        "express": "^4.21.2",
+        "multer": "^2.5.0"
+    },
+    "devDependencies": {
+        "@types/express": "^4.17.21",
+        "@types/multer": "^2.3.0",
+        "@types/node": "^24.0.0",
+        "electron": "^45.5.0",
+        "typescript": "^5.9.0"
+    }
+}

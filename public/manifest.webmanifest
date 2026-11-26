@@ -1,0 +1,11 @@
+{
+  "name": "가구다방",
+  "short_name": "가구다방",
+  "description": "이사 전 가구 위탁 판매 · 방문 비움 서비스",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#14284b",
+  "icons": [{ "src": "/assets/brand/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

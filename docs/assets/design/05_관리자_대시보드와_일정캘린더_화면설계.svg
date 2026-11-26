@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="560" viewBox="0 0 1100 560" role="img" aria-label="관리자 통합 접수 대시보드 및 일정 캘린더 보드 설계">
+  <title>관리자 통합 접수 대시보드 및 일정 캘린더 보드 설계</title>
+  <style>
+    text { font-family: "Malgun Gothic", "맑은 고딕", sans-serif; }
+  </style>
+
+  <rect x="0" y="0" width="1100" height="560" rx="18" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1.5"/>
+
+  <!-- Browser Window Frame -->
+  <rect x="20" y="18" width="1060" height="524" rx="14" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5"/>
+  <!-- Top Admin Header -->
+  <rect x="20" y="18" width="1060" height="52" rx="14" fill="#0F172A"/>
+  <rect x="20" y="54" width="1060" height="16" fill="#0F172A"/>
+  <rect x="40" y="31" width="26" height="26" rx="6" fill="#16A34A"/>
+  <text x="76" y="50" font-size="16" font-weight="800" fill="#FFFFFF">가구팔고비움</text>
+  <rect x="182" y="34" width="58" height="20" rx="5" fill="#15803D"/>
+  <text x="211" y="48" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">ADMIN</text>
+
+  <rect x="770" y="31" width="132" height="26" rx="13" fill="#1E293B" stroke="#334155"/>
+  <text x="836" y="48" font-size="11" fill="#A7F3D0" text-anchor="middle">☑ 시연 데이터 제외</text>
+  <rect x="912" y="31" width="148" height="26" rx="6" fill="#15803D"/>
+  <text x="986" y="48" font-size="11.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">↓ 안전 CSV 다운로드</text>
+
+  <!-- Left Sidebar -->
+  <rect x="20" y="70" width="166" height="472" fill="#F8FAFC"/>
+  <line x1="186" y1="70" x2="186" y2="542" stroke="#E2E8F0"/>
+  <rect x="32" y="88" width="142" height="36" rx="8" fill="#ECFDF5" stroke="#10B981"/>
+  <text x="46" y="111" font-size="12.5" font-weight="800" fill="#065F46">통합 접수 목록</text>
+  <rect x="32" y="132" width="142" height="36" rx="8" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text x="46" y="155" font-size="12.5" font-weight="700" fill="#334155">일정 캘린더 보드</text>
+  <text x="46" y="198" font-size="12" fill="#475569">운영·계정 설정</text>
+  <text x="46" y="518" font-size="11.5" fill="#64748B">관리자 로그아웃 →</text>
+
+  <!-- KPI Row (4 Cards) -->
+  <rect x="204" y="86" width="202" height="74" rx="10" fill="#FFFBEB" stroke="#FCD34D"/>
+  <text x="220" y="110" font-size="11.5" font-weight="700" fill="#92400E">신규 접수대기 품목</text>
+  <text x="220" y="144" font-size="26" font-weight="800" fill="#B45309">6건</text>
+
+  <rect x="418" y="86" width="202" height="74" rx="10" fill="#FFF1F2" stroke="#FDA4AF"/>
+  <text x="434" y="110" font-size="11.5" font-weight="700" fill="#9F1239">이사일 임박 (D-3 이내)</text>
+  <text x="434" y="144" font-size="26" font-weight="800" fill="#BE123C">2건</text>
+
+  <rect x="632" y="86" width="202" height="74" rx="10" fill="#EFF6FF" stroke="#93C5FD"/>
+  <text x="648" y="110" font-size="11.5" font-weight="700" fill="#1E40AF">판매 마감일 임박·경과</text>
+  <text x="648" y="144" font-size="26" font-weight="800" fill="#1D4ED8">3건</text>
+
+  <rect x="846" y="86" width="214" height="74" rx="10" fill="#ECFDF5" stroke="#6EE7B7"/>
+  <text x="862" y="110" font-size="11.5" font-weight="700" fill="#065F46">금주 확정 반출예정</text>
+  <text x="862" y="144" font-size="26" font-weight="800" fill="#047857">5건</text>
+
+  <!-- Filter & Search Bar -->
+  <rect x="204" y="174" width="540" height="36" rx="8" fill="#F8FAFC" stroke="#CBD5E1"/>
+  <text x="218" y="197" font-size="11.5" font-weight="700" fill="#0F5132">[전체 14]</text>
+  <text x="282" y="197" font-size="11.5" fill="#475569">접수대기 · 진행중(판매/처분) · 반출예정 · 처리완료</text>
+  <rect x="754" y="174" width="176" height="36" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/>
+  <text x="766" y="197" font-size="11" fill="#64748B">이름·연락처·품목 검색</text>
+  <rect x="938" y="174" width="122" height="36" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/>
+  <text x="950" y="197" font-size="11" font-weight="700" fill="#1E293B">이사일 임박순 ▾</text>
+
+  <!-- Left Main Area: Applications Table -->
+  <rect x="204" y="222" width="548" height="302" rx="10" fill="#FFFFFF" stroke="#CBD5E1"/>
+  <rect x="204" y="222" width="548" height="34" rx="10" fill="#F1F5F9"/>
+  <text x="218" y="244" font-size="11" font-weight="700" fill="#475569">접수번호 / 고객</text>
+  <text x="348" y="244" font-size="11" font-weight="700" fill="#475569">신청 가구 요약</text>
+  <text x="518" y="244" font-size="11" font-weight="700" fill="#475569">이사일</text>
+  <text x="615" y="244" font-size="11" font-weight="700" fill="#475569">품목 상태</text>
+
+  <!-- Row 1 -->
+  <text x="218" y="280" font-size="11.5" font-weight="700" fill="#0F172A">FR-1126-003</text>
+  <text x="218" y="296" font-size="10.5" fill="#64748B">박서준 · 상당구</text>
+  <text x="348" y="280" font-size="11.5" fill="#1E293B">원목 침대 외 2품목</text>
+  <text x="348" y="296" font-size="10.5" fill="#64748B">엘리베이터 있음</text>
+  <rect x="512" y="268" width="84" height="24" rx="6" fill="#FFE4E6"/>
+  <text x="554" y="284" font-size="10.5" font-weight="800" fill="#BE123C" text-anchor="middle">11.28 (D-2)</text>
+  <rect x="612" y="268" width="76" height="24" rx="12" fill="#FEF3C7"/>
+  <text x="650" y="284" font-size="10.5" font-weight="700" fill="#92400E" text-anchor="middle">접수대기</text>
+  <text x="706" y="285" font-size="11" font-weight="700" fill="#0F5132">관리 →</text>
+  <line x1="216" y1="312" x2="740" y2="312" stroke="#E2E8F0"/>
+
+  <!-- Row 2 -->
+  <text x="218" y="340" font-size="11.5" font-weight="700" fill="#0F172A">FR-1126-002</text>
+  <text x="218" y="356" font-size="10.5" fill="#64748B">김민지 · 흥덕구</text>
+  <text x="348" y="340" font-size="11.5" fill="#1E293B">4인 패브릭 소파, 식탁</text>
+  <text x="348" y="356" font-size="10.5" fill="#0F5132">판매1 · 반출예정1</text>
+  <rect x="512" y="328" width="84" height="24" rx="6" fill="#F1F5F9"/>
+  <text x="554" y="344" font-size="10.5" font-weight="700" fill="#334155" text-anchor="middle">12.15 (D-19)</text>
+  <rect x="612" y="328" width="76" height="24" rx="12" fill="#DBEAFE"/>
+  <text x="650" y="344" font-size="10.5" font-weight="700" fill="#1E40AF" text-anchor="middle">진행중</text>
+  <text x="706" y="345" font-size="11" font-weight="700" fill="#0F5132">관리 →</text>
+  <line x1="216" y1="372" x2="740" y2="372" stroke="#E2E8F0"/>
+
+  <!-- Row 3 -->
+  <text x="218" y="400" font-size="11.5" font-weight="700" fill="#0F172A">FR-1125-008</text>
+  <text x="218" y="416" font-size="10.5" fill="#64748B">이수현 · 서원구</text>
+  <text x="348" y="400" font-size="11.5" fill="#1E293B">슬라이딩 옷장 1품목</text>
+  <text x="348" y="416" font-size="10.5" fill="#065F46">반출확정: 11.29 14시</text>
+  <rect x="512" y="388" width="84" height="24" rx="6" fill="#FEF3C7"/>
+  <text x="554" y="404" font-size="10.5" font-weight="700" fill="#92400E" text-anchor="middle">11.30 (D-4)</text>
+  <rect x="612" y="388" width="76" height="24" rx="12" fill="#D1FAE5"/>
+  <text x="650" y="404" font-size="10.5" font-weight="700" fill="#065F46" text-anchor="middle">반출예정</text>
+  <text x="706" y="405" font-size="11" font-weight="700" fill="#0F5132">관리 →</text>
+
+  <rect x="218" y="440" width="520" height="68" rx="8" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="232" y="463" font-size="11.5" font-weight="700" fill="#1E293B">실무 포인트: 한 신청 건 안에서도 품목별 진행 상태가 다르면 요약 카운트로 즉시 표시</text>
+  <text x="232" y="484" font-size="11" fill="#64748B">예: 소파는 '진행중(판매마감 12.09)', 식탁은 '반출예정(12.12 14시)'으로 누락 없이 분리 추적</text>
+
+  <!-- Right Panel: Schedule Calendar Board Preview (/admin/schedule) -->
+  <rect x="764" y="222" width="296" height="302" rx="10" fill="#FFFFFF" stroke="#0F5132" stroke-width="1.5"/>
+  <rect x="764" y="222" width="296" height="38" rx="10" fill="#ECFDF5"/>
+  <text x="780" y="246" font-size="12.5" font-weight="800" fill="#0F3D2E">일정 캘린더 보드 (/admin/schedule)</text>
+
+  <!-- Legend -->
+  <circle cx="782" cy="276" r="5" fill="#E11D48"/><text x="792" y="280" font-size="10.5" fill="#334155">이사일</text>
+  <circle cx="842" cy="276" r="5" fill="#D97706"/><text x="852" y="280" font-size="10.5" fill="#334155">판매마감일</text>
+  <circle cx="922" cy="276" r="5" fill="#059669"/><text x="932" y="280" font-size="10.5" fill="#334155">확정 반출일</text>
+
+  <!-- Mini Calendar Grid -->
+  <rect x="778" y="292" width="268" height="128" rx="8" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="792" y="312" font-size="11" font-weight="700" fill="#0F172A">2026년 11월 ~ 12월 주요 일정</text>
+  <rect x="788" y="322" width="80" height="42" rx="6" fill="#FFF1F2" stroke="#FDA4AF"/>
+  <text x="796" y="338" font-size="10" font-weight="700" fill="#9F1239">11.28 (토)</text>
+  <text x="796" y="354" font-size="9.5" fill="#BE123C">● 이사일 1건</text>
+
+  <rect x="874" y="322" width="80" height="42" rx="6" fill="#ECFDF5" stroke="#6EE7B7"/>
+  <text x="882" y="338" font-size="10" font-weight="700" fill="#065F46">11.29 (일)</text>
+  <text x="882" y="354" font-size="9.5" fill="#047857">● 반출 2품목</text>
+
+  <rect x="960" y="322" width="76" height="42" rx="6" fill="#FFFBEB" stroke="#FCD34D"/>
+  <text x="968" y="338" font-size="10" font-weight="700" fill="#92400E">12.09 (수)</text>
+  <text x="968" y="354" font-size="9.5" fill="#B45309">● 판매마감</text>
+
+  <rect x="788" y="370" width="248" height="40" rx="6" fill="#FFFFFF" stroke="#CBD5E1"/>
+  <text x="798" y="388" font-size="10.5" font-weight="700" fill="#1E293B">12.12 (토) 14:00 — 김민지님 식탁 반출</text>
+  <text x="798" y="403" font-size="9.5" fill="#64748B">하루 반출 과밀(Overbooking) 사전 방지</text>
+
+  <text x="778" y="442" font-size="11" font-weight="700" fill="#0F3D2E">왜 캘린더 보드가 필수인가요?</text>
+  <text x="778" y="461" font-size="10.5" fill="#475569">목록만 있으면 특정 날짜에 반출이 몰리거나</text>
+  <text x="778" y="477" font-size="10.5" fill="#475569">판매 마감일이 지난 가구를 놓치기 쉽습니다.</text>
+  <text x="778" y="493" font-size="10.5" fill="#475569">캘린더에서 날짜 클릭 시 해당 건으로 이동합니다.</text>
+</svg>
