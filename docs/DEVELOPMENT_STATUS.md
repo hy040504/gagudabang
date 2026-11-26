@@ -61,3 +61,4 @@
 - `is_demo` 시드 데이터 미생성.
 - 저장소에 올리기 전에는 추가된 내용을 검사한다(이메일, 전화번호, 사업자번호, 실명, 비밀값, 로컬 경로). 올리지 않는 것: 견적서, 일부 설계 SVG와 PDF, `demo.html`, `demo/`, `CLAUDE_KO.md`, `CLAUDE_EN.md`, `.env*`, `data/`.
 - 프로젝트 전체에 소리를 내거나 글을 읽어 주는 기능은 없다.
+- 운영 환경(NODE_ENV=production)에서는 ADMIN_PASSWORD와 SESSION_SECRET이 없으면 서버가 뜨지 않는다. 로컬 개발에서는 기본값으로 동작한다.
