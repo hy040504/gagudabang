@@ -64,6 +64,8 @@
   --panel-action-hover: #e8edf5;
   --panel-action-fg: var(--navy-900);
   --scrim: rgb(11 18 32 / 0.82);                      /* 대화상자 뒤 */
+  --photo-badge-bg: rgb(11 18 32 / 0.72);             /* 사진 위에 얹는 작은 글자 (+2) */
+  --photo-badge-fg: #ffffff;
   --focus: var(--primary);
 
   /* 차트: 두 계열(파랑·주황)과 순서가 있는 4단계 파랑, 그 밖의 값(취소, 미정)은 회색. 색만으로 구분하지 않게 늘 이름을 붙인다 (docs/DESIGN_SYSTEM.md) */

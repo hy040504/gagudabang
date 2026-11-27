@@ -34,6 +34,14 @@
   .gd-filter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-bottom: var(--space-4); }
   .gd-filter select { width: auto; min-width: 9.5rem; }
   .gd-filter [name="q"] { flex: 1; width: auto; min-width: 12.5rem; }
+  .gd-filter-hint { margin: calc(var(--space-2) * -1) 0 var(--space-4); }
+  /* 목록의 품목: 작은 사진 + 이름과 상태 */
+  .li-items { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+  .li-items li { display: flex; align-items: center; gap: var(--space-3); }
+  .li-thumb { position: relative; flex: none; display: block; inline-size: 2.75rem; block-size: 2.75rem; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-muted); }
+  .li-thumb img { inline-size: 100%; block-size: 100%; object-fit: cover; transition: transform var(--dur-base) var(--ease-out); }
+  .li-thumb small { position: absolute; inset: auto 2px 2px auto; padding: 0 0.25rem; border-radius: 4px; background: var(--photo-badge-bg); color: var(--photo-badge-fg); font-size: var(--fs-micro); line-height: var(--lh-snug); }
+  @media (hover: hover) { a.li-thumb:hover img { transform: scale(1.06); } }
   /* 접수번호와 날짜는 글자 중간에서 끊지 않는다. 넘치면 표 안에서 옆으로 민다 */
   .gd-list td:first-child a, .gd-list td:nth-child(3) { white-space: nowrap; }
   .dday { color: var(--text-3); }
@@ -82,6 +90,18 @@
   .cal-ev .dot { margin-top: 0.45rem; }
   .cal-ev > div { flex: 1; min-width: 0; }
   #evForm { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--border); }
+  /* 점 색 고르기: 동그라미 하나가 라디오 버튼 하나. 고른 것은 바깥 고리로 표시한다 */
+  .ev-colors { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); margin: 0 0 var(--space-4); padding: 0; border: 0; }
+  .ev-colors legend { margin-bottom: var(--space-2); padding: 0; color: var(--text-2); font-size: var(--fs-label); font-weight: var(--fw-semibold); }
+  .swatch { position: relative; display: inline-grid; place-items: center; inline-size: 1.75rem; block-size: 1.75rem; cursor: pointer; }
+  .swatch input[type="radio"] { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+  .swatch .dot, .swatch input[type="color"] { inline-size: 1.25rem; block-size: 1.25rem; border-radius: var(--radius-full); transition: box-shadow var(--dur-fast) var(--ease-out); }
+  .swatch input:checked + .dot, .swatch.pick:has(input[type="radio"]:checked) input[type="color"] { box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--text-1); }
+  .swatch input[type="radio"]:focus-visible + .dot { outline: 2px solid var(--focus); outline-offset: 4px; }
+  .swatch input[type="color"] { position: relative; padding: 0; border: 1px solid var(--border-control); background: none; cursor: pointer; -webkit-appearance: none; appearance: none; }
+  .swatch input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  .swatch input[type="color"]::-webkit-color-swatch { border: 0; border-radius: var(--radius-full); }
+  .swatch input[type="color"]::-moz-color-swatch { border: 0; border-radius: var(--radius-full); }
   @media (hover: hover) { button.cal-cell:hover { background: var(--bg-hover); } }
   @media (max-width: 64rem) {
     .cal-wrap { grid-template-columns: minmax(0, 1fr); }
@@ -95,6 +115,7 @@
   /* ---------- 통계 ---------- */
   /* 위에서 아래로 중요한 순서: 기간 → 핵심 숫자 → 추이 → 구성. 차트는 테두리 카드 하나에 하나 */
   .stats-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-4); }
+  .stats-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
   .seg { display: inline-flex; flex-wrap: wrap; gap: var(--space-1); padding: var(--space-1); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-card); }
   .seg .btn { min-width: 3.5rem; }
   .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }

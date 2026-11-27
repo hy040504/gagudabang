@@ -59,13 +59,16 @@ export interface CustomerProfileDto { id: number; username: string; name: string
 export interface AdminApplicationSummaryDto {
   id: number; requestCode: string; applicantName: string; phone: string; movingDate: string; preferredPickupDate: string;
   createdAt: string; isDemo: boolean; movingDday: number | null; // 미종결 품목이 있을 때만 값
-  items: { id: number; itemName: string; status: ItemStatus; handlingType: HandlingType; saleDeadline: string; deadlineDday: number | null }[];
+  /** photos: 품목 사진 주소 (목록의 작은 사진과 크게 보기에 쓴다) */
+  items: { id: number; itemName: string; status: ItemStatus; handlingType: HandlingType; saleDeadline: string; deadlineDday: number | null; photos: string[] }[];
 }
 export interface AdminKpis { pendingItems: number; movingSoonApplications: number; deadlineAlertItems: number; pickupIn7DaysItems: number }
 export interface ScheduleCalendarEventDto {
   date: string; kind: 'MOVING' | 'DEADLINE' | 'PICKUP' | 'CUSTOM'; applicationId: number; requestCode: string; itemId: number | null; label: string;
   /** 운영자가 직접 추가한 일정(CUSTOM)일 때만 있다. 삭제할 때 쓴다. */
   eventId?: number;
+  /** 직접 추가한 일정의 점 색 (#rrggbb). 비어 있으면 기본 회색 */
+  color?: string;
 }
 /** 관리자 통계: 지금까지 쌓인 접수와 품목을 종류별로 센 값 */
 /** 통계 기간: 7일·30일은 날짜별, 12개월은 달별, 전체는 해별로 묶는다 */

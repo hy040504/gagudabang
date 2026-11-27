@@ -129,7 +129,9 @@ try {
 
   // 취소는 예시 접수로 직접 해 본다 (가이드 그림에는 쓰지 않고, 설명이 맞는지만 확인)
   await C.p.fill('#lookupForm [name=identifier]', seeded[0]); await C.p.fill('#lookupForm [name=pin]', '1234'); await C.p.click('#lookupForm button'); await C.p.waitForSelector('#lookupOut [data-cancel]');
-  await C.p.click('#lookupOut [data-cancel]'); await C.p.waitForTimeout(900);
+  await C.p.click('#lookupOut [data-cancel]'); await C.p.waitForSelector('.gd-dialog[open]');
+  need((await C.p.textContent('.gd-dialog h2')) === '신청 취소', '신청 취소 확인 창');
+  await C.p.click('.gd-dialog button[value=ok]'); await C.p.waitForTimeout(900);
   need(await C.has('취소') && await C.p.locator('#lookupOut [data-cancel]').count() === 0, '고객 취소 뒤 취소 버튼이 사라짐');
 
   // 회원가입 → 마이페이지 → 비회원 접수 연결
@@ -158,7 +160,7 @@ try {
   await A.shot('a01-login', [['[name=loginId]', 1], ['[name=password]', 2], ['#loginForm button', 3]], { from: '#loginForm' });
   await A.p.click('#loginForm button'); await A.p.waitForSelector('.tbl tbody a');
   need(await A.p.locator('.tbl tbody tr').count() === 3, '관리자 목록 3건');
-  await A.shot('a02-dashboard', [['.gd-stats', 1], ['#filterForm', 2], ['.tbl tbody tr', 3], [['.gd-top-link', 1], 4], [['.gd-top-link', 2], 5], [['.gd-top-link', 3], 6], ['.gd-admin-bar a[href^="/api/admin/export"]', 7], ['.gd-admin-bar [data-theme-toggle]', 8], ['#logout', 9]]);
+  await A.shot('a02-dashboard', [['.gd-stats', 1], ['#filterForm', 2], ['.tbl tbody tr', 3], ['.li-thumb', 4], [['.gd-top-link', 1], 5], [['.gd-top-link', 2], 6], [['.gd-top-link', 3], 7], ['.gd-admin-bar [data-theme-toggle]', 8], ['#logout', 9]]);
   await A.p.locator('.tbl tbody a', { hasText: code }).click(); await A.p.waitForSelector('form[data-item]');
   await A.p.fill('#memoForm [name=adminMemo]', '오전 10시 이후 통화 가능');
   await A.shot('a03-detail-top', [['main h1', 1], ['main a[href^="tel:"]', 2], [['main section.card p', 1], 3], ['#memoForm', 4]], { from: 'main a[href="#dashboard"]', to: '#memoForm' });
@@ -194,13 +196,15 @@ try {
   // 직접 추가하는 일정: 넣고, 보이는지 확인하고, 그림을 찍은 뒤 지워 본다
   await A.p.fill('#evForm [name=title]', '수거 차량 정기 점검'); await A.p.click('#evForm button'); await A.p.waitForSelector('[data-ev-del]');
   need(await A.has('수거 차량 정기 점검'), '직접 추가한 일정이 보임');
-  await A.shot('a09-schedule', [['[data-shift="-1"]', 1], ['[data-shift="1"]', 2], ['#calToday', 3], ['.cal-cell.sel', 4], ['.cal-wrap aside', 5], ['#evForm', 6], ['[data-ev-del]', 7]]);
-  await A.p.click('[data-ev-del]'); await A.p.waitForTimeout(700);
+  await A.shot('a09-schedule', [['[data-shift="-1"]', 1], ['[data-shift="1"]', 2], ['#calToday', 3], ['.cal-cell.sel', 4], ['.cal-wrap aside', 5], ['#evForm [name=title]', 6], ['.ev-colors', 7], ['[data-ev-del]', 8]]);
+  await A.p.click('[data-ev-del]'); await A.p.waitForSelector('.gd-dialog[open]');
+  need((await A.p.textContent('.gd-dialog h2')) === '일정 삭제', '일정 삭제 확인 창');
+  await A.p.click('.gd-dialog button[value=ok]'); await A.p.waitForTimeout(700);
   need(!(await A.has('수거 차량 정기 점검')), '직접 추가한 일정을 지움');
   await go(A.p, '/admin#stats');
   await A.p.waitForSelector('#trafficChart svg, #trafficChart .chart-empty');
   need(await A.has('방문 추이') && await A.has('품목 상태') && (await A.p.locator('#trafficChart svg').count()) === 1, '통계 화면 (고객 화면을 연 기록이 방문 추이에 나온다)');
-  await A.shot('a13-stats', [['.seg', 1], ['.kpis', 2], [['.chart-card', 0], 3], [['.chart-card', 1], 4], [['.chart-card', 2], 5], [['.chart-card', 3], 6], [['.chart-card', 4], 7]], { from: '.stats-head', to: '.gd-stat-grid' });
+  await A.shot('a13-stats', [['.stats-tools', 1], ['.kpis', 2], [['.chart-card', 0], 3], [['.chart-card', 1], 4], [['.chart-card', 2], 5], [['.chart-card', 3], 6], [['.chart-card', 4], 7]], { from: '.stats-head', to: '.gd-stat-grid' });
   await go(A.p, '/admin#settings');
   await A.shot('a10-settings', [['#siteForm', 1], ['#pwForm', 2]], { from: '#siteForm', to: '#pwForm' });
 

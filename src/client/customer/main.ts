@@ -1,5 +1,5 @@
 import { ApiError, api } from '../common/api.js';
-import { $, decorate, logo, CATEGORY_LABEL, CONDITION_LABEL, ELEVATOR_LABEL, HANDLING_LABEL, PREFERENCE_LABEL, STATUS_LABEL, esc, fieldError, initTheme, themeButton, options, registerServiceWorker, showError, toast } from '../common/ui.js';
+import { $, confirmDialog, decorate, logo, CATEGORY_LABEL, CONDITION_LABEL, ELEVATOR_LABEL, HANDLING_LABEL, PREFERENCE_LABEL, STATUS_LABEL, esc, fieldError, initTheme, themeButton, options, registerServiceWorker, showError, toast } from '../common/ui.js';
 import type { ApplicationPayload, CustomerProfileDto, PublicApplicationDto, PublicConfig } from '../../shared/types.js';
 
 import { privacy, terms } from './legal.js';
@@ -287,6 +287,8 @@ function renderLookupResult(a: PublicApplicationDto) {
   </article>`;
 }
 
+const CANCEL_ASK = { title: '신청 취소', message: '이 신청의 모든 가구를 취소합니다. 취소한 신청은 되돌릴 수 없습니다.', confirm: '신청 취소', cancel: '돌아가기', danger: true };
+
 function lookup() {
   queueMicrotask(() => {
     const form = $<HTMLFormElement>('#lookupForm')!;
@@ -296,7 +298,7 @@ function lookup() {
         const r = await api.post<{ applications: PublicApplicationDto[] }>('/api/applications/lookup', { identifier, pin });
         out.innerHTML = r.applications.map(renderLookupResult).join('');
         out.querySelectorAll<HTMLButtonElement>('[data-cancel]').forEach((b) => b.addEventListener('click', async () => {
-          if (!confirm('이 신청을 취소할까요?')) return;
+          if (!(await confirmDialog(CANCEL_ASK))) return;
           try { await api.post(`/api/applications/${b.dataset.cancel}/cancel`, { pin }); toast('신청이 취소되었습니다.', 'ok'); await load(identifier, pin); }
           catch (e) { showError(e); await load(identifier, pin); }
         }));
@@ -385,7 +387,7 @@ function myPage() {
         list.innerHTML = r.applications.map(renderLookupResult).join('') || '<p class="muted">연결된 신청 내역이 없습니다. 비회원으로 접수한 건은 아래에서 연결할 수 있습니다.</p>';
         decorate(list);
         list.querySelectorAll<HTMLButtonElement>('[data-cancel]').forEach((b) => b.addEventListener('click', async () => {
-          if (!confirm('이 신청을 취소할까요?')) return;
+          if (!(await confirmDialog(CANCEL_ASK))) return;
           try { await api.post(`/api/applications/${b.dataset.cancel}/cancel`, {}); toast('신청이 취소되었습니다.', 'ok'); }
           catch (e) { showError(e); }
           await loadList(); // 성공·TRANSITION_DENIED 모두 최신 상태로 갱신

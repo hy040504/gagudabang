@@ -95,11 +95,17 @@ export function adminRouter(ctx: Ctx) {
     const rows = filterLoaded(req, all);
     if (String(req.query.sort ?? '') === 'moving_asc') rows.sort((a, b) => a.app.moving_date.localeCompare(b.app.moving_date));
     const page = Math.max(1, Number(req.query.page) || 1);
-    const summaries: AdminApplicationSummaryDto[] = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map(({ app, items }) => ({
+    const shown = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    // 이 쪽에 보이는 품목의 사진 주소만 한 번에 읽는다
+    const ids = shown.flatMap((r) => r.items.map((i) => Number(i.id)));
+    const photos = new Map<number, string[]>();
+    if (ids.length) for (const p of db.prepare(`SELECT item_id, stored_name FROM item_photos WHERE item_id IN (${ids.map(() => '?').join(',')}) ORDER BY sort_order, id`).all(...ids) as Row[])
+      (photos.get(p.item_id) ?? photos.set(p.item_id, []).get(p.item_id)!).push(`/api/uploads/${p.stored_name}`);
+    const summaries: AdminApplicationSummaryDto[] = shown.map(({ app, items }) => ({
       id: app.id, requestCode: app.request_code, applicantName: app.applicant_name, phone: app.phone, movingDate: app.moving_date,
       preferredPickupDate: app.preferred_pickup_date, createdAt: app.created_at, isDemo: !!app.is_demo,
       movingDday: items.some((i) => open(i.status)) ? dayDiff(today, app.moving_date) : null,
-      items: items.map((i) => ({ id: i.id, itemName: i.item_name, status: i.status, handlingType: i.handling_type, saleDeadline: i.sale_deadline, deadlineDday: deadlineDday(i, today) })),
+      items: items.map((i) => ({ id: i.id, itemName: i.item_name, status: i.status, handlingType: i.handling_type, saleDeadline: i.sale_deadline, deadlineDday: deadlineDday(i, today), photos: photos.get(i.id) ?? [] })),
     }));
     ok(res, { kpis, items: summaries, total: rows.length, page });
   }));
@@ -120,7 +126,7 @@ export function adminRouter(ctx: Ctx) {
       }
     }
     // 운영자가 직접 추가한 일정
-    for (const c of db.prepare('SELECT * FROM custom_events WHERE event_date LIKE ? ORDER BY id').all(`${month}%`) as Row[]) events.push({ date: c.event_date, kind: 'CUSTOM', applicationId: 0, requestCode: '', itemId: null, label: c.title, eventId: c.id });
+    for (const c of db.prepare('SELECT * FROM custom_events WHERE event_date LIKE ? ORDER BY id').all(`${month}%`) as Row[]) events.push({ date: c.event_date, kind: 'CUSTOM', applicationId: 0, requestCode: '', itemId: null, label: c.title, eventId: c.id, color: c.color });
     events.sort((a, b) => a.date.localeCompare(b.date));
     ok(res, { month, events });
   }));
@@ -132,9 +138,12 @@ export function adminRouter(ctx: Ctx) {
     const f: Record<string, string> = {};
     if (!isIsoDate(date)) f.date = '날짜를 확인해 주세요.';
     if (!title || title.length > 100) f.title = '일정 이름은 1자 이상 100자 이하로 입력해 주세요.';
+    // 점 색: 고르지 않으면 빈 값(기본 회색). 화면의 style 속성에 그대로 들어가므로 #rrggbb 형식만 받는다
+    const color = String(req.body?.color ?? '').toLowerCase();
+    if (color && !/^#[0-9a-f]{6}$/.test(color)) f.color = '색은 #rrggbb 형식이어야 합니다.';
     if (Object.keys(f).length) throw new AppError(422, 'VALIDATION_ERROR', '입력값을 확인해 주세요.', f);
-    const id = Number(db.prepare('INSERT INTO custom_events (event_date, title) VALUES (?, ?)').run(date, title).lastInsertRowid);
-    ok(res, { event: { id, date, title } }, 201);
+    const id = Number(db.prepare('INSERT INTO custom_events (event_date, title, color) VALUES (?, ?, ?)').run(date, title, color).lastInsertRowid);
+    ok(res, { event: { id, date, title, color } }, 201);
   }));
   r.delete('/admin/events/:id', wrap((req, res) => {
     requireAdmin(req);

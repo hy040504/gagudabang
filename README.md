@@ -395,7 +395,7 @@ erDiagram
 | **관리자 인증** | `POST /api/admin/login` · `POST /api/admin/logout` | `fr_admin` (12시간) | 타이밍 공격 완화 `scrypt` 검증, 5회 실패 60초 잠금(`429 AUTH_LOCKED`) |
 | **운영 대시보드** | `GET /api/admin/applications` · `GET /api/admin/schedule` | `fr_admin` | 4대 실시간 KPI, 필터·검색·정렬·페이징, 월간 3색 일정 캘린더 집계 |
 | **상세/처리** | `GET / PATCH /api/admin/applications/:id` · `PATCH /api/admin/items/:itemId` | `fr_admin` | 내부 메모 및 품목 상태·마감일·반출일 갱신(`version` `409` 낙관적 락 + 감사 로그) |
-| **직접 추가 일정** | `POST /api/admin/events` · `DELETE /api/admin/events/:id` | `fr_admin` | 접수와 상관없는 일정을 달력에 추가·삭제 |
+| **직접 추가 일정** | `POST /api/admin/events` · `DELETE /api/admin/events/:id` | `fr_admin` | 접수와 상관없는 일정을 달력에 추가·삭제 (점 색 `#rrggbb` 선택) |
 | **통계** | `GET /api/admin/stats?period=7d\|30d\|12m\|all` | `fr_admin` | 기간별 방문자·페이지뷰·접수·품목과 앞 기간 비교, 날짜(달, 연도)별 추이, 상태·처리 구분·종류별 수, 누적 합계 |
 | **문자 발송** | `POST /api/admin/items/:itemId/sms` | `fr_admin` | 운영자가 확인한 문구를 신청자 번호로 발송(솔라피), 발송 기록 저장. 발송 설정이 없으면 `503 SMS_NOT_CONFIGURED` |
 | **내보내기/설정** | `GET /api/admin/export/csv` · `PATCH /api/admin/settings` | `fr_admin` | UTF-8 BOM + 수식 인젝션 방어 CSV 다운로드, 비밀번호 및 공개 사업자 정보 변경 |

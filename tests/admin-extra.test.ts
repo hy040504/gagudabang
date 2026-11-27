@@ -21,6 +21,11 @@ describe('관리자: 직접 추가하는 일정과 통계', () => {
       assert.equal((await admin.call('DELETE', `/api/admin/events/${id}`)).status, 200);
       assert.equal((await admin.call('DELETE', `/api/admin/events/${id}`)).status, 404, '이미 지운 일정');
       assert.equal((await month('2099-12')).length, 0);
+      // 점 색: #rrggbb만 받고, 일정에 그대로 돌려준다. 고르지 않으면 빈 값(기본 회색)
+      for (const color of ['red', '#12345', '#12345g', 'url(x)']) assert.equal((await admin.call('POST', '/api/admin/events', { date: '2099-12-11', title: '색', color })).status, 422, color);
+      assert.equal((await admin.call('POST', '/api/admin/events', { date: '2099-12-11', title: '파란 일정', color: '#2563EB' })).status, 201);
+      assert.equal((await admin.call('POST', '/api/admin/events', { date: '2099-12-12', title: '기본 일정' })).status, 201);
+      assert.deepEqual((await month('2099-12')).map((e: { label: string; color?: string }) => [e.label, e.color]), [['파란 일정', '#2563eb'], ['기본 일정', '']]);
     } finally { s.close(); }
   });
 
@@ -42,6 +47,10 @@ describe('관리자: 직접 추가하는 일정과 통계', () => {
       assert.deepEqual(st.today, { visitors: 2, pageviews: 4 });
       assert.deepEqual(st.previous, { applications: 0, items: 0, visitors: 0, pageviews: 0 });
       assert.deepEqual(st.byStatus, { PENDING: 3 });
+      // 접수 목록의 품목마다 사진 주소가 따라온다 (목록의 작은 사진)
+      const list = (await admin.call('GET', '/api/admin/applications?page=1')).json.data.items as { items: { photos: string[] }[] }[];
+      assert.deepEqual(list.flatMap((a) => a.items.map((i) => i.photos.length)), [1, 1, 1]);
+      assert.match(list[0]!.items[0]!.photos[0]!, /^\/api\/uploads\/[0-9a-f-]{36}\.jpg$/);
       assert.deepEqual(st.byCategory, { BED: 1, DINING: 1, SOFA: 1 });
       assert.equal(st.byHandling.UNDECIDED, 3);
       const last = st.series.at(-1);

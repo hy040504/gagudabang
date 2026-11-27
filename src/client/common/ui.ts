@@ -49,7 +49,7 @@ export function showError(err: unknown, form?: HTMLElement) {
 let fieldSeq = 0;
 /** 렌더된 폼 컨트롤에 .inp 클래스를 붙이고(체크박스·파일 입력 제외), .field 안의 라벨을 입력칸과 연결한다. */
 export function decorate(root: ParentNode = document) {
-  root.querySelectorAll('input:not([type=checkbox]):not([type=file]), select, textarea').forEach((el) => el.classList.add('inp'));
+  root.querySelectorAll('input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=color]), select, textarea').forEach((el) => el.classList.add('inp'));
   root.querySelectorAll<HTMLLabelElement>('.field > label:not([for])').forEach((label) => {
     const control = label.parentElement!.querySelector<HTMLElement>('input, select, textarea');
     if (!control || label.contains(control)) return; // 입력을 감싼 라벨은 이미 연결돼 있다
@@ -98,6 +98,34 @@ export function initTheme() {
   });
 }
 
+/**
+ * 확인 창: 브라우저 기본 confirm() 대신 화면과 같은 디자인의 대화상자를 띄운다.
+ * 확인을 누르면 true, 취소·Esc·바깥 누르기는 false. 되돌릴 수 없는 일(danger)은 취소 버튼에 먼저 포커스를 둔다.
+ */
+let dialogSeq = 0;
+export function confirmDialog(o: { title: string; message: string; confirm: string; cancel?: string; danger?: boolean }): Promise<boolean> {
+  return new Promise((resolve) => {
+    const id = `gdDlg${++dialogSeq}`;
+    const dlg = document.createElement('dialog');
+    dlg.className = 'gd-dialog';
+    dlg.setAttribute('aria-labelledby', `${id}t`);
+    dlg.setAttribute('aria-describedby', `${id}m`);
+    dlg.innerHTML = `<form method="dialog"><h2 id="${id}t"></h2><p id="${id}m"></p>
+      <div class="gd-dialog-actions"><button class="btn" value="cancel"></button><button class="btn ${o.danger ? 'danger' : 'primary'}" value="ok"></button></div></form>`;
+    // 제목과 문구에는 사용자가 입력한 값(일정 이름 등)이 들어가므로 글자로만 넣는다
+    dlg.querySelector('h2')!.textContent = o.title;
+    dlg.querySelector('p')!.textContent = o.message;
+    const [no, yes] = [...dlg.querySelectorAll('button')] as [HTMLButtonElement, HTMLButtonElement];
+    no.textContent = o.cancel ?? '취소';
+    yes.textContent = o.confirm;
+    const back = document.activeElement as HTMLElement | null;
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close('cancel'); }); // 바깥(배경)을 누르면 취소
+    dlg.addEventListener('close', () => { dlg.remove(); back?.focus(); resolve(dlg.returnValue === 'ok'); });
+    document.body.append(dlg);
+    dlg.showModal();
+    (o.danger ? no : yes).focus();
+  });
+}
 export function registerServiceWorker() {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => { /* HTTPS/localhost 외 환경 */ });
 }

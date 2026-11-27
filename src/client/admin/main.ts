@@ -1,5 +1,5 @@
 import { api, ApiError } from '../common/api.js';
-import { $, decorate, logo, CATEGORY_LABEL, CONDITION_LABEL, HANDLING_LABEL, PREFERENCE_LABEL, STATUS_LABEL, esc, initTheme, themeButton, options, registerServiceWorker, showError, toast } from '../common/ui.js';
+import { $, confirmDialog, decorate, logo, CATEGORY_LABEL, CONDITION_LABEL, HANDLING_LABEL, PREFERENCE_LABEL, STATUS_LABEL, esc, initTheme, themeButton, options, registerServiceWorker, showError, toast } from '../common/ui.js';
 import { BRAND_NAME, DEFAULT_PUBLIC_NOTICE, TRANSITIONS } from '../../shared/types.js';
 import type { AdminApplicationDetailDto, AdminApplicationSummaryDto, AdminItemDto, AdminKpis, AdminStatsDto, ItemStatus, PublicConfig, ScheduleCalendarEventDto, StatsPeriod, StatusHistoryDto } from '../../shared/types.js';
 import { donut, hbars, stack, xyChart, type Part } from './charts.js';
@@ -8,7 +8,7 @@ const app = document.getElementById('app')!;
 let loggedIn = false;
 const wire: { fn: (() => void) | null } = { fn: null };
 const resetWire = () => { wire.fn = null; }; // 함수 호출로 감싸 TS의 대입 후 타입 좁힘을 피한다 // 뷰가 등록하고 render()가 innerHTML 설정 뒤에 실행
-const filter = { status: '', handling: '', q: '', page: 1 };
+const filter = { status: '', handling: '', q: '', page: 1, focus: '' }; // focus: 다시 그린 뒤 포커스를 돌려줄 칸
 
 const TABS = [['dashboard', '접수 목록'], ['schedule', '일정'], ['stats', '통계'], ['settings', '설정']] as const;
 // 같은 목적지를 넓은 화면에서는 상단 링크로, 640px 이하에서는 하단 탭으로 보여 준다 (전환은 admin.css)
@@ -19,8 +19,7 @@ const nav = () => {
   return `<header class="gd-admin-bar"><div class="gd-admin-bar-in">
   <img src="/assets/brand/logo.svg" alt="가구다방" width="85" height="32"><strong>파트너스 스튜디오</strong>
   <span class="sp"></span>${links('btn ghost sm gd-top-link')}
-  <div class="gd-admin-tools"><a class="btn ghost sm" href="/api/admin/export/csv">CSV</a>
-  ${themeButton(true)}<button class="btn ghost sm" id="logout">로그아웃</button></div></div></header>
+  <div class="gd-admin-tools">${themeButton(true)}<button class="btn ghost sm" id="logout">로그아웃</button></div></div></header>
   <nav class="gd-tabbar" aria-label="주요 메뉴">${links('')}</nav>`;
 };
 function loginView() {
@@ -42,6 +41,11 @@ function loginView() {
 
 const ddayBadge = (d: number | null, label = '') => (d === null ? '' : `<b class="dday${d <= 3 ? ' soon' : ''}">${label}D${d >= 0 ? '-' + d : '+' + -d}</b>`);
 
+/** 목록의 작은 사진. 누르면 그 품목의 사진 전체를 크게 본다 (주소를 |로 이어 data-photos에 담는다) */
+const thumb = (name: string, photos: string[]) => (photos[0]
+  ? `<a class="gd-thumb li-thumb" data-photo data-photos="${esc(photos.join('|'))}" href="${esc(photos[0])}" aria-label="${esc(name)} 사진 ${photos.length}장 크게 보기"><img src="${esc(photos[0])}" alt="${esc(name)} 사진" width="44" height="44" loading="lazy">${photos.length > 1 ? `<small aria-hidden="true">+${photos.length - 1}</small>` : ''}</a>`
+  : '<span class="li-thumb" aria-hidden="true"></span>');
+
 async function dashboardView() {
   const qs = new URLSearchParams({ sort: 'moving_asc', page: String(filter.page) });
   if (filter.status) qs.set('status', filter.status);
@@ -56,6 +60,14 @@ async function dashboardView() {
       Object.assign(filter, { status: v('status'), handling: v('handling'), q: v('q').trim(), page: 1 });
       render();
     });
+    // 상태·처리 구분은 고르는 즉시 걸러 보인다. 다시 그린 뒤에도 그 칸에 포커스를 돌려줘 키보드로 이어서 고를 수 있게 한다
+    form.addEventListener('change', (ev) => {
+      const el = ev.target as HTMLElement;
+      if (el.tagName !== 'SELECT') return;
+      filter.focus = (el as HTMLSelectElement).name;
+      form.requestSubmit();
+    });
+    if (filter.focus) { (form.elements.namedItem(filter.focus) as HTMLElement | null)?.focus(); filter.focus = ''; }
     document.querySelectorAll<HTMLElement>('[data-page]').forEach((b) => b.addEventListener('click', () => { filter.page = Number(b.dataset.page); render(); }));
   };
   const k = d.kpis;
@@ -71,10 +83,11 @@ async function dashboardView() {
       <select name="handling" aria-label="처리구분"><option value="">전체 처리구분</option>${options({ RESALE: HANDLING_LABEL.RESALE, DISPOSE: HANDLING_LABEL.DISPOSE, UNDECIDED: HANDLING_LABEL.UNDECIDED }, filter.handling)}</select>
       <input name="q" value="${esc(filter.q)}" placeholder="이름·연락처·접수번호·주소·품목">
       <button class="btn primary">검색</button></form>
+    <p class="muted small gd-filter-hint">상태와 처리 구분은 고르면 바로 걸러집니다. 검색어는 입력한 뒤 Enter나 검색 버튼을 누릅니다. 사진을 누르면 크게 볼 수 있습니다.</p>
     <div class="tbl-wrap"><table class="tbl gd-list"><thead><tr><th>접수번호</th><th>신청자</th><th>이사일</th><th>품목 상태</th></tr></thead><tbody>
       ${d.items.map((a) => `<tr><td><a href="#detail/${a.id}" class="tabular">${esc(a.requestCode)}</a></td><td>${esc(a.applicantName)}<div class="muted small">${esc(a.phone)}</div></td>
         <td>${esc(a.movingDate)} ${ddayBadge(a.movingDday)}</td>
-        <td>${a.items.map((i) => `${esc(i.itemName)} <b>${STATUS_LABEL[i.status]}</b> ${ddayBadge(i.deadlineDday, '마감 ')}`).join('<br>')}</td></tr>`).join('') || '<tr><td colspan="4" class="empty">접수 내역이 없습니다.</td></tr>'}
+        <td><ul class="li-items">${a.items.map((i) => `<li>${thumb(i.itemName, i.photos)}<span>${esc(i.itemName)} <b>${STATUS_LABEL[i.status]}</b> ${ddayBadge(i.deadlineDday, '마감 ')}</span></li>`).join('')}</ul></td></tr>`).join('') || '<tr><td colspan="4" class="empty">접수 내역이 없습니다.</td></tr>'}
     </tbody></table></div>
     <div class="pager">${d.page > 1 ? `<button class="btn outline sm" data-page="${d.page - 1}">이전</button>` : ''}
       <span class="muted small">${d.page} / ${pages} · 총 ${d.total}건</span>${d.page < pages ? `<button class="btn outline sm" data-page="${d.page + 1}">다음</button>` : ''}</div>
@@ -174,38 +187,13 @@ async function detailView(id: number) {
       $('[data-sms-copy]', f)!.addEventListener('click', () => void copyText(text));
       $<HTMLButtonElement>('[data-sms-send]', f)?.addEventListener('click', async (ev) => {
         const btn = ev.currentTarget as HTMLButtonElement;
-        if (!confirm(`${a.phone} 번호로 이 문구를 보낼까요?`)) return;
+        if (!(await confirmDialog({ title: '문자 보내기', message: `${a.phone} 번호로 이 문구를 보냅니다. 보낸 문자는 취소할 수 없습니다.`, confirm: '보내기' }))) return;
         btn.disabled = true; // 두 번 눌러 같은 문자가 두 번 나가지 않게 한다
         try { await api.post(`/api/admin/items/${it.id}/sms`, { text: text.value }); toast('문자를 보냈습니다.', 'ok'); render(); }
         catch (e) { showError(e); btn.disabled = false; }
       });
     });
 
-    const dlg = $<HTMLDialogElement>('#photoDlg')!;
-    const big = $<HTMLImageElement>('img', dlg)!;
-    let group: HTMLAnchorElement[] = [], at = 0, opener: HTMLElement | null = null;
-    const show = (i: number) => {
-      at = (i + group.length) % group.length;
-      big.src = group[at]!.href;
-      big.alt = group[at]!.querySelector('img')!.alt;
-      $('#photoCap', dlg)!.textContent = `${big.alt} · ${at + 1} / ${group.length}`;
-    };
-    document.querySelectorAll<HTMLAnchorElement>('a[data-photo]').forEach((link) => link.addEventListener('click', (ev) => {
-      if (ev.ctrlKey || ev.metaKey || ev.shiftKey) return; // 새 탭으로 열려는 클릭은 그대로 둔다
-      ev.preventDefault();
-      opener = link;
-      group = [...link.parentElement!.querySelectorAll<HTMLAnchorElement>('a[data-photo]')];
-      dlg.querySelectorAll<HTMLElement>('[data-step]').forEach((b) => { b.hidden = group.length < 2; });
-      show(group.indexOf(link));
-      dlg.showModal();
-    }));
-    dlg.addEventListener('click', (ev) => {
-      const t = ev.target as HTMLElement;
-      if (t === dlg || t.closest('[data-close]')) dlg.close(); // 대화상자 바깥(배경)을 눌러도 닫는다
-      else if (t.closest<HTMLElement>('[data-step]')) show(at + Number(t.closest<HTMLElement>('[data-step]')!.dataset.step));
-    });
-    dlg.addEventListener('keydown', (ev) => { if (group.length > 1 && (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight')) show(at + (ev.key === 'ArrowLeft' ? -1 : 1)); });
-    dlg.addEventListener('close', () => opener?.focus()); // Safari는 링크에 포커스를 주지 않아 직접 돌려준다
     const m = $<HTMLFormElement>('#memoForm')!;
     m.addEventListener('submit', async (ev) => {
       ev.preventDefault();
@@ -224,11 +212,6 @@ async function detailView(id: number) {
     ${a.items.map((it) => itemForm(it, d.smsEnabled)).join('')}
     <section class="card gd-history"><h2 class="card-title">변경 이력</h2>
       ${d.history.map((h) => `<div>${esc(h.createdAt)} · ${esc(h.actorName)} · ${esc(HISTORY_LABEL[h.actionType] ?? h.actionType)} ${esc(h.note)}</div>`).join('')}</section></div>
-    <dialog id="photoDlg" class="gd-lightbox" aria-label="사진 크게 보기"><div class="gd-lightbox-in">
-      <img alt="">
-      <div class="row"><button type="button" class="btn outline" data-step="-1">이전</button><button type="button" class="btn outline" data-step="1">다음</button>
-        <span id="photoCap" class="small sp" aria-live="polite"></span><button type="button" class="btn primary" data-close autofocus>닫기</button></div>
-    </div></dialog>
   </div></main>`;
 }
 
@@ -239,6 +222,10 @@ const KIND = {
   PICKUP: { label: '확정 반출' },
   CUSTOM: { label: '직접 추가' },
 } as const;
+// 직접 추가하는 일정의 점 색. 첫 번째(빈 값)는 기본 회색이고, 마지막 칸에서 아무 색이나 고를 수 있다
+const EV_COLORS: [string, string][] = [['', '기본 회색'], ['#2563eb', '파랑'], ['#0d9488', '청록'], ['#16a34a', '초록'], ['#ca8a04', '노랑'], ['#ea580c', '주황'], ['#dc2626', '빨강'], ['#db2777', '분홍']];
+/** 일정 점. 직접 추가한 일정은 고른 색을 쓴다 (서버가 #rrggbb만 받는다) */
+const dot = (e: { kind: ScheduleCalendarEventDto['kind']; color?: string }) => `<i class="dot k-${e.kind}"${e.kind === 'CUSTOM' && e.color ? ` style="--k:${esc(e.color)}"` : ''}></i>`;
 const todayKst = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
 const cal = { month: todayKst().slice(0, 7), selected: todayKst() };
 
@@ -263,11 +250,11 @@ async function scheduleView() {
     ...Array.from({ length: days }, (_, i) => {
       const date = `${cal.month}-${String(i + 1).padStart(2, '0')}`;
       const evs = byDate.get(date) ?? [];
-      const kinds = [...new Set(evs.map((e) => e.kind))];
+      const marks = [...new Map(evs.map((e) => [`${e.kind}${e.color ?? ''}`, e])).values()]; // 종류(직접 추가는 색)마다 점 하나
       return `<button type="button" class="cal-cell${date === cal.selected ? ' sel' : ''}${date === today ? ' today' : ''}" data-date="${date}"
         aria-pressed="${date === cal.selected}">
         <span class="vh">${m}월 </span><span class="cal-n">${i + 1}</span><span class="vh">일${evs.length ? `, 일정 ${evs.length}건` : ''}</span>
-        <span class="cal-dots" aria-hidden="true">${kinds.map((k) => `<i class="dot k-${k}"></i>`).join('')}${evs.length > 1 ? `<small>${evs.length}</small>` : ''}</span></button>`;
+        <span class="cal-dots" aria-hidden="true">${marks.map(dot).join('')}${evs.length > 1 ? `<small>${evs.length}</small>` : ''}</span></button>`;
     }),
   ].join('');
 
@@ -278,11 +265,15 @@ async function scheduleView() {
     const evForm = $<HTMLFormElement>('#evForm')!;
     evForm.addEventListener('submit', async (ev) => {
       ev.preventDefault();
-      try { await api.post('/api/admin/events', { date: cal.selected, title: (evForm.elements.namedItem('title') as HTMLInputElement).value }); toast('일정을 추가했습니다.', 'ok'); void render(); }
+      const color = (evForm.querySelector<HTMLInputElement>('input[name=color]:checked'))?.value ?? '';
+      try { await api.post('/api/admin/events', { date: cal.selected, title: (evForm.elements.namedItem('title') as HTMLInputElement).value, color }); toast('일정을 추가했습니다.', 'ok'); void render(); }
       catch (e) { showError(e, evForm); }
     });
+    // 직접 고르기: 색을 바꾸면 그 칸이 선택된다
+    const pick = evForm.querySelector<HTMLInputElement>('[data-pick]')!, custom = evForm.querySelector<HTMLInputElement>('[data-custom]')!;
+    pick.addEventListener('input', () => { custom.value = pick.value; custom.checked = true; });
     document.querySelectorAll<HTMLElement>('[data-ev-del]').forEach((b) => b.addEventListener('click', async () => {
-      if (!confirm(`'${b.dataset.evTitle}' 일정을 지울까요?`)) return;
+      if (!(await confirmDialog({ title: '일정 삭제', message: `'${b.dataset.evTitle}' 일정을 지웁니다. 지운 일정은 되돌릴 수 없습니다.`, confirm: '삭제', danger: true }))) return;
       try { await api.delete(`/api/admin/events/${b.dataset.evDel}`); toast('일정을 지웠습니다.', 'ok'); } catch (e) { showError(e); }
       void render();
     }));
@@ -296,17 +287,21 @@ async function scheduleView() {
       <button class="btn outline sm" data-shift="1" aria-label="다음 달">→</button>
       <button class="btn ghost sm" id="calToday">오늘</button>
       <span class="sp"></span>
-      <div class="cal-legend">${Object.entries(KIND).map(([k, v]) => `<span><i class="dot k-${k}"></i>${v.label}</span>`).join('')}</div>
+      <div class="cal-legend">${Object.entries(KIND).map(([k, v]) => `<span>${dot({ kind: k as ScheduleCalendarEventDto['kind'] })}${v.label}</span>`).join('')}</div>
     </div>
     <div class="cal-wrap">
       <section class="card"><div class="cal-grid" role="group" aria-label="${y}년 ${m}월 달력">
         ${['일', '월', '화', '수', '목', '금', '토'].map((d) => `<div class="cal-dow">${d}</div>`).join('')}${cells}</div></section>
       <aside class="card" aria-live="polite"><h2 class="card-title">${esc(cal.selected)}</h2>
-        ${sel.length ? sel.map((e) => `<div class="cal-ev"><i class="dot k-${e.kind}"></i><div>
+        ${sel.length ? sel.map((e) => `<div class="cal-ev">${dot(e)}<div>
           <div class="small muted">${KIND[e.kind].label}</div>${e.kind === 'CUSTOM' ? `<span>${esc(e.label)}</span>` : `<a href="#detail/${e.applicationId}">${esc(e.label)}</a>
           <div class="small muted tabular">${esc(e.requestCode)}</div>`}</div>${e.kind === 'CUSTOM' ? `<button type="button" class="btn ghost sm" data-ev-del="${e.eventId}" data-ev-title="${esc(e.label)}">삭제</button>` : ''}</div>`).join('') : '<p class="muted small">이 날의 일정이 없습니다.</p>'}
         <form id="evForm" novalidate>
           <div class="field"><label>이 날에 일정 추가</label><input name="title" maxlength="100" required></div>
+          <fieldset class="ev-colors"><legend>점 색</legend>
+            ${EV_COLORS.map(([c, l], n) => `<label class="swatch" title="${l}"><input type="radio" name="color" value="${c}"${n ? '' : ' checked'}>${dot({ kind: 'CUSTOM', color: c })}<span class="vh">${l}</span></label>`).join('')}
+            <label class="swatch pick" title="직접 고르기"><input type="radio" name="color" value="#14284b" data-custom><span class="vh">직접 고른 색</span><input type="color" value="#14284b" data-pick aria-label="점 색 직접 고르기"></label>
+          </fieldset>
           <button class="btn outline sm">일정 추가</button></form>
       </aside>
     </div></div></main>`;
@@ -335,8 +330,9 @@ function delta(cur: number, prev: number | undefined) {
   return `<span class="delta ${p > 0 ? 'up' : 'down'}">${p > 0 ? '▲' : '▼'} ${Math.abs(p)}% <span class="vh">${p > 0 ? '늘었습니다' : '줄었습니다'}</span></span>`;
 }
 
-const statsHead = (busy = false) => `<div class="stats-head"><h1>통계</h1>
-  <div class="seg" role="group" aria-label="기간">${PERIODS.map(([p, l]) => `<button type="button" class="btn sm${p === statsPeriod ? ' primary' : ' ghost'}" data-period="${p}" aria-pressed="${p === statsPeriod}"${busy ? ' disabled' : ''}>${l}</button>`).join('')}</div></div>`;
+const statsHead = (busy = false) => `<div class="stats-head"><h1>통계</h1><div class="stats-tools">
+  <a class="btn sm" href="/api/admin/export/csv" download>접수 목록 CSV 내려받기</a>
+  <div class="seg" role="group" aria-label="기간">${PERIODS.map(([p, l]) => `<button type="button" class="btn sm${p === statsPeriod ? ' primary' : ' ghost'}" data-period="${p}" aria-pressed="${p === statsPeriod}"${busy ? ' disabled' : ''}>${l}</button>`).join('')}</div></div></div>`;
 
 /** 불러오는 동안 같은 자리에 회색 틀을 보여 준다 */
 const statsSkeleton = () => `<main class="main"><div class="main-inner" aria-busy="true">${statsHead(true)}
@@ -464,6 +460,56 @@ async function render() {
     showError(e);
   }
 }
+
+// ---------- 사진 크게 보기 ----------
+// 접수 목록의 작은 사진과 상세 화면의 사진이 함께 쓴다. 화면을 다시 그려도 남도록 대화상자는 body에 한 번만 만든다.
+const viewer = { list: [] as { src: string; alt: string }[], at: 0, opener: null as HTMLElement | null };
+let viewerDlg: HTMLDialogElement | null = null;
+function viewerDialog() {
+  if (viewerDlg) return viewerDlg;
+  const dlg = document.createElement('dialog');
+  dlg.id = 'photoDlg';
+  dlg.className = 'gd-lightbox';
+  dlg.setAttribute('aria-label', '사진 크게 보기');
+  dlg.innerHTML = `<div class="gd-lightbox-in"><img alt="">
+    <div class="row"><button type="button" class="btn outline" data-step="-1">이전</button><button type="button" class="btn outline" data-step="1">다음</button>
+      <span id="photoCap" class="small sp" aria-live="polite"></span><button type="button" class="btn primary" data-close>닫기</button></div></div>`;
+  dlg.addEventListener('click', (ev) => {
+    const t = ev.target as HTMLElement;
+    if (t === dlg || t.closest('[data-close]')) dlg.close(); // 대화상자 바깥(배경)을 눌러도 닫는다
+    else if (t.closest<HTMLElement>('[data-step]')) showPhoto(viewer.at + Number(t.closest<HTMLElement>('[data-step]')!.dataset.step));
+  });
+  dlg.addEventListener('keydown', (ev) => { if (viewer.list.length > 1 && (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight')) showPhoto(viewer.at + (ev.key === 'ArrowLeft' ? -1 : 1)); });
+  dlg.addEventListener('close', () => viewer.opener?.focus()); // Safari는 링크에 포커스를 주지 않아 직접 돌려준다
+  document.body.append(dlg);
+  return (viewerDlg = dlg);
+}
+function showPhoto(i: number) {
+  const dlg = viewerDialog(), n = viewer.list.length;
+  viewer.at = (i + n) % n;
+  const big = $<HTMLImageElement>('img', dlg)!, cur = viewer.list[viewer.at]!;
+  big.src = cur.src;
+  big.alt = cur.alt;
+  $('#photoCap', dlg)!.textContent = `${cur.alt} · ${viewer.at + 1} / ${n}`;
+}
+document.addEventListener('click', (ev) => {
+  const link = (ev.target as Element).closest<HTMLAnchorElement>('a[data-photo]');
+  if (!link || ev.ctrlKey || ev.metaKey || ev.shiftKey) return; // 새 탭으로 열려는 클릭은 그대로 둔다
+  ev.preventDefault();
+  const alt = link.querySelector('img')?.alt ?? '';
+  if (link.dataset.photos) { viewer.list = link.dataset.photos.split('|').map((src) => ({ src, alt })); viewer.at = 0; }
+  else {
+    const group = [...(link.closest('.gd-photo-row') ?? link.parentElement!).querySelectorAll<HTMLAnchorElement>('a[data-photo]')];
+    viewer.list = group.map((a) => ({ src: a.href, alt: a.querySelector('img')?.alt ?? '' }));
+    viewer.at = group.indexOf(link);
+  }
+  viewer.opener = link;
+  const dlg = viewerDialog();
+  dlg.querySelectorAll<HTMLElement>('[data-step]').forEach((b) => { b.hidden = viewer.list.length < 2; });
+  showPhoto(viewer.at);
+  dlg.showModal();
+  $<HTMLElement>('[data-close]', dlg)!.focus();
+});
 
 async function boot() {
   initTheme();

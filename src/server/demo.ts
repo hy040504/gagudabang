@@ -176,8 +176,8 @@ export async function seedDemoData(db: Db, uploadDir: string, loadPhoto: (name: 
     });
 
     // 직접 추가한 일정
-    const insEv = db.prepare('INSERT INTO custom_events (event_date, title) VALUES (?, ?)');
-    [3, 10, -4].forEach((d, i) => insEv.run(addDays(today, d), DEMO_EVENTS[i]!));
+    const insEv = db.prepare('INSERT INTO custom_events (event_date, title, color) VALUES (?, ?, ?)');
+    [3, 10, -4].forEach((d, i) => insEv.run(addDays(today, d), DEMO_EVENTS[i]!, ['#0d9488', '#ca8a04', ''][i]!));
 
     // 방문 기록: 15개월 전부터 오늘까지. 조금씩 늘어나고 주말에 더 많다.
     const rand = rng(20261127);
