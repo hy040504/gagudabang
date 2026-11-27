@@ -81,7 +81,7 @@ async function dashboardView() {
   </div></main>`;
 }
 
-const itemForm = (it: AdminItemDto) => `<form class="card" data-item="${it.id}" data-version="${it.version}" style="padding:18px;margin-bottom:14px" novalidate>
+const itemForm = (it: AdminItemDto, smsOn: boolean) => `<form class="card" data-item="${it.id}" data-version="${it.version}" style="padding:18px;margin-bottom:14px" novalidate>
   <h2 class="card-title">${esc(it.itemName)} <span class="muted small">${esc(CATEGORY_LABEL[it.category])} · 고객 희망 ${esc(PREFERENCE_LABEL[it.customerPreference])} · 상태 ${esc(CONDITION_LABEL[it.conditionGrade])}</span></h2>
   <div class="row" style="gap:6px;margin-bottom:10px">${it.photos.map((p) => `<a class="gd-thumb" data-photo href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.url)}" alt="${esc(it.itemName)} ${p.photoTag === 'DETAIL' ? '디테일' : '전체'}" width="96" height="96" style="object-fit:cover;border-radius:8px"></a>`).join('')}</div>
   <div class="grid2">
@@ -95,10 +95,10 @@ const itemForm = (it: AdminItemDto) => `<form class="card" data-item="${it.id}" 
   <div class="gd-confirm" role="group" aria-label="상태 변경 확인" hidden></div>
   <button class="btn primary sm" data-save>변경사항 저장</button>
   <details class="gd-sms"><summary>문자 문구</summary>
-    <p class="muted small">저장된 내용으로 문구를 채웁니다. 문자는 발송되지 않으니 복사해서 직접 보내세요.</p>
+    <p class="muted small">저장된 내용으로 문구를 채웁니다. ${smsOn ? '보내기를 누르면 신청자 번호로 문자가 나갑니다.' : '문자 발송이 설정되지 않아 복사해서 직접 보내야 합니다.'}</p>
     <div class="field"><label>상황</label><select data-sms-kind>${options(SMS_LABEL, it.status)}</select></div>
     <div class="field"><label>문구</label><textarea data-sms-text rows="5"></textarea></div>
-    <button type="button" class="btn outline sm" data-sms-copy>복사</button></details></form>`;
+    <div class="row" style="gap:8px"><button type="button" class="btn outline sm" data-sms-copy>복사</button>${smsOn ? '<button type="button" class="btn primary sm" data-sms-send>문자 보내기</button>' : ''}</div></details></form>`;
 
 // 상황은 품목 상태와 하나씩 대응한다. 비어 있는 값은 지어내지 않고 대괄호로 남겨 운영자가 채우게 한다.
 const SMS_LABEL: Record<ItemStatus, string> = { PENDING: '접수 확인', IN_PROGRESS: '판매 진행', SCHEDULED: '반출 일정 확정', COMPLETED: '처리 완료', CANCELED: '취소' };
@@ -120,7 +120,7 @@ async function copyText(ta: HTMLTextAreaElement) {
 }
 
 async function detailView(id: number) {
-  const d = await api.get<{ application: AdminApplicationDetailDto; history: StatusHistoryDto[] }>(`/api/admin/applications/${id}`);
+  const d = await api.get<{ application: AdminApplicationDetailDto; history: StatusHistoryDto[]; smsEnabled: boolean }>(`/api/admin/applications/${id}`);
   const a = d.application;
   wire.fn = () => {
     document.querySelectorAll<HTMLFormElement>('form[data-item]').forEach((f) => {
@@ -169,6 +169,13 @@ async function detailView(id: number) {
       kind.addEventListener('change', fill);
       fill();
       $('[data-sms-copy]', f)!.addEventListener('click', () => void copyText(text));
+      $<HTMLButtonElement>('[data-sms-send]', f)?.addEventListener('click', async (ev) => {
+        const btn = ev.currentTarget as HTMLButtonElement;
+        if (!confirm(`${a.phone} 번호로 이 문구를 보낼까요?`)) return;
+        btn.disabled = true; // 두 번 눌러 같은 문자가 두 번 나가지 않게 한다
+        try { await api.post(`/api/admin/items/${it.id}/sms`, { text: text.value }); toast('문자를 보냈습니다.', 'ok'); render(); }
+        catch (e) { showError(e); btn.disabled = false; }
+      });
     });
 
     const dlg = $<HTMLDialogElement>('#photoDlg')!;
@@ -211,7 +218,7 @@ async function detailView(id: number) {
       이사일 ${esc(a.movingDate)} · 희망 반출일 ${esc(a.preferredPickupDate)}</p>
       <p class="muted">고객 요청: ${esc(a.customerMemo) || '없음'}</p>
       <form id="memoForm" novalidate><div class="field"><label>운영 메모 (고객 비공개)</label><input name="adminMemo" value="${esc(a.adminMemo)}" maxlength="2000"></div><button class="btn outline sm">메모 저장</button></form></section>
-    ${a.items.map(itemForm).join('')}
+    ${a.items.map((it) => itemForm(it, d.smsEnabled)).join('')}
     <section class="card" style="padding:18px"><h2 class="card-title">변경 이력</h2>
       ${d.history.map((h) => `<div class="small" style="padding:6px 0;border-top:1px solid var(--border)">${esc(h.createdAt)} · ${esc(h.actorName)} · ${esc(h.actionType)} ${esc(h.note)}</div>`).join('')}</section>
     <dialog id="photoDlg" class="gd-lightbox" aria-label="사진 크게 보기"><div class="gd-lightbox-in">

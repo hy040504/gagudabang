@@ -7,8 +7,9 @@ import { ensureAdmin, openDb, type Db } from './db.js';
 import { AppError, Signer, type Clock } from './lib.js';
 import { adminRouter } from './routes/admin.js';
 import { publicRouter, type Ctx } from './routes/public.js';
+import type { SmsConfig } from './services/sms.js';
 
-export interface AppOptions { dataDir: string; publicDir: string; dbFile?: string; adminId?: string; adminPassword?: string; secret?: string; clock?: Clock }
+export interface AppOptions { dataDir: string; publicDir: string; dbFile?: string; adminId?: string; adminPassword?: string; secret?: string; clock?: Clock; sms?: SmsConfig }
 
 function loadSecret(dataDir: string, given?: string): string {
   if (given) return given;
@@ -24,7 +25,7 @@ export function createApp(opt: AppOptions): { app: express.Express; db: Db; ctx:
   const db = openDb(opt.dbFile ?? path.join(opt.dataDir, 'gagudabang.sqlite'));
   ensureAdmin(db, opt.adminId ?? 'admin', opt.adminPassword ?? 'admin1234!');
   const clock: Clock = opt.clock ?? Date.now;
-  const ctx: Ctx = { db, clock, signer: new Signer(loadSecret(opt.dataDir, opt.secret), clock), uploadDir: path.join(opt.dataDir, 'uploads') };
+  const ctx: Ctx = { db, clock, signer: new Signer(loadSecret(opt.dataDir, opt.secret), clock), uploadDir: path.join(opt.dataDir, 'uploads'), sms: opt.sms };
 
   const app = express();
   app.disable('x-powered-by');

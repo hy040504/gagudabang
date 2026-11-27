@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createApp } from './app.js';
 import { purgeExpiredIdempotency } from './db.js';
+import { smsFromEnv } from './services/sms.js';
 
 // 운영 환경에서는 기본 관리자 비밀번호와 임시 서명 키로 뜨지 않게 막는다 (로컬 개발과 테스트는 그대로 동작)
 if (process.env.NODE_ENV === 'production' && (!process.env.ADMIN_PASSWORD || !process.env.SESSION_SECRET)) {
@@ -16,6 +17,7 @@ const { app, db } = createApp({
   adminId: process.env.ADMIN_ID,
   adminPassword: process.env.ADMIN_PASSWORD,
   secret: process.env.SESSION_SECRET,
+  sms: smsFromEnv(),
 });
 
 // FN-26: 24시간 지난 멱등성 키 정리 (1시간 주기)

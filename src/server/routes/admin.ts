@@ -1,11 +1,12 @@
 ﻿import { Router, type Request } from 'express';
 import type { Db } from '../db.js';
 import {
-  AppError, COOKIES, FailureLock, clearCookie, dayDiff, hashSecret, isIsoDate, ok, setCookie, todayKst, verifySecret, wrap,
+  AppError, COOKIES, FailureLock, clearCookie, dayDiff, hashSecret, isIsoDate, ok, rateLimiter, setCookie, todayKst, verifySecret, wrap,
 } from '../lib.js';
 import {
   getApplicationById, historyOf, toAdminApplicationDetailDto, updateAdminMemo, updateItemWorkflow,
 } from '../services/applications.js';
+import { sendSms } from '../services/sms.js';
 import { authOf, type Ctx } from './public.js';
 import type { AdminApplicationSummaryDto, AdminItemPatchDto, AdminKpis, ScheduleCalendarEventDto } from '../../shared/types.js';
 
@@ -126,7 +127,7 @@ export function adminRouter(ctx: Ctx) {
     requireAdmin(req);
     const app = getApplicationById(db, Number(req.params.id));
     if (!app) throw new AppError(404, 'NOT_FOUND', '신청 건을 찾을 수 없습니다.');
-    ok(res, { application: toAdminApplicationDetailDto(db, app), history: historyOf(db, app.id) });
+    ok(res, { application: toAdminApplicationDetailDto(db, app), history: historyOf(db, app.id), smsEnabled: !!ctx.sms });
   }));
 
   r.patch('/admin/applications/:id', wrap((req, res) => {
@@ -140,6 +141,19 @@ export function adminRouter(ctx: Ctx) {
   r.patch('/admin/items/:itemId', wrap((req, res) => {
     const admin = requireAdmin(req);
     ok(res, updateItemWorkflow(db, Number(req.params.itemId), req.body as AdminItemPatchDto, admin.name));
+  }));
+
+  // 문자 발송: 품목의 신청자 번호로 운영자가 확인한 문구를 보낸다. 발송 설정이 없으면 화면에서는 복사만 쓴다.
+  r.post('/admin/items/:itemId/sms', rateLimiter(30, 60_000, ctx.clock), wrap(async (req, res) => {
+    const admin = requireAdmin(req);
+    if (!ctx.sms) throw new AppError(503, 'SMS_NOT_CONFIGURED', '문자 발송이 설정되지 않았습니다.');
+    const text = typeof req.body?.text === 'string' ? req.body.text.trim() : '';
+    if (!text || text.length > 1000) throw new AppError(422, 'VALIDATION_ERROR', '문구는 1자 이상 1,000자 이하로 입력해 주세요.', { text: '1~1,000자' });
+    const row = db.prepare('SELECT i.id, a.id AS app_id, a.phone FROM application_items i JOIN applications a ON a.id = i.application_id WHERE i.id = ?').get(Number(req.params.itemId)) as Row | undefined;
+    if (!row) throw new AppError(404, 'NOT_FOUND', '품목을 찾을 수 없습니다.');
+    await sendSms(ctx.sms, row.phone, text);
+    db.prepare('INSERT INTO sms_log (application_id, item_id, actor_name, to_phone, body) VALUES (?,?,?,?,?)').run(row.app_id, row.id, admin.name, row.phone, text);
+    ok(res, { sent: true });
   }));
 
   // FN-22: 수식 인젝션 방어 CSV

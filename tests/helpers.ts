@@ -2,14 +2,14 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import type { AddressInfo } from 'node:net';
-import { createApp } from '../src/server/app.js';
+import { createApp, type AppOptions } from '../src/server/app.js';
 
 export const ADMIN_PW = 'adminpw-1234';
 
 /** 임시 data 디렉터리 + 임의 포트로 실제 서버를 기동한다. 테스트 파일마다 격리된 DB를 쓴다. */
-export function startServer(clock?: () => number) {
+export function startServer(clock?: () => number, extra: Partial<AppOptions> = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gd-test-'));
-  const { app, db } = createApp({ dataDir: dir, publicDir: dir, secret: 'test-secret', adminPassword: ADMIN_PW, clock });
+  const { app, db } = createApp({ dataDir: dir, publicDir: dir, secret: 'test-secret', adminPassword: ADMIN_PW, clock, ...extra });
   const srv = app.listen(0);
   const base = `http://127.0.0.1:${(srv.address() as AddressInfo).port}`;
   return {

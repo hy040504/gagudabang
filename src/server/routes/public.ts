@@ -9,10 +9,11 @@ import {
 import {
   cancelByCustomer, claimApplication, createApplication, getApplicationByCode, toPublicApplicationDto, type UploadedFile,
 } from '../services/applications.js';
+import type { SmsConfig } from '../services/sms.js';
 import type { ApplicationPayload, CustomerProfileDto } from '../../shared/types.js';
 
 type Row = Record<string, any>;
-export interface Ctx { db: Db; signer: Signer; uploadDir: string; clock: Clock }
+export interface Ctx { db: Db; signer: Signer; uploadDir: string; clock: Clock; sms?: SmsConfig }
 
 const CUSTOMER_TTL = 7 * 86400;
 const LOOKUP_TTL = 30 * 60;

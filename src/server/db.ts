@@ -81,6 +81,15 @@ CREATE TABLE IF NOT EXISTS status_history (
   note TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+CREATE TABLE IF NOT EXISTS sms_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  application_id INTEGER NOT NULL REFERENCES applications(id) ON DELETE CASCADE,
+  item_id INTEGER REFERENCES application_items(id) ON DELETE SET NULL,
+  actor_name TEXT NOT NULL,
+  to_phone TEXT NOT NULL,
+  body TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 CREATE TABLE IF NOT EXISTS idempotency_keys (
   key TEXT PRIMARY KEY,
   endpoint TEXT NOT NULL,

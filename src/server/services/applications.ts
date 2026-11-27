@@ -47,10 +47,16 @@ export const getApplicationById = (db: Db, id: number) =>
   db.prepare('SELECT * FROM applications WHERE id = ?').get(id) as Row | undefined;
 
 export function historyOf(db: Db, applicationId: number): StatusHistoryDto[] {
-  return (db.prepare('SELECT * FROM status_history WHERE application_id = ? ORDER BY id DESC').all(applicationId) as Row[]).map((h) => ({
+  const changes: StatusHistoryDto[] = (db.prepare('SELECT * FROM status_history WHERE application_id = ? ORDER BY id DESC').all(applicationId) as Row[]).map((h) => ({
     id: h.id, applicationId: h.application_id, itemId: h.item_id, actorRole: h.actor_role, actorName: h.actor_name, actionType: h.action_type,
     before: JSON.parse(h.before_json), after: JSON.parse(h.after_json), note: h.note, createdAt: h.created_at,
   }));
+  // 문자 발송 기록은 별도 표(sms_log)에 있다. 이력에서는 SMS_SENT로 함께 보여 준다 (id는 종류 안에서만 고유하다).
+  const sms: StatusHistoryDto[] = (db.prepare('SELECT * FROM sms_log WHERE application_id = ? ORDER BY id DESC').all(applicationId) as Row[]).map((s) => ({
+    id: s.id, applicationId: s.application_id, itemId: s.item_id, actorRole: 'ADMIN', actorName: s.actor_name, actionType: 'SMS_SENT',
+    before: {}, after: {}, note: `문자 발송 (${s.to_phone}): ${s.body}`, createdAt: s.created_at,
+  }));
+  return sms.length ? [...changes, ...sms].sort((a, b) => b.createdAt.localeCompare(a.createdAt)) : changes;
 }
 
 function addHistory(db: Db, h: { applicationId: number; itemId?: number | null; role: 'CUSTOMER' | 'ADMIN' | 'SYSTEM'; actor: string; type: string; before?: unknown; after?: unknown; note?: string }) {
