@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "type": "module",
+    "engines": { "node": ">=24" },
     "scripts": {
         "build:server": "tsc -p tsconfig.server.json",
         "build:client": "tsc -p tsconfig.client.json",

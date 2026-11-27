@@ -43,6 +43,16 @@ describe('잠금·쿠키 만료 (FN-16, FN-10)', () => {
     } finally { s.close(); }
   });
 
+  test('HTTPS로 온 요청에만 쿠키에 Secure가 붙는다 (프록시 뒤 배포)', async () => {
+    const s = startServer();
+    try {
+      s.app.set('trust proxy', true); // 배포 진입점(src/index.ts)과 같은 설정
+      const login = (headers: Record<string, string>) => client(s.base).call('POST', '/api/admin/login', { loginId: 'admin', password: ADMIN_PW }, { headers });
+      assert.match((await login({ 'X-Forwarded-Proto': 'https' })).headers.getSetCookie().join(), /; Secure/);
+      assert.doesNotMatch((await login({})).headers.getSetCookie().join(), /Secure/);
+    } finally { s.close(); }
+  });
+
   test('잠금 해제 직후 1회 실패로 곧바로 재잠금되지 않는다 (카운터 재시작)', async () => {
     const clk = fakeClock('2099-12-20T03:00:00Z');
     const s = startServer(clk.now);

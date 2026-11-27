@@ -57,7 +57,8 @@ export function readCookies(req: Request): Record<string, string> {
   return out;
 }
 export function setCookie(res: Response, name: CookieName, value: string, maxAgeSec: number) {
-  res.append('Set-Cookie', `${name}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAgeSec}`);
+  // HTTPS로 온 요청에는 Secure를 붙여 쿠키가 평문 연결로 나가지 않게 한다 (로컬 HTTP 개발에서는 붙지 않는다)
+  res.append('Set-Cookie', `${name}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAgeSec}${res.req.secure ? '; Secure' : ''}`);
 }
 export function clearCookie(res: Response, name: CookieName) { setCookie(res, name, '', 0); }
 

@@ -13,7 +13,7 @@ export function startServer(clock?: () => number) {
   const srv = app.listen(0);
   const base = `http://127.0.0.1:${(srv.address() as AddressInfo).port}`;
   return {
-    base, db, dir,
+    base, db, dir, app,
     close: () => { srv.close(); db.close(); fs.rmSync(dir, { recursive: true, force: true }); },
   };
 }
