@@ -1,5 +1,7 @@
 import test, { describe } from 'node:test';
 import assert from 'node:assert/strict';
+import http from 'node:http';
+import path from 'node:path';
 import { ADMIN_PW, applicationForm, client, startServer, validPayload } from './helpers.js';
 
 describe('관리자: 직접 추가하는 일정과 통계', () => {
@@ -63,6 +65,28 @@ describe('관리자: 직접 추가하는 일정과 통계', () => {
       const all = (await admin.call('GET', '/api/admin/stats?period=all')).json.data;
       assert.deepEqual([all.unit, all.previous, all.series.length], ['year', null, 1]);
       assert.equal((await admin.call('GET', '/api/admin/stats?period=zzz')).json.data.period, '30d', '모르는 기간은 30일');
+    } finally { s.close(); }
+  });
+});
+
+describe('공유 정보 주소', () => {
+  // Host 헤더를 직접 정해 보내야 해서 fetch 대신 node:http를 쓴다
+  const page = (base: string, p: string, host: string) => new Promise<string>((resolve, reject) => {
+    const u = new URL(p, base);
+    http.get({ hostname: u.hostname, port: u.port, path: u.pathname, headers: { host } }, (res) => { let s = ''; res.setEncoding('utf8'); res.on('data', (c) => (s += c)); res.on('end', () => resolve(s)); }).on('error', reject);
+  });
+  test('들어온 주소로 og:url과 og:image를 바꾸고, 이상한 Host 값은 쓰지 않는다', async () => {
+    const s = startServer(undefined, { publicDir: path.resolve('public') }); // 실제 화면 HTML로 확인한다
+    try {
+      for (const [p, img] of [['/', 'og-image.jpg'], ['/admin', 'og-admin.jpg']] as const) {
+        const html = await page(s.base, p, 'gagudabang.example.com');
+        assert.match(html, new RegExp(`og:image" content="http://gagudabang\\.example\\.com/assets/brand/${img}`), p);
+        assert.match(html, /og:url" content="http:\/\/gagudabang\.example\.com\//, p);
+        assert.doesNotMatch(html, /gagudabang\.vercel\.app/, p);
+        const evil = await page(s.base, p, 'x"><script>alert(1)</script>');
+        assert.match(evil, /og:image" content="https:\/\/gagudabang\.vercel\.app\//, `${p} 이상한 Host`);
+        assert.doesNotMatch(evil, /<script>alert/, `${p} 이상한 Host`);
+      }
     } finally { s.close(); }
   });
 });

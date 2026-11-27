@@ -10,6 +10,9 @@ import { adminRouter } from './routes/admin.js';
 import { publicRouter, type Ctx } from './routes/public.js';
 import type { SmsConfig } from './services/sms.js';
 
+/** public/*.html의 공유 정보에 적힌 주소. 다른 주소로 들어온 요청에는 그 주소로 바꿔 내보낸다 */
+const SHARE_ORIGIN = 'https://gagudabang.vercel.app';
+
 export interface AppOptions { dataDir: string; publicDir: string; dbFile?: string; adminId?: string; adminPassword?: string; secret?: string; clock?: Clock; sms?: SmsConfig; testAccount?: boolean;
   /** 예시 접수 20건과 방문 기록을 한 번 넣는다. 사진을 파일로 못 읽으면 demoPhotoBase(배포 주소)에서 받는다 */
   demoData?: boolean; demoPhotoBase?: string }
@@ -65,7 +68,17 @@ export function createApp(opt: AppOptions): { app: express.Express; db: Db; ctx:
   app.use('/api', (_req, _res, next) => next(new AppError(404, 'NOT_FOUND', '존재하지 않는 API입니다.')));
   // 관리자 화면 주소는 /admin 이다. 예전 주소(/admin.html)로 오면 새 주소로 넘긴다.
   app.get('/admin.html', (_req, res) => res.redirect(301, '/admin'));
-  app.get('/admin', (_req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.sendFile(path.join(opt.publicDir, 'admin.html')); });
+  // 화면 HTML의 공유 정보(og:url, og:image)는 Vercel 주소로 적혀 있다. 다른 주소(개인 서버)로 들어오면 그 주소로 바꿔 내보내,
+  // 메신저가 Vercel 쪽 미리보기를 대신 쓰지 않게 한다. Host 값은 호스트 이름 형식일 때만 쓴다(HTML에 그대로 들어가므로).
+  const sendPage = (file: string) => (req: Request, res: Response) => {
+    const host = req.get('host') ?? '';
+    let html = fs.readFileSync(path.join(opt.publicDir, file), 'utf8');
+    if (/^[a-z0-9.-]+(:\d{1,5})?$/i.test(host)) html = html.replaceAll(SHARE_ORIGIN, `${req.protocol}://${host}`);
+    res.setHeader('Cache-Control', 'no-cache');
+    res.type('html').send(html);
+  };
+  app.get(['/', '/index.html'], sendPage('index.html'));
+  app.get('/admin', sendPage('admin.html'));
   // no-cache = 매번 ETag로 재검증(변경 없으면 304). 배포 후 낡은 JS/CSS가 남아 화면이 어긋나는 것을 막는다.
   app.use(express.static(opt.publicDir, { setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache') }));
 
