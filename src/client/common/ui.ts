@@ -47,7 +47,10 @@ export function showError(err: unknown, form?: HTMLElement) {
 }
 
 let fieldSeq = 0;
-/** 렌더된 폼 컨트롤에 .inp 클래스를 붙이고(체크박스·파일 입력 제외), .field 안의 라벨을 입력칸과 연결한다. */
+/**
+ * 렌더된 폼 컨트롤에 .inp 클래스(입력창 모양)를 붙이고, .field 안의 라벨을 입력칸과 연결한다.
+ * 체크박스·라디오·파일·색 입력은 입력창 모양을 쓰지 않으므로 뺀다 (붙이면 일정 색 고르기 동그라미가 막대처럼 늘어난다).
+ */
 export function decorate(root: ParentNode = document) {
   root.querySelectorAll('input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=color]), select, textarea').forEach((el) => el.classList.add('inp'));
   root.querySelectorAll<HTMLLabelElement>('.field > label:not([for])').forEach((label) => {

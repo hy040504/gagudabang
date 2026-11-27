@@ -86,6 +86,8 @@ const APPS: DemoApp[] = [
     items: [{ cat: 'CLOSET', name: '원목 6칸 수납장', cond: 'GOOD', pref: 'CONSULT', note: '옆면에 스티커 자국이 있어요.', photos: ['etc-2'], status: 'PENDING', hand: 'UNDECIDED' }] },
 ];
 
+/** 예시로 넣는 직접 추가 일정. 지울 때(clearDemoData)도 이 이름으로 찾는다 */
+const DEMO_EVENTS = ['1톤 트럭 정기 점검', '물류 창고 정리', '중고 플랫폼 판매글 일괄 갱신'];
 const STATUS_KO: Record<ItemStatus, string> = { PENDING: '접수대기', IN_PROGRESS: '진행중', SCHEDULED: '반출예정', COMPLETED: '처리완료', CANCELED: '취소·반려' };
 const ADMIN_NAME = '운영 관리자';
 export const DEMO_PIN = '1234'; // 예시 접수의 조회용 PIN (docs/DEVELOPMENT_STATUS.md에 적어 두었다)
@@ -201,8 +203,6 @@ export async function seedDemoData(db: Db, uploadDir: string, loadPhoto: (name: 
   return true;
 }
 
-
-const DEMO_EVENTS = ['1톤 트럭 정기 점검', '물류 창고 정리', '중고 플랫폼 판매글 일괄 갱신'];
 
 /**
  * 예시 데이터를 지운다: is_demo 접수(품목·사진·이력·문자 기록은 함께 지워진다), 사진 파일, 예시 방문 기록, 예시 일정.
