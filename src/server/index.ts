@@ -27,6 +27,9 @@ purge();
 const timer = setInterval(purge, 3600_000);
 timer.unref();
 
+// 터널이나 리버스 프록시 뒤에서 돌릴 때: TRUST_PROXY=1이면 접속자 IP와 HTTPS 여부를 전달 헤더에서 읽고, HOST=127.0.0.1이면 서버 안에서만 접속을 받는다
+if (process.env.TRUST_PROXY === '1') app.set('trust proxy', true);
 const port = Number(process.env.PORT) || 3000;
-const server = app.listen(port, () => console.log(`가구다방 서버 기동: http://127.0.0.1:${port}`));
+const host = process.env.HOST || '0.0.0.0';
+const server = app.listen(port, host, () => console.log(`가구다방 서버 기동: http://${host}:${port}`));
 for (const sig of ['SIGINT', 'SIGTERM'] as const) process.on(sig, () => server.close(() => { db.close(); process.exit(0); }));

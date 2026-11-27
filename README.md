@@ -321,7 +321,21 @@ npm start
   - `PORT`: 서버 포트 (기본 `3000`)
   - `ADMIN_ID` / `ADMIN_PASSWORD`: 운영자 초기 계정·비밀번호 (**실배포 전 반드시 환경변수로 지정**)
   - `SESSION_SECRET`: HMAC 세션 쿠키 서명 비밀키 (**실배포 전 무작위 비밀키 지정**)
+  - `HOST` / `TRUST_PROXY`: 받을 주소(기본 `0.0.0.0`)와 프록시 뒤 실행 여부(`1`이면 전달 헤더를 믿는다)
   - `SOLAPI_API_KEY` / `SOLAPI_API_SECRET` / `SMS_SENDER`: 문자 발송용(선택). 솔라피 API 키와 솔라피에 등록한 발신번호. 세 값이 모두 있어야 관리자 화면에 "문자 보내기"가 나온다
+
+### 직접 운영하는 서버에 올리기 (데이터가 보존된다)
+
+```bash
+git clone https://github.com/hy040504/gagudabang.git && cd gagudabang
+ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm ci && npm run build
+# .env 파일에 아래 값을 적는다 (저장소에 올리지 않는다)
+#   NODE_ENV=production / ADMIN_PASSWORD=... / SESSION_SECRET=... / PORT=5020 / HOST=127.0.0.1 / TRUST_PROXY=1
+node --env-file=.env dist/server/index.js
+```
+
+- 접수 데이터(SQLite)와 사진은 서버의 `data/` 폴더에 남는다. 이 폴더를 백업한다.
+- `HOST=127.0.0.1`은 서버 안에서만 접속을 받게 하고, 바깥 주소는 Cloudflare Tunnel이나 리버스 프록시가 이 포트로 이어 준다. 그때 `TRUST_PROXY=1`을 함께 쓴다.
 
 ### Vercel 무료 배포 (`vercel.json`, `src/index.ts`)
 
