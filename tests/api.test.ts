@@ -214,14 +214,36 @@ describe('관리자 처리·상태 전이·동시성 (FN-16/20/22)', () => {
 describe('회원·쿠키 분리·CSRF·설정', () => {
   const member = client(srv.base);
 
-  test('가입 검증(짧은 비밀번호·중복 번호)과 로그인', async () => {
-    assert.equal((await member.call('POST', '/api/auth/signup', { phone: '01099998888', password: 'short', name: 'A' })).status, 422);
-    assert.equal((await member.call('POST', '/api/auth/signup', { phone: '010-9999-8888', password: 'password1', name: '민서', defaultAddress: '서울' })).status, 201);
-    assert.equal((await client(srv.base).call('POST', '/api/auth/signup', { phone: '01099998888', password: 'password1', name: 'B' })).status, 422);
+  test('가입 검증(짧은 비밀번호·중복 번호·아이디 규칙)과 로그인', async () => {
+    assert.equal((await member.call('POST', '/api/auth/signup', { username: 'minseo1', phone: '01099998888', password: 'short', name: 'A' })).status, 422);
+    for (const bad of [undefined, 'abc', '1minseo', 'min-seo']) { // 가입 요청은 분당 10회 제한이라 경우를 줄였다
+      const r = await member.call('POST', '/api/auth/signup', { username: bad, phone: '01099998888', password: 'password1', name: 'A' });
+      assert.equal(r.status, 422, `아이디 ${bad}`);
+      assert.ok(r.json.error.fieldErrors.username);
+    }
+    assert.equal((await member.call('POST', '/api/auth/signup', { username: 'MinSeo1', phone: '010-9999-8888', password: 'password1', name: '민서', defaultAddress: '서울' })).status, 201);
+    assert.equal((await client(srv.base).call('POST', '/api/auth/signup', { username: 'other1', phone: '01099998888', password: 'password1', name: 'B' })).status, 422, '중복 번호');
+    const dup = await client(srv.base).call('POST', '/api/auth/signup', { username: 'minseo1', phone: '01011112222', password: 'password1', name: 'B' });
+    assert.equal(dup.status, 422, '중복 아이디');
+    assert.ok(dup.json.error.fieldErrors.username);
     assert.equal((await client(srv.base).call('POST', '/api/auth/login', { phone: '01099998888', password: 'wrong-pass' })).status, 401);
     const me = await member.call('GET', '/api/auth/me');
+    assert.equal(me.json.data.user.username, 'minseo1', '아이디는 소문자로 저장');
     assert.equal(me.json.data.user.defaultAddress, '서울');
     assert.ok(!JSON.stringify(me.json).includes('password'));
+  });
+
+  test('아이디 또는 휴대폰 번호로 로그인한다', async () => {
+    const ok = async (body: Record<string, string>) => (await client(srv.base).call('POST', '/api/auth/login', { password: 'password1', ...body }));
+    for (const identifier of ['minseo1', 'MINSEO1', ' minseo1 ', '01099998888', '010-9999-8888']) {
+      const r = await ok({ identifier });
+      assert.equal(r.status, 200, identifier);
+      assert.equal(r.json.data.user.username, 'minseo1');
+    }
+    assert.equal((await ok({ phone: '01099998888' })).status, 200, '이전 요청 형식(phone)');
+    assert.equal((await ok({ identifier: 'minseo2' })).status, 401, '없는 아이디');
+    assert.equal((await ok({ identifier: 'minseo1', password: 'wrong-pass' })).status, 401);
+    assert.equal((await ok({ identifier: 'admin', password: ADMIN_PW })).status, 401, '관리자 계정은 고객 로그인으로 들어올 수 없다');
   });
 
   test('비회원 신청 건 승계: 틀린 PIN 404, 맞으면 내 목록·사진 열람 가능', async () => {
@@ -237,7 +259,7 @@ describe('회원·쿠키 분리·CSRF·설정', () => {
 
   test('다른 회원은 이미 승계된 건을 가로챌 수 없다', async () => {
     const thief = client(srv.base);
-    await thief.call('POST', '/api/auth/signup', { phone: '01055556666', password: 'password1', name: '도둑' });
+    assert.equal((await thief.call('POST', '/api/auth/signup', { username: 'thief01', phone: '01055556666', password: 'password1', name: '도둑' })).status, 201);
     assert.equal((await thief.call('POST', '/api/my/claim', { requestCode: code, pin: '4321' })).status, 404);
   });
 

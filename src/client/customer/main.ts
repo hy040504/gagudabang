@@ -29,7 +29,7 @@ function shell(body: string) {
     <main class="main"><div class="main-inner">${body}</div></main>
     <footer class="gd-footer"><div class="gd-footer-in">
       <div><b>${esc(config?.companyName ?? '가구다방')}</b><p>이사 전 가구 위탁 판매 · 방문 수거</p>${biz ? `<p>${biz}</p>` : ''}${contact ? `<p>${contact}</p>` : ''}</div>
-      <nav aria-label="약관"><a href="#terms">이용약관</a><a class="strong" href="#privacy">개인정보 처리방침</a></nav>
+      <nav aria-label="약관"><a href="#terms">이용약관</a><a class="strong" href="#privacy">개인정보 처리방침</a><a href="https://www.pexels.com/photo/close-up-shot-of-men-carrying-a-couch-7464662/" target="_blank" rel="noopener">사진 출처 Pexels</a></nav>
     </div></footer>`;
 }
 // 홈의 가구 종류 아이콘 (24 격자, 선 굵기 1.5, 색은 글자색을 따른다)
@@ -70,11 +70,12 @@ const home = () => `
     </div>
     <ul class="gd-kinds">${KINDS.map((k) => `<li>${kindIcon(KIND_ICON[k])}${CATEGORY_LABEL[k]}${k === 'ETC' ? ' 가구' : ''}</li>`).join('')}</ul>
   </section>
-  <section class="gd-hsec split">
-    <div>
+  <section class="gd-hsec gd-waysec">
+    <div class="gd-waysec-head">
       <h2>품목마다 처리 방식을<br>고를 수 있습니다</h2>
       <p class="gd-hsec-lead">접수할 때 가구별로 하나를 고릅니다.</p>
     </div>
+    <figure class="gd-waysec-photo"><img src="/assets/photos/moving-sofa.jpg" alt="두 사람이 소파를 들어 옮기고 있다" width="1120" height="840" loading="lazy" decoding="async"></figure>
     <dl class="gd-ways">
       <div><dt>${PREFERENCE_LABEL.RESALE}</dt><dd>판매 마감일까지 대신 판매합니다. 마감일은 이사일 이전으로 정합니다.</dd></div>
       <div><dt>${PREFERENCE_LABEL.DISPOSE}</dt><dd>판매하지 않고, 약속한 반출일에 방문해 수거합니다.</dd></div>
@@ -325,15 +326,16 @@ function login() {
     const f = $<HTMLFormElement>('#loginForm')!;
     f.addEventListener('submit', async (ev) => {
       ev.preventDefault();
-      try { await afterAuth((await api.post<{ user: CustomerProfileDto }>('/api/auth/login', { phone: formVal(f, 'phone'), password: (f.elements.namedItem('password') as HTMLInputElement).value })).user); }
+      try { await afterAuth((await api.post<{ user: CustomerProfileDto }>('/api/auth/login', { identifier: formVal(f, 'identifier'), password: (f.elements.namedItem('password') as HTMLInputElement).value })).user); }
       catch (e) { showError(e, f); }
     });
   });
-  return `<form id="loginForm" class="card" style="padding:24px;max-width:460px;margin:0 auto" novalidate><h1 class="card-title">회원 로그인</h1>
-    <div class="field"><label>휴대폰 번호</label><input name="phone" inputmode="tel" autocomplete="username" placeholder="010-0000-0000" required></div>
+  return `<form id="loginForm" class="card gd-auth" novalidate><h1 class="card-title">회원 로그인</h1>
+    <div class="field"><label>휴대폰 번호 또는 아이디</label><input name="identifier" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
     <div class="field"><label>비밀번호</label><input name="password" type="password" autocomplete="current-password" required></div>
     <button class="btn primary block">로그인</button>
-    <p class="muted small" style="margin-top:14px">회원이 아니어도 <a href="#apply">바로 접수</a>할 수 있습니다. 처음이라면 <a href="#signup">회원가입</a>.</p></form>`;
+    <a class="btn outline block" href="#signup">회원가입</a>
+    <p class="muted small">회원이 아니어도 <a href="#apply">바로 접수</a>할 수 있습니다.</p></form>`;
 }
 
 function signup() {
@@ -349,7 +351,7 @@ function signup() {
       }
       try {
         const out = await api.post<{ user: CustomerProfileDto }>('/api/auth/signup', {
-          name: formVal(f, 'name'), phone: formVal(f, 'phone'), password: pw,
+          username: formVal(f, 'username'), name: formVal(f, 'name'), phone: formVal(f, 'phone'), password: pw,
           defaultZipcode: formVal(f, 'defaultZipcode'), defaultAddress: formVal(f, 'defaultAddress'), defaultAddressDetail: formVal(f, 'defaultAddressDetail'),
         });
         toast('가입되었습니다.', 'ok');
@@ -357,17 +359,20 @@ function signup() {
       } catch (e) { showError(e, f); }
     });
   });
-  return `<form id="signupForm" class="card" style="padding:24px;max-width:560px;margin:0 auto" novalidate><h1 class="card-title">회원가입</h1>
-    <p class="muted small">가입하면 접수할 때 이름과 기본 수거지가 자동으로 채워집니다.</p>
-    <div class="grid2"><div class="field"><label>이름</label><input name="name" maxlength="50" required></div>
-    <div class="field"><label>휴대폰 번호</label><input name="phone" inputmode="tel" autocomplete="username" required></div>
-    <div class="field"><label>비밀번호 (8자 이상)</label><input name="password" type="password" autocomplete="new-password" minlength="8" required></div>
-    <div class="field"><label>비밀번호 확인</label><input name="confirm" type="password" autocomplete="new-password" required></div></div>
+  return `<form id="signupForm" class="card gd-auth wide" novalidate><h1 class="card-title">회원가입</h1>
+    <p class="muted small">가입하면 접수할 때 이름과 기본 수거지가 자동으로 채워지고, 접수 내역을 한곳에서 볼 수 있습니다.</p>
+    <div class="field"><label>아이디</label><input name="username" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="4" maxlength="20" aria-describedby="usernameHint" required>
+      <p class="muted small" id="usernameHint">영문 소문자로 시작하는 영문 소문자·숫자 4~20자. 로그인할 때 휴대폰 번호 대신 쓸 수 있습니다.</p></div>
+    <div class="grid2"><div class="field"><label>비밀번호 (8자 이상)</label><input name="password" type="password" autocomplete="new-password" minlength="8" required></div>
+    <div class="field"><label>비밀번호 확인</label><input name="confirm" type="password" autocomplete="new-password" required></div>
+    <div class="field"><label>이름</label><input name="name" autocomplete="name" maxlength="50" required></div>
+    <div class="field"><label>휴대폰 번호</label><input name="phone" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" required></div></div>
     <h2 class="card-title" style="font-size:1rem">기본 수거지 (선택)</h2>
     <div class="grid2"><div class="field"><label>우편번호</label><input name="defaultZipcode" maxlength="10"></div>
     <div class="field"><label>주소</label><input name="defaultAddress" maxlength="200"></div></div>
     <div class="field"><label>상세 주소</label><input name="defaultAddressDetail" maxlength="100"></div>
-    <button class="btn primary block">가입하기</button></form>`;
+    <button class="btn primary block">가입하기</button>
+    <p class="muted small">이미 회원이라면 <a href="#login">로그인</a>해 주세요.</p></form>`;
 }
 
 function myPage() {
@@ -421,7 +426,7 @@ function myPage() {
       <div class="field"><label>PIN 4자리</label><input name="pin" inputmode="numeric" maxlength="4" autocomplete="off" required></div>
       <button class="btn outline">연결하기</button></form>
     <form id="profileForm" class="card" style="padding:20px" novalidate><h2 class="card-title" style="font-size:1rem">내 정보 · 기본 수거지</h2>
-      <p class="muted small tabular">${esc(user.phone)}</p>
+      <p class="muted small tabular">${user.username ? `아이디 ${esc(user.username)} · ` : ''}${esc(user.phone)}</p>
       <div class="field"><label>이름</label><input name="name" value="${esc(user.name)}" maxlength="50" required></div>
       <div class="grid2"><div class="field"><label>우편번호</label><input name="defaultZipcode" value="${esc(user.defaultZipcode)}" maxlength="10"></div>
       <div class="field"><label>주소</label><input name="defaultAddress" value="${esc(user.defaultAddress)}" maxlength="200"></div></div>

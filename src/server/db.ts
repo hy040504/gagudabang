@@ -113,6 +113,9 @@ export function openDb(file: string): Db {
   const db = new DatabaseSync(file);
   db.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
   db.exec(SCHEMA);
+  // 회원 아이디는 나중에 추가한 열이다. 이미 만들어진 DB에도 붙도록 여기서 넣는다 (아이디가 없는 기존 회원은 휴대폰 번호로 로그인한다)
+  if (!(db.prepare('PRAGMA table_info(users)').all() as { name: string }[]).some((c) => c.name === 'username')) db.exec('ALTER TABLE users ADD COLUMN username TEXT');
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username) WHERE username IS NOT NULL');
   const ins = db.prepare('INSERT OR IGNORE INTO site_settings (key, value) VALUES (?, ?)');
   for (const [k, v] of Object.entries(DEFAULT_SETTINGS)) ins.run(k, v);
   return db;

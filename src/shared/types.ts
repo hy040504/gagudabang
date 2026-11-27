@@ -54,7 +54,7 @@ export interface StatusHistoryDto {
   id: number; applicationId: number; itemId: number | null; actorRole: string; actorName: string;
   actionType: string; before: unknown; after: unknown; note: string; createdAt: string;
 }
-export interface CustomerProfileDto { id: number; name: string; phone: string; defaultZipcode: string; defaultAddress: string; defaultAddressDetail: string }
+export interface CustomerProfileDto { id: number; username: string; name: string; phone: string; defaultZipcode: string; defaultAddress: string; defaultAddressDetail: string }
 
 export interface AdminApplicationSummaryDto {
   id: number; requestCode: string; applicantName: string; phone: string; movingDate: string; preferredPickupDate: string;

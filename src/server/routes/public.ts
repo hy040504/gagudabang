@@ -26,8 +26,10 @@ export function authOf(ctx: Ctx, req: Request) {
   return { customerId: cust?.uid ?? null, lookupIds: look?.ids ?? [], adminId: adm?.aid ?? null };
 }
 
+/** 회원 아이디: 영문 소문자로 시작하는 영문 소문자·숫자 4~20자. 영문자로 시작하므로 숫자뿐인 휴대폰 번호와 겹치지 않는다. */
+const USERNAME_RE = /^[a-z][a-z0-9]{3,19}$/;
 const profile = (u: Row): CustomerProfileDto => ({
-  id: u.id, name: u.name, phone: u.phone, defaultZipcode: u.default_zipcode, defaultAddress: u.default_address, defaultAddressDetail: u.default_address_detail,
+  id: u.id, username: u.username ?? '', name: u.name, phone: u.phone, defaultZipcode: u.default_zipcode, defaultAddress: u.default_address, defaultAddressDetail: u.default_address_detail,
 });
 
 const notFoundApp = () => new AppError(404, 'NOT_FOUND', '일치하는 신청 내역을 찾을 수 없습니다.');
@@ -116,24 +118,31 @@ export function publicRouter(ctx: Ctx) {
 
   r.post('/auth/signup', rateLimiter(10, 60_000, ctx.clock), wrap((req, res) => {
     const phone = normalizePhone(req.body?.phone);
+    const username = String(req.body?.username ?? '').trim().toLowerCase();
     const password = String(req.body?.password ?? '');
     const name = String(req.body?.name ?? '').trim().slice(0, 50);
     const f: Record<string, string> = {};
+    if (!USERNAME_RE.test(username)) f.username = '아이디는 영문 소문자로 시작하는 영문 소문자·숫자 4~20자로 입력해 주세요.';
+    else if (db.prepare('SELECT 1 FROM users WHERE username = ?').get(username)) f.username = '이미 사용 중인 아이디입니다.';
     if (!/^01\d{8,9}$/.test(phone)) f.phone = '올바른 휴대폰 번호를 입력해 주세요.';
     if (password.length < 8) f.password = '비밀번호는 8자 이상이어야 합니다.';
     if (!name) f.name = '이름을 입력해 주세요.';
     if (!f.phone && db.prepare('SELECT 1 FROM users WHERE login_id = ?').get(phone)) f.phone = '이미 가입된 번호입니다.';
     if (Object.keys(f).length) throw new AppError(422, 'VALIDATION_ERROR', '입력값을 확인해 주세요.', f);
     const s = (k: string, n: number) => String(req.body?.[k] ?? '').trim().slice(0, n);
-    const id = Number(db.prepare(`INSERT INTO users (role, login_id, password_hash, name, phone, default_zipcode, default_address, default_address_detail)
-      VALUES ('CUSTOMER', ?, ?, ?, ?, ?, ?, ?)`).run(phone, hashSecret(password), name, phone, s('defaultZipcode', 10), s('defaultAddress', 200), s('defaultAddressDetail', 100)).lastInsertRowid);
+    const id = Number(db.prepare(`INSERT INTO users (role, login_id, username, password_hash, name, phone, default_zipcode, default_address, default_address_detail)
+      VALUES ('CUSTOMER', ?, ?, ?, ?, ?, ?, ?, ?)`).run(phone, username, hashSecret(password), name, phone, s('defaultZipcode', 10), s('defaultAddress', 200), s('defaultAddressDetail', 100)).lastInsertRowid);
     setCookie(res, COOKIES.customer, signer.sign({ uid: id }, CUSTOMER_TTL), CUSTOMER_TTL);
     ok(res, { user: profile(db.prepare('SELECT * FROM users WHERE id = ?').get(id) as Row) }, 201);
   }));
 
   r.post('/auth/login', rateLimiter(20, 60_000, ctx.clock), wrap((req, res) => {
-    const u = db.prepare("SELECT * FROM users WHERE login_id = ? AND role = 'CUSTOMER' AND is_active = 1").get(normalizePhone(req.body?.phone)) as Row | undefined;
-    if (!u || !verifySecret(String(req.body?.password ?? ''), u.password_hash)) throw new AppError(401, 'UNAUTHORIZED', '번호 또는 비밀번호가 올바르지 않습니다.');
+    // identifier에는 아이디나 휴대폰 번호가 온다. phone은 이전 요청 형식이라 그대로 받는다.
+    const idf = String(req.body?.identifier ?? req.body?.phone ?? '').trim().toLowerCase();
+    const u = (USERNAME_RE.test(idf)
+      ? db.prepare("SELECT * FROM users WHERE username = ? AND role = 'CUSTOMER' AND is_active = 1").get(idf)
+      : db.prepare("SELECT * FROM users WHERE login_id = ? AND role = 'CUSTOMER' AND is_active = 1").get(normalizePhone(idf))) as Row | undefined;
+    if (!u || !verifySecret(String(req.body?.password ?? ''), u.password_hash)) throw new AppError(401, 'UNAUTHORIZED', '아이디(또는 휴대폰 번호)나 비밀번호가 올바르지 않습니다.');
     setCookie(res, COOKIES.customer, signer.sign({ uid: u.id }, CUSTOMER_TTL), CUSTOMER_TTL);
     ok(res, { user: profile(u) });
   }));
