@@ -1,5 +1,5 @@
 import { api, ApiError } from '../common/api.js';
-import { $, confirmDialog, decorate, logo, CATEGORY_LABEL, CONDITION_LABEL, HANDLING_LABEL, PREFERENCE_LABEL, STATUS_LABEL, esc, initTheme, themeButton, options, registerServiceWorker, showError, toast } from '../common/ui.js';
+import { $, confirmDialog, decorate, ICON_ATTRS, logo,CATEGORY_LABEL, CONDITION_LABEL, HANDLING_LABEL, PREFERENCE_LABEL, STATUS_LABEL, esc, initTheme, themeButton, options, registerServiceWorker, showError, toast } from '../common/ui.js';
 import { BRAND_NAME, DEFAULT_PUBLIC_NOTICE, TRANSITIONS } from '../../shared/types.js';
 import type { AdminApplicationDetailDto, AdminApplicationSummaryDto, AdminItemDto, AdminKpis, AdminStatsDto, ItemStatus, PublicConfig, ScheduleCalendarEventDto, StatsPeriod, StatusHistoryDto } from '../../shared/types.js';
 import { donut, hbars, stack, xyChart, type Part } from './charts.js';
@@ -481,7 +481,7 @@ function viewerDialog() {
   dlg.className = 'gd-lightbox';
   dlg.setAttribute('aria-label', '사진 크게 보기');
   dlg.innerHTML = `<div class="gd-lightbox-in"><img alt="">
-    <div class="row"><button type="button" class="btn outline" data-step="-1">이전</button><button type="button" class="btn outline" data-step="1">다음</button>
+    <div class="row"><button type="button" class="btn outline" data-step="-1" aria-label="이전 사진" title="이전 사진"><svg ${ICON_ATTRS}><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="btn outline" data-step="1" aria-label="다음 사진" title="다음 사진"><svg ${ICON_ATTRS}><path d="M9 5l7 7-7 7"/></svg></button>
       <span id="photoCap" class="small sp" aria-live="polite"></span><button type="button" class="btn primary" data-close>닫기</button></div></div>`;
   dlg.addEventListener('click', (ev) => {
     const t = ev.target as HTMLElement;
