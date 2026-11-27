@@ -330,6 +330,10 @@ npm start
 3. 화면 파일(`public/`)은 Vercel이 직접 내보내고, `/api` 요청은 `src/index.ts`가 내보낸 Express 앱이 함수 하나로 처리합니다. 첫 화면(`/`)은 `vercel.json`의 `routes`가 `public/index.html`로 이어 줍니다.
 4. 명령줄로 올릴 때는 `npx vercel login` 뒤에 `npx vercel deploy --prod`를 실행합니다.
 
+- 배포 주소: `https://gagudabang.vercel.app` (관리자 화면은 주소 끝에 `/admin.html`)
+- 테스트용 회원 계정 `abcd` / `1234`가 서버가 뜰 때 자동으로 만들어집니다. 실제 고객을 받기 전에 `src/index.ts`와 `src/server/index.ts`의 `testAccount: true`를 빼세요.
+- 올릴 파일은 `.vercelignore`가 `src`, `public`, 설정 파일로 한정합니다.
+
 > **알아 둘 제한**: Vercel 함수는 임시 폴더에만 쓸 수 있어, 접수 데이터(SQLite)와 사진이 인스턴스가 바뀌면 지워집니다. 지금 구성은 화면과 흐름을 보여 주는 시연용입니다. 실제 접수를 받으려면 외부 DB와 파일 저장소로 바꿔야 합니다. 한 번에 보내는 요청은 4.5MB까지라 사진이 많으면 접수가 거절될 수 있습니다.
 
 ### 타입 검사 · 자동화 테스트 · 성능 측정
@@ -338,7 +342,7 @@ npm start
 # 서버 · 클라이언트 · 테스트 전체 strict 타입 검사
 npm run check
 
-# 자동화 테스트 (51개 통과: API 33 + 보안·미디어 6 + 시간 의존 10 + 문자 발송 2)
+# 자동화 테스트 (52개 통과: API 34 + 보안·미디어 6 + 시간 의존 10 + 문자 발송 2)
 npm test
 
 # 성능 벤치마크 (500건 · 5,000건 기준 p95 측정)
@@ -365,7 +369,7 @@ npm run perf
 | `TASK-01` / `R1` | 「가구다방」 리브랜딩 및 인터랙티브 프로토타입 제작 | **완료** | `docs/assets/brand/*.svg` (내부 데모본 별도 보관) |
 | `TASK-02` | 실서버 백엔드(`Express + TypeScript + node:sqlite`) DB·인증·보안·REST API 19종 | **완료** | `src/shared/*`, `src/server/*` |
 | `TASK-03` | 실서버 무번들러 프론트엔드(고객 포털·관리자 콘솔)·PWA·Electron 연동 | **부분 완료** (화면 기능 완료, 실제 기기 확인 남음) | `public/*`, `src/client/*`, `desktop/main.cjs` |
-| `TASK-04` | 자동화 테스트(`node:test` 51개)·접근성 자동 검사(axe-core)·성능 측정(`500`/`5,000`건) 및 품질 검수 | **부분 완료** | `tests/*.test.ts`, `scripts/perf.ts` |
+| `TASK-04` | 자동화 테스트(`node:test` 52개)·접근성 자동 검사(axe-core)·성능 측정(`500`/`5,000`건) 및 품질 검수 | **부분 완료** | `tests/*.test.ts`, `scripts/perf.ts` |
 | **프로토타입 분리** | 고객 웹(`customer.html`)·관리자 웹(`admin.html`) 6단계 정적 프로토타입 분리 | **완료 (6단계 마무리 점검까지)** | `prototype/*`, [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md) |
 
 ### 확정 기술 스택
@@ -385,7 +389,8 @@ gagudabang/
 ├── README.md                              # 프로젝트 안내·아키텍처·파이프라인·ERD 문서
 ├── package.json                           # 빌드·실행·테스트·성능 스크립트 및 의존성
 ├── tsconfig.{base,server,client,test}.json   # tsconfig.json은 서버 설정을 그대로 잇는다 (편집기와 Vercel용)
-├── vercel.json                            # Vercel 배포 설정 (설치·빌드 명령, 서울 리전, 보안 헤더)
+├── vercel.json / .vercelignore            # Vercel 배포 설정 (설치·빌드 명령, 서울 리전, 첫 화면 경로, 보안 헤더)과 올릴 파일 목록
+├── DESIGN_AUDIT.md                        # 디자인 점검 보고서 (측정 지표, 고친 것, 제안)
 ├── src/
 │   ├── shared/types.ts                    # 프론트·백엔드 공용 타입 및 상태 전이 계약
 │   ├── index.ts                           # Vercel 배포용 진입점 (Express 앱을 내보낸다)
@@ -405,8 +410,9 @@ gagudabang/
 │   ├── customer.{html,css,js} / admin.{html,css,js} / tokens.css / base.css / ui.css / data.js / store.js
 │   └── assets/{logo.svg, icon.svg, fonts/, photos/}
 ├── desktop/                               # Electron 운영자 데스크탑 래퍼(main.cjs)와 설치 파일 설정(electron-builder.json, icon.png)
-├── tests/                                 # node:test 자동화 테스트 스위트 (51개)
+├── tests/                                 # node:test 자동화 테스트 스위트 (52개)
 │   └── {api.test.ts, security-media.test.ts, time.test.ts, sms.test.ts, helpers.ts}
+├── scripts/guide/{capture.mjs, build-pdf.mjs} # 이용 가이드의 화면 그림과 PDF를 다시 만드는 스크립트
 ├── scripts/perf.ts                        # 500건 / 5,000건 성능 벤치마크 스크립트
 ├── scripts/split-demo.mjs                 # 로컬 demo.html을 고객 화면과 관리자 화면 파일로 나눔 (결과물 demo/는 저장소에 올리지 않음)
 └── docs/                                  # 기획서·벤치마킹·진행 현황 및 README 시각 자산
