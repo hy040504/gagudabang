@@ -68,7 +68,7 @@
 
 .gd-brand-tag {
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-3);
   line-height: 1.2;
   white-space: nowrap;
@@ -1168,7 +1168,7 @@ html[data-theme="dark"] .gd-theme-icon .i-sun { display: block; }
 .gd-footer b { font-size: 16px; color: var(--text-1); }
 .gd-footer p { margin: 4px 0 0; font-size: 13px; line-height: 1.55; color: var(--text-3); }
 .gd-footer nav { display: flex; gap: 20px; font-size: 13px; }
-.gd-footer nav a { color: var(--text-2); font-weight: 500; }
+.gd-footer nav a { color: var(--text-2); font-weight: 600; }
 .gd-footer nav a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .gd-footer nav a.strong { color: var(--text-1); font-weight: 700; }
 .gd-site .gd-brand { padding-left: 0; padding-right: 0; }
