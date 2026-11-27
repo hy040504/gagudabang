@@ -29,7 +29,7 @@ const fns = new Map(chunks.filter((c) => c.kind === 'fn').map((c) => [c.name, c]
 const refs = (text) => new Set((text.match(/[A-Za-z_$][\w$]*/g) || []).filter((n) => fns.has(n)));
 for (const c of fns.values()) { c.refs = refs(c.text); c.refs.delete(c.name); }
 const CUST = ['customerShell', 'viewHome', 'viewApply', 'viewComplete', 'viewLookup', 'viewCustomerLogin', 'viewCustomerSignup', 'viewMyPage', 'viewPolicy'];
-const ADM = ['adminShell', 'viewAdminLogin', 'viewAdminDashboard', 'viewAdminSchedule', 'viewAdminDetail', 'viewAdminSettings'];
+const ADM = ['adminShell', 'viewAdminLogin', 'viewAdminDashboard', 'viewAdminSchedule', 'viewAdminStats', 'viewAdminDetail', 'viewAdminSettings'];
 const VIEWER = ['renderViewer', 'fitViewer', 'vwSetEnv', 'vwSetRole', 'vwJumpRoute', 'vwSetTheme', 'p3UpdateViewerBarState', 'p3BuildDeviceHtml', 'p3BroadcastToFrames', 'p3IframeSrc'];
 const REPLACED = ['render', 'switchPortal']; // 화면별 파일에서 새로 쓴다
 const reach = (roots, blocked) => { const seen = new Set(), stack = [...roots]; while (stack.length) { const n = stack.pop(); if (seen.has(n) || !fns.has(n)) continue; seen.add(n); for (const r of fns.get(n).refs) if (!blocked.has(r)) stack.push(r); } return seen; };
@@ -71,6 +71,7 @@ const tail = (portal) => {
     let body = '';
     switch (U.route) {
       case 'admin-schedule': body = viewAdminSchedule(); break;
+      case 'admin-stats': body = viewAdminStats(); break;
       case 'admin-detail': body = viewAdminDetail(); break;
       case 'admin-settings': body = viewAdminSettings(); break;
       case 'admin-dashboard': default: U.route = 'admin-dashboard'; body = viewAdminDashboard(); break;
@@ -121,7 +122,9 @@ const logoPaths = fs.readFileSync(root + '/prototype/assets/logo.svg', 'utf8').m
 const logoSvg = (box, w, h, rx) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${box.join(' ')}" width="${w}" height="${h}" role="img" aria-label="가구다방"><rect x="${box[0]}" y="${box[1]}" width="${box[2]}" height="${box[3]}" rx="${rx}" fill="#14284b"/>${logoPaths}</svg>`;
 let sharedJs = chunks.filter((c) => c.kind === 'stmt' || c.where === 'shared').map((c) => c.text).join('\n\n');
 sharedJs = sharedJs.replace(/const BRAND_SVG = `[\s\S]*?<\/svg>`;/, () => 'const BRAND_SVG = `' + logoSvg([154, 98, 1766, 1766], 64, 64, 390) + '`;')
-  .replace(/const BRAND_LOCKUP_SVG = `[\s\S]*?<\/svg>`;/, () => 'const BRAND_LOCKUP_SVG = `' + logoSvg([123, 638, 1827, 686], 149, 56, 200) + '`;');
+  .replace(/const BRAND_LOCKUP_SVG = `[\s\S]*?<\/svg>`;/, () => 'const BRAND_LOCKUP_SVG = `' + logoSvg([123, 638, 1827, 686], 149, 56, 200) + '`;')
+  // 나뉜 파일은 demo/ 폴더 안에 있으므로 public/ 그림(로고, 예시 사진)을 한 단계 위에서 찾는다
+  .replace(/^const ASSET_ROOT = '';/m, "const ASSET_ROOT = '../';");
 fs.writeFileSync(out + '/shared.js', head('공용 스크립트: 상태 저장, 샘플 데이터, 공용 부품, 주소 처리, 시작 코드. 기기 뷰어 전용 함수는 뺐다.') + sharedJs + '\n');
 for (const p of ['customer', 'admin']) fs.writeFileSync(`${out}/${p}.js`, head(p === 'customer' ? '고객 화면 전용 스크립트' : '관리자 화면 전용 스크립트') + "'use strict';\n\n" + pick(p) + '\n' + tail(p));
 const page = (p, title, start) => `<!DOCTYPE html>
