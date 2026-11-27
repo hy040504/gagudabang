@@ -282,3 +282,6 @@ html, body {
 .toast.warn::before { background: var(--warn); }
 .toast.bad::before, .toast.err::before { background: var(--bad); }
 
+/* ---- 디자인 점검 보정 (DESIGN_AUDIT.md) ---- */
+/* C2: 어두운 화면의 위험 버튼은 밝은 빨강 바탕이라 흰 글자가 읽히지 않았다(2.06:1) */
+html[data-theme="dark"] .btn.danger { color: var(--bg-app); }
