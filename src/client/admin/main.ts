@@ -280,7 +280,7 @@ async function scheduleView() {
     <style>
       .cal-wrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
       .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-      .cal-dow{font-size:12px;font-weight:600;color:var(--text-3);text-align:center;padding:6px 0}
+      .cal-dow{font-size:13px;font-weight:600;color:var(--text-3);text-align:center;padding:6px 0}
       .cal-cell{min-height:76px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;font:inherit;color:var(--text-1);cursor:pointer;transition:background .15s ease-out,border-color .15s ease-out}
       .cal-cell:hover{background:var(--bg-hover)}
       .cal-cell.sel{background:var(--primary-soft);border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-ring)}
