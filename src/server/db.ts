@@ -136,6 +136,16 @@ export function ensureAdmin(db: Db, loginId: string, password: string) {
   if (!exists) db.prepare("INSERT INTO users (role, login_id, password_hash, name) VALUES ('ADMIN', ?, ?, '운영 관리자')").run(loginId, hashSecret(password));
 }
 
+/**
+ * 테스트용 회원 계정(아이디 abcd, 비밀번호 1234)을 없을 때만 만든다. 화면을 둘러볼 때 쓰는 계정이고 이름·연락처·주소는 지어낸 예시다.
+ * shortcut: 누구나 아는 약한 비밀번호라 실제 고객을 받기 전에 이 호출을 빼야 한다 (src/server/index.ts, src/index.ts).
+ */
+export function ensureTestCustomer(db: Db) {
+  if (db.prepare("SELECT 1 FROM users WHERE username = 'abcd' OR login_id = '01000001234'").get()) return;
+  db.prepare(`INSERT INTO users (role, login_id, username, password_hash, name, phone, default_zipcode, default_address, default_address_detail)
+    VALUES ('CUSTOMER', '01000001234', 'abcd', ?, '김하늘', '01000001234', '04147', '서울특별시 마포구 독막로 100', '101동 1203호')`).run(hashSecret('1234'));
+}
+
 /** FN-26: 생성 후 24시간이 지난 멱등성 키 삭제. nowMs는 주입 가능한 현재 시각. */
 export function purgeExpiredIdempotency(db: Db, nowMs: number = Date.now()): number {
   return Number(db.prepare("DELETE FROM idempotency_keys WHERE created_at < datetime(?, 'unixepoch', '-1 day')").run(Math.floor(nowMs / 1000)).changes);

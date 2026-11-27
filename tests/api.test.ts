@@ -246,6 +246,17 @@ describe('회원·쿠키 분리·CSRF·설정', () => {
     assert.equal((await ok({ identifier: 'admin', password: ADMIN_PW })).status, 401, '관리자 계정은 고객 로그인으로 들어올 수 없다');
   });
 
+  test('테스트 계정(abcd / 1234)은 켰을 때만 생기고 그 계정으로 로그인된다', async () => {
+    assert.equal((await client(srv.base).call('POST', '/api/auth/login', { identifier: 'abcd', password: '1234' })).status, 401, '기본 서버에는 없다');
+    const s = startServer(undefined, { testAccount: true });
+    try {
+      const r = await client(s.base).call('POST', '/api/auth/login', { identifier: 'abcd', password: '1234' });
+      assert.equal(r.status, 200);
+      assert.equal(r.json.data.user.name, '김하늘');
+      assert.ok(r.json.data.user.defaultAddress);
+    } finally { s.close(); }
+  });
+
   test('비회원 신청 건 승계: 틀린 PIN 404, 맞으면 내 목록·사진 열람 가능', async () => {
     assert.equal((await member.call('POST', '/api/my/claim', { requestCode: code, pin: '0000' })).status, 404);
     assert.equal((await member.call('POST', '/api/my/claim', { requestCode: code, pin: '4321' })).status, 200);

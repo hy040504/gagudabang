@@ -18,6 +18,7 @@ const { app, db } = createApp({
   adminPassword: process.env.ADMIN_PASSWORD,
   secret: process.env.SESSION_SECRET,
   sms: smsFromEnv(),
+  testAccount: true, // 테스트용 회원 abcd / 1234 (실제 운영 전에 뺀다)
 });
 
 // FN-26: 24시간 지난 멱등성 키 정리 (1시간 주기)

@@ -16,6 +16,7 @@ const { app: inner } = createApp({
   adminPassword: process.env.ADMIN_PASSWORD,
   secret: process.env.SESSION_SECRET,
   sms: smsFromEnv(),
+  testAccount: true, // 테스트용 회원 abcd / 1234 (실제 운영 전에 뺀다)
 });
 // 요청이 Vercel 프록시를 거쳐 온다. 접속자 IP(요청 횟수 제한과 잠금의 기준)와 HTTPS 여부를 전달 헤더에서 읽는다.
 inner.set('trust proxy', true);
