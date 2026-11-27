@@ -23,7 +23,7 @@
 | `BRAND-03` | 로고의 '구'를 다시 그림(소파 그림이 든 네모가 '무'로 읽혀 ㄱ과 ㅜ 획으로 바꿈). 남아 있던 옛 임시 로고 교체(README 배너, 가로형 로고 파일, 설계 도식 02, 로컬 데모) | Claude | 완료 | **완료** | `public/assets/brand/*`, `prototype/assets/{logo,icon}.svg`, `docs/assets/brand/*`, `docs/assets/readme/banner.png`, `docs/assets/design/02_*.svg` |
 | `HOME-02` | 홈의 가구 종류를 칸마다 가운데 정렬하고 아이콘과 글자를 키움. 처리 방식 구역에 가구를 옮기는 사진 배치 | Claude | 완료 | **완료** | `src/client/customer/main.ts`, `public/styles/customer.css`, `public/assets/photos/moving-sofa.jpg` |
 | `AUTH-02` | 회원 아이디 추가: 가입할 때 아이디를 받고, 로그인은 휴대폰 번호 또는 아이디로 한다 | Claude | 완료 | **완료** | `src/server/db.ts`, `src/server/routes/public.ts`, `src/client/customer/main.ts`, `tests/api.test.ts` |
-| `DEPLOY-01` | Vercel 무료 배포 구성 | Claude | 설정 완료, 실제 배포는 Vercel 계정에서 진행 | **부분 완료** | `vercel.json`, `src/index.ts`, `tsconfig.json` |
+| `DEPLOY-01` | Vercel 무료 배포 구성과 배포 | Claude | 배포 완료(시연용: 데이터가 보존되지 않음) | **완료** | `vercel.json`, `src/index.ts`, `tsconfig.json` |
 
 ---
 
@@ -65,11 +65,14 @@
 - 접수, 조회, 취소, 회원 로그인, 관리자 저장, 일정, 설정, 사진 올리기, CSV 내보내기, 문자 템플릿이 원본과 같은 결과로 동작한다. 두 파일은 같은 저장 칸을 써서 데이터가 이어진다.
 - `demo/`와 `demo.html`은 시연 데이터에 실제 상호가 들어 있어 저장소에 올리지 않는다(`.gitignore`).
 
-### DEPLOY-01 Vercel 배포 — 설정 완료, 실제 배포는 계정에서
+### DEPLOY-01 Vercel 배포 — 완료(시연용)
 - `src/index.ts`가 Express 앱을 내보내고 Vercel이 함수 하나로 실행한다. 화면 파일은 `public/`에서 Vercel이 직접 내보낸다. `vercel.json`에 설치·빌드 명령(`npm run build:client`), 서울 리전(`icn1`), 보안 헤더가 있다.
 - 환경 변수 `ADMIN_PASSWORD`와 `SESSION_SECRET`이 없으면 시작하지 않는다. 프록시 뒤라 접속자 IP와 HTTPS 여부를 전달 헤더에서 읽고, HTTPS 요청에는 쿠키에 `Secure`를 붙인다.
 - 제한: 함수는 임시 폴더에만 쓸 수 있어 접수 데이터와 사진이 인스턴스가 바뀌면 지워진다(시연용). 실제 접수를 받으려면 외부 DB와 파일 저장소가 필요하다. 요청 하나는 4.5MB까지다.
-- 확인한 것: 진입점을 로컬에서 띄워 환경 변수 검사, 첫 화면, 가입과 로그인, 쿠키 `Secure`, IP별 요청 횟수 제한을 점검했다. Vercel에 실제로 올려 보지는 않았다(계정 필요).
+- 배포(2026-11-27): Vercel 프로젝트 `gagudabang`에 올렸고 주소는 `https://gagudabang.vercel.app`이다. 환경 변수 두 개는 Production에만 넣었다(값은 로컬 `.env`에 보관, 저장소에는 올리지 않는다). 저장소와 자동 연결은 하지 않아서, 다시 배포하려면 `npx vercel deploy --prod`를 실행한다.
+- 첫 화면(`/`)은 `vercel.json`의 `routes`가 `public/index.html`로 이어 준다. `rewrites`로는 이어지지 않고 요청이 함수로 넘어가서 `routes`를 썼다.
+- 확인한 것: 배포된 주소에서 첫 화면, 화면 파일과 보안 헤더, 관리자 로그인(쿠키 `Secure`), 회원가입, 아이디·휴대폰 번호 로그인, 사진을 붙인 접수, 진행 조회, 사진 열람 권한을 요청으로 점검했고(23개 통과), 브라우저로 390px과 1440px에서 홈과 관리자 로그인을 열어 오류가 없음을 봤다. 진입점은 로컬에서도 환경 변수 검사와 IP별 요청 횟수 제한을 점검했다.
+- 남은 것: 관리자 비밀번호가 짧고 흔한 값이라 공개 주소에서는 더 긴 값으로 바꾸는 편이 안전하다. 미리 보기(Preview) 환경에는 환경 변수를 넣지 않아 미리 보기 배포에서는 API가 동작하지 않는다.
 
 ### 알려진 사항
 - 미확정 사업자 정보는 실서버에서는 `[TBD]`, 프로토타입에서는 빈칸이다.

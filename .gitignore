@@ -31,3 +31,6 @@ demo/
 # 화면 점검 도구가 만드는 임시 파일
 .playwright-mcp/
 prototype/.hallmark/shots/
+
+.vercel
+.env*

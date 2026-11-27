@@ -18,9 +18,9 @@ const { app: inner } = createApp({
 // 요청이 Vercel 프록시를 거쳐 온다. 접속자 IP(요청 횟수 제한과 잠금의 기준)와 HTTPS 여부를 전달 헤더에서 읽는다.
 inner.set('trust proxy', true);
 
+// 첫 화면(/)은 vercel.json의 rewrites가 public/index.html로 이어 준다. 여기에 '/' 경로를 따로 두면 Vercel이 그 요청을 함수로 보내므로 두지 않는다.
 const app = express();
 app.disable('x-powered-by');
-app.get('/', (_req, res) => res.redirect('/index.html')); // 첫 화면 요청이 함수로 넘어온 경우에만 쓰인다
 app.use(inner);
 
 export default app;
