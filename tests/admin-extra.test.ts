@@ -34,6 +34,8 @@ describe('관리자: 직접 추가하는 일정과 통계', () => {
     try {
       const guest = client(s.base), admin = client(s.base);
       assert.equal((await admin.call('GET', '/api/admin/stats')).status, 401, '로그인 전');
+      // API 응답은 CDN이나 브라우저에 저장되지 않아야 한다 (관리자 데이터가 다른 사람에게 나가지 않게). 사진만 본인 브라우저에 저장할 수 있다
+      for (const u of ['/api/admin/stats', '/api/health', '/api/public/config']) assert.equal((await admin.call('GET', u)).headers.get('cache-control'), 'no-store', u);
       await guest.call('POST', '/api/applications', undefined, { form: applicationForm(validPayload()) });
       await guest.call('POST', '/api/applications', undefined, { form: applicationForm(validPayload({ items: [{ category: 'BED', itemName: '침대', conditionGrade: 'GOOD', customerPreference: 'CONSULT' }] })) });
       for (const path of ['home', 'apply', 'Bad Path!']) assert.equal((await guest.call('POST', '/api/visit', { path })).status, 204);
@@ -49,6 +51,7 @@ describe('관리자: 직접 추가하는 일정과 통계', () => {
       assert.deepEqual(st.byStatus, { PENDING: 3 });
       // 접수 목록의 품목마다 사진 주소가 따라온다 (목록의 작은 사진)
       const list = (await admin.call('GET', '/api/admin/applications?page=1')).json.data.items as { items: { photos: string[] }[] }[];
+      assert.equal((await admin.call('GET', list[0]!.items[0]!.photos[0]!)).headers.get('cache-control'), 'private, max-age=3600', '사진은 본인 브라우저에만');
       assert.deepEqual(list.flatMap((a) => a.items.map((i) => i.photos.length)), [1, 1, 1]);
       assert.match(list[0]!.items[0]!.photos[0]!, /^\/api\/uploads\/[0-9a-f-]{36}\.jpg$/);
       assert.deepEqual(st.byCategory, { BED: 1, DINING: 1, SOFA: 1 });

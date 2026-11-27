@@ -55,6 +55,8 @@ export function createApp(opt: AppOptions): { app: express.Express; db: Db; ctx:
     }
     next();
   });
+  // API 응답(개인정보·관리자 데이터)은 중간 서버(CDN 등)와 브라우저 어디에도 저장하지 않는다. 사진은 라우트에서 private로 바꾼다.
+  app.use('/api', (_req, res, next) => { res.setHeader('Cache-Control', 'no-store'); next(); });
   app.use(express.json({ limit: '100kb' }));
   // 예시 데이터를 넣는 중에는 API 요청을 잠시 기다리게 한다 (첫 화면이 빈 목록으로 뜨지 않게)
   if (opt.demoData) app.use('/api', (_req, _res, next) => { void ready.then(() => next()); });
