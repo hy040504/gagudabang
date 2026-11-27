@@ -54,7 +54,7 @@
 .gd-side-brand-sub {
   display: block;
   margin-top: 2px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-3);
 }
@@ -77,7 +77,7 @@
   border-radius: 10px;
   background: transparent;
   color: var(--text-2);
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   text-align: left;
@@ -108,7 +108,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   color: var(--text-2);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   display: inline-flex;
@@ -156,7 +156,7 @@
 }
 
 .gd-briefing-date {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-3);
   font-variant-numeric: tabular-nums;
@@ -221,7 +221,7 @@
 
 .gd-side-profile-meta strong {
   display: block;
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--text-1);
   white-space: nowrap;
   overflow: hidden;
@@ -230,7 +230,7 @@
 
 .gd-side-profile-meta span {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-3);
   white-space: nowrap;
   overflow: hidden;
@@ -298,7 +298,7 @@
 }
 
 .gd-crumb-root {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-3);
   white-space: nowrap;
@@ -311,7 +311,7 @@
 
 .gd-crumb-cur {
   font-family: var(--gd-serif);
-  font-size: 16.5px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-1);
   white-space: nowrap;
@@ -420,7 +420,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-2);
   cursor: pointer;
@@ -489,7 +489,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-3);
 }
@@ -603,7 +603,7 @@
 
 
 /* ---------- 관리자 대시보드: 요약 줄 · 필터 ---------- */
-.gd-stats { list-style: none; margin: 0 0 20px; padding: 0 0 16px; display: flex; flex-wrap: wrap; gap: 8px 28px; border-bottom: 1px solid var(--border); color: var(--text-2); font-size: 15px; }
+.gd-stats { list-style: none; margin: 0 0 20px; padding: 0 0 16px; display: flex; flex-wrap: wrap; gap: 8px 28px; border-bottom: 1px solid var(--border); color: var(--text-2); font-size: 16px; }
 .gd-stats b { margin-left: 4px; font-size: 20px; font-variant-numeric: tabular-nums; color: var(--text-1); }
 .gd-stats .alert b { color: var(--bad); }
 .gd-filter { margin: 0 0 14px; align-items: center; }
@@ -631,7 +631,7 @@ form[data-item] [hidden], .gd-lightbox [hidden] { display: none; } /* .btn의 di
 .gd-confirm { margin: 0 0 12px; padding: 12px 14px; border: 1px solid var(--primary); border-radius: var(--radius-sm); background: var(--primary-soft); }
 .gd-confirm p { margin: 0 0 8px; overflow-wrap: anywhere; }
 .gd-sms { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
-.gd-sms summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--text-2); }
+.gd-sms summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-2); }
 .gd-sms textarea { min-height: 110px; }
 .gd-thumb { display: block; border-radius: 8px; cursor: zoom-in; }
 .gd-lightbox { width: min(96vw, 1040px); max-width: none; max-height: none; padding: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); color: var(--text-1); box-shadow: var(--shadow-float); }

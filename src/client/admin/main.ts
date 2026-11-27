@@ -289,7 +289,7 @@ async function scheduleView() {
       .cal-n{font-size:13px;font-weight:600;align-self:flex-start}
       .cal-dots{display:flex;gap:4px;align-items:center;min-height:10px}
       .cal-dots i{width:8px;height:8px;border-radius:50%;display:block}
-      .cal-dots small{font-size:11px;color:var(--text-3)}
+      .cal-dots small{font-size:12px;color:var(--text-3)}
       .cal-ev{display:flex;gap:8px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--border)}
       .cal-ev i{width:9px;height:9px;border-radius:50%;margin-top:6px;flex-shrink:0}
       @media (max-width:900px){.cal-wrap{grid-template-columns:1fr}.cal-cell{min-height:56px;padding:4px 5px}}

@@ -4,7 +4,7 @@ import type { PublicConfig } from '../../shared/types.js';
 // 이용약관·개인정보처리방침. 서비스가 실제로 하는 일(코드 기준)만 적었다.
 // 수수료 금액, 보관 기간(일수), 책임자 이름, 시행일은 정해지지 않아 숫자나 이름을 지어내지 않고 일반 문장으로 두었다. 정해지면 채우고 법률 검토를 받는다.
 const shown = (s?: string) => (s && s !== '[TBD]' ? s : ''); // 예전 DB에 남은 [TBD] 값은 비어 있는 것으로 본다
-const sec = (title: string, body: string) => `<h2 style="font-size:17px;margin:24px 0 8px">${title}</h2>${body}`;
+const sec = (title: string, body: string) => `<h2 style="font-size:18px;margin:24px 0 8px">${title}</h2>${body}`;
 const box = (inner: string) => `<section class="card" style="padding:28px;max-width:760px;margin:0 auto;line-height:1.75">${inner}</section>`;
 
 export const terms = (c: PublicConfig | null) => box(`

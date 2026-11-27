@@ -58,7 +58,7 @@
 
 .gd-brand-name {
   font-family: var(--gd-serif);
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.12;
@@ -67,7 +67,7 @@
 }
 
 .gd-brand-tag {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-3);
   line-height: 1.2;
@@ -133,7 +133,7 @@
   border: 1px solid var(--primary);
   background: var(--primary);
   color: var(--primary-fg);
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -164,7 +164,7 @@
   border: 1px solid var(--border-strong);
   background: var(--bg-card);
   color: var(--text-2);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -258,7 +258,7 @@
   align-items: center;
   gap: 6px;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--primary);
   text-decoration: none;
 }
@@ -287,7 +287,7 @@
   flex-wrap: wrap;
   gap: 6px 18px;
   line-height: 1.65;
-  font-size: 12.5px;
+  font-size: 13px;
 }
 
 .gd-ft-copy {
@@ -317,7 +317,7 @@
   border: 0;
   background: transparent;
   color: var(--text-3);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   padding: 6px 4px;
@@ -393,7 +393,7 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-2);
   margin-bottom: 16px;
@@ -422,7 +422,7 @@
 
 .gd-hero-desc {
   margin: 18px 0 0;
-  font-size: 15.5px;
+  font-size: 16px;
   line-height: 1.7;
   color: var(--text-2);
   max-width: 46ch;
@@ -448,7 +448,7 @@
   border: 1px solid var(--primary);
   background: var(--primary);
   color: var(--primary-fg);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -475,7 +475,7 @@
   border: 1px solid var(--border-strong);
   background: var(--bg-card);
   color: var(--text-1);
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -510,7 +510,7 @@
 
 .gd-promise-idx {
   font-family: var(--gd-serif);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--accent-tea, var(--primary));
   font-variant-numeric: tabular-nums;
@@ -545,7 +545,7 @@
 
 .gd-ticket-name {
   font-family: var(--gd-serif);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-1);
 }
@@ -657,14 +657,14 @@
 }
 
 .gd-stub-title {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-1);
 }
 
 .gd-stub-desc {
   margin-top: 2px;
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--text-3);
   line-height: 1.45;
 }
@@ -836,7 +836,7 @@
 
 .gd-cat-label {
   font-family: var(--gd-serif);
-  font-size: 16.5px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-1);
 }
@@ -895,7 +895,7 @@
 .gd-ledger-title {
   margin: 0;
   font-family: var(--gd-serif);
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--text-1);
 }
@@ -925,14 +925,14 @@
 }
 
 .gd-ledger-row dt {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-3);
 }
 
 .gd-ledger-row dd {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.55;
   color: var(--text-1);
   word-break: keep-all;
@@ -960,7 +960,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-1);
   transition: color 0.16s var(--ease);
@@ -984,7 +984,7 @@
 
 .gd-faq-mark {
   font-family: var(--gd-serif);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--accent-tea, var(--primary));
   flex-shrink: 0;
@@ -1030,21 +1030,21 @@
 .gd-hero h1 { font-size: clamp(32px, 4.4vw, 52px); font-weight: 700; line-height: 1.23; letter-spacing: -0.025em; margin: 0 0 20px; color: var(--text-1); text-wrap: balance; }
 .gd-hero h1 span { display: block; }
 .gd-hero h1 span span { display: inline-block; }
-.gd-hero-copy > p { max-width: 30em; margin: 0 0 32px; font-size: 17px; line-height: 1.7; color: var(--text-2); }
+.gd-hero-copy > p { max-width: 30em; margin: 0 0 32px; font-size: 18px; line-height: 1.7; color: var(--text-2); }
 .gd-hero-copy .btn.lg { height: 52px; padding: 0 28px; font-size: 16px; }
 .gd-hero-copy > p.gd-facts { max-width: none; margin: 20px 0 0; font-size: 14px; line-height: 1.6; color: var(--text-3); }
 .gd-facts span { white-space: nowrap; }
 
 /* 이사일 기준 일정: 점은 ::before, 축은 배경 선 (상자 한쪽 면 강조선이 아니라 점을 잇는 선) */
 .gd-timeline-box { padding: 32px 32px 12px; border-radius: 20px; background: var(--gd-bezel); color: var(--gd-bezel-text); box-shadow: var(--shadow); word-break: keep-all; }
-.gd-timeline-box h2 { margin: 0 0 6px; font-size: 19px; line-height: 1.4; letter-spacing: -0.01em; color: inherit; }
+.gd-timeline-box h2 { margin: 0 0 6px; font-size: 20px; line-height: 1.4; letter-spacing: -0.01em; color: inherit; }
 .gd-timeline-box > p { margin: 0 0 28px; font-size: 14px; line-height: 1.6; color: var(--gd-bezel-muted); }
 .gd-timeline { list-style: none; margin: 0; padding: 0; }
 .gd-timeline li { display: grid; grid-template-columns: 12px minmax(0, 1fr); column-gap: 16px; padding-bottom: 26px; background: linear-gradient(var(--gd-bezel-border), var(--gd-bezel-border)) no-repeat 5px 23px / 1.5px calc(100% - 23px); }
 .gd-timeline li::before { content: ''; box-sizing: border-box; width: 12px; height: 12px; margin-top: 6px; border-radius: 50%; border: 1.5px solid var(--gd-bezel-muted); }
 .gd-timeline li:last-child { padding-bottom: 20px; background: none; }
 .gd-timeline li:last-child::before { border: 2px solid var(--gd-bezel-text); background: var(--accent-tea); }
-.gd-timeline b { display: flex; align-items: center; gap: 8px; font-size: 17px; line-height: 24px; }
+.gd-timeline b { display: flex; align-items: center; gap: 8px; font-size: 18px; line-height: 24px; }
 .gd-timeline span { display: block; margin-top: 4px; font-size: 14px; line-height: 1.6; color: var(--gd-bezel-muted); }
 .gd-timeline em { padding: 2px 8px; border-radius: 999px; background: var(--accent-tea); color: var(--primary-fg); font-style: normal; font-size: 12px; line-height: 16px; }
 
@@ -1058,7 +1058,7 @@
 
 /* 접수할 수 있는 가구 */
 .gd-kinds { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
-.gd-kinds li { display: grid; justify-items: center; gap: 18px; padding: 12px; border-left: 1px solid var(--border); font-size: 21px; font-weight: 700; line-height: 30px; letter-spacing: -0.01em; color: var(--text-1); text-align: center; }
+.gd-kinds li { display: grid; justify-items: center; gap: 18px; padding: 12px; border-left: 1px solid var(--border); font-size: 20px; font-weight: 700; line-height: 30px; letter-spacing: -0.01em; color: var(--text-1); text-align: center; }
 .gd-kinds li:first-child { border-left: 0; }
 .gd-kinds svg { width: 56px; height: 56px; stroke-width: 1.3; }
 
@@ -1113,7 +1113,7 @@ html[data-theme="dark"] .gd-closing .btn:hover { border-color: var(--primary-hov
   .gd-hsec { padding: 48px 0; }
   .gd-hsec-head { margin-bottom: 28px; }
   .gd-kinds { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 24px; }
-  .gd-kinds li:nth-child(n) { gap: 14px; border-left: 1px solid var(--border); font-size: 19px; line-height: 28px; }
+  .gd-kinds li:nth-child(n) { gap: 14px; border-left: 1px solid var(--border); font-size: 20px; line-height: 28px; }
   .gd-kinds li:nth-child(odd) { border-left: 0; }
   .gd-kinds svg { width: 48px; height: 48px; }
   .gd-ways > div { grid-template-columns: 1fr; }
@@ -1132,13 +1132,13 @@ html[data-theme="dark"] .gd-closing .btn:hover { border-color: var(--primary-hov
 .gd-form { max-width: 760px; margin: 0 auto; padding: 8px 0 40px; word-break: keep-all; }
 .gd-form h1 { font-size: clamp(26px, 3.6vw, 36px); font-weight: 700; letter-spacing: -0.025em; margin: 0 0 8px; }
 .gd-sec { margin: 0; padding: 28px 0; border: 0; border-top: 1px solid var(--border); }
-.gd-sec h2 { font-size: 17px; margin: 0 0 16px; color: var(--text-1); }
+.gd-sec h2 { font-size: 18px; margin: 0 0 16px; color: var(--text-1); }
 .gd-form small { display: block; margin-top: 6px; font-size: 13px; }
 .gd-item { margin: 0 0 14px; padding: 16px 18px 6px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--bg-card); min-width: 0; }
-.gd-item legend { padding: 0 8px; font-weight: 700; font-size: 15px; }
+.gd-item legend { padding: 0 8px; font-weight: 700; font-size: 16px; }
 .gd-form #submitBtn { margin-top: 12px; }
-.gd-photos-label { font-size: 12.5px; font-weight: 600; color: var(--text-2); }
-.gd-form .gd-photos-label small { display: inline; margin: 0 0 0 6px; font-size: 12.5px; font-weight: 400; color: var(--text-3); }
+.gd-photos-label { font-size: 13px; font-weight: 600; color: var(--text-2); }
+.gd-form .gd-photos-label small { display: inline; margin: 0 0 0 6px; font-size: 13px; font-weight: 400; color: var(--text-3); }
 .gd-file { position: relative; align-self: flex-start; }
 .gd-file input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 .gd-file:focus-within { outline: 2px solid var(--primary); outline-offset: 2px; }
@@ -1165,7 +1165,7 @@ html[data-theme="dark"] .gd-closing .btn:hover { border-color: var(--primary-hov
 html[data-theme="dark"] .gd-theme-icon .i-sun { display: block; }
 .gd-footer { border-top: 1px solid var(--border); word-break: keep-all; }
 .gd-footer-in { max-width: 1328px; margin: 0 auto; padding: 28px 24px 40px; display: flex; align-items: center; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; }
-.gd-footer b { font-size: 15px; color: var(--text-1); }
+.gd-footer b { font-size: 16px; color: var(--text-1); }
 .gd-footer p { margin: 4px 0 0; font-size: 13px; line-height: 1.55; color: var(--text-3); }
 .gd-footer nav { display: flex; gap: 20px; font-size: 13px; }
 .gd-footer nav a { color: var(--text-2); font-weight: 500; }
