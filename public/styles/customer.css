@@ -89,7 +89,7 @@
   font-size: 14px;
   font-weight: 600;
   padding: 9px 13px;
-  border-radius: 9px;
+  border-radius: 8px;
   cursor: pointer;
   white-space: nowrap;
   transition: color 0.16s var(--ease), background-color 0.16s var(--ease);
@@ -529,7 +529,7 @@
   position: relative;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg, 22px);
+  border-radius: var(--radius-lg, 20px);
   box-shadow: var(--shadow);
   overflow: hidden;
   min-width: 0;
@@ -562,7 +562,7 @@
 .gd-ticket-frame {
   margin: 0 22px 18px;
   padding: 16px 14px 12px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--gd-ticket-frame);
   border: 1px solid var(--border);
 }
@@ -739,7 +739,7 @@
 .gd-step-thumb {
   width: 78px;
   height: 78px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   display: flex;

@@ -294,7 +294,7 @@ button.pill.active:hover {
   gap: 6px;
   height: 36px;
   padding: 0 14px;
-  border-radius: 9px;
+  border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--bg-card);
   color: var(--text-1);
@@ -348,7 +348,7 @@ button.pill.active:hover {
   height: 30px;
   padding: 0 10px;
   font-size: 13px;
-  border-radius: 7px;
+  border-radius: 8px;
 }
 .btn.lg {
   height: 44px;
@@ -508,7 +508,7 @@ textarea.inp {
 }
 .note {
   padding: 11px 13px;
-  border-radius: 9px;
+  border-radius: 8px;
   background: var(--bg-subtle);
   border: 1px solid var(--border);
   font-size: 13px;
@@ -714,7 +714,7 @@ textarea.inp {
 .item-form-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 18px;
   margin-bottom: 14px;
   box-shadow: var(--shadow-sm);
@@ -772,7 +772,7 @@ textarea.inp {
   left: 6px;
   bottom: 6px;
   padding: 2px 7px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 0;
   background: rgba(15, 22, 18, 0.8);
   color: #ffffff;
@@ -949,7 +949,7 @@ textarea.inp {
   width: 100%;
   height: 40px;
   padding: 0 15px;
-  border-radius: 9px;
+  border-radius: 8px;
   border: 0;
   background: transparent;
   color: var(--text-2);
@@ -1009,7 +1009,7 @@ textarea.inp {
   align-items: center;
   gap: 10px;
   padding: 5px 8px;
-  border-radius: 9px;
+  border-radius: 8px;
   white-space: nowrap;
   overflow: hidden;
 }
@@ -1187,7 +1187,7 @@ textarea.inp {
   align-items: center;
   gap: 2px;
   padding: 3px;
-  border-radius: 9px;
+  border-radius: 8px;
   background: var(--bg-muted);
   border: 1px solid var(--border);
 }
@@ -1195,7 +1195,7 @@ textarea.inp {
   border: 0;
   background: transparent;
   padding: 5px 10px;
-  border-radius: 7px;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
   color: var(--text-3);
@@ -1229,7 +1229,7 @@ textarea.inp {
 .cal-cell {
   min-height: 84px;
   padding: 6px;
-  border-radius: 9px;
+  border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--bg-card);
   display: flex;
@@ -1362,7 +1362,7 @@ textarea.inp {
   right: 8px;
   bottom: 8px;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 8px;
   background: rgba(12, 18, 15, 0.76);
   color: #ffffff;
   font-size: 12px;
@@ -1398,7 +1398,7 @@ textarea.inp {
   align-items: center;
   gap: 2px;
   padding: 3px;
-  border-radius: 9px;
+  border-radius: 8px;
   background: var(--bg-muted);
   border: 1px solid var(--border);
 }
@@ -1406,7 +1406,7 @@ textarea.inp {
   border: 0;
   background: transparent;
   padding: 5px 11px;
-  border-radius: 7px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
   color: var(--text-3);
@@ -1463,7 +1463,7 @@ textarea.inp {
 .vw-dev.tablet {
   width: 820px;
   height: 760px;
-  border-radius: 22px;
+  border-radius: 20px;
   border: 7px solid #1b221e;
 }
 .vw-cap {
@@ -1517,7 +1517,7 @@ textarea.inp {
   z-index: 130;
   pointer-events: none;
   padding: 5px 9px;
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--text-1);
   color: var(--bg-card);
   font-size: 12px;
