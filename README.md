@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="#기술-스택">기술 스택</a> &middot;
   <a href="#1-서비스-동작-원리">동작 원리</a> &middot;
   <a href="#2-시스템-아키텍처">시스템 아키텍처</a> &middot;
   <a href="#3-보안--미디어-무결성-파이프라인">보안 파이프라인</a> &middot;
@@ -20,11 +21,94 @@
 
 ---
 
-이사 전 처치 곤란한 대형가구를 **이사일(D-Day) 기준으로 역산**하여 먼저 **위탁 판매 대행**을 연결하고, 마감일까지 미판매된 가구나 신속 정리가 필요한 가구는 희망 반출일에 **방문 수거(비움)**까지 한 번에 처리하는 무번들러 풀스택 웹 플랫폼입니다.
+이사 전 처치 곤란한 대형가구를 **이사일(D-Day) 기준으로 역산**하여 먼저 **위탁 판매 대행**을 연결하고, 마감일까지 미판매된 가구나 신속 정리가 필요한 가구는 희망 반출일에 <b>방문 수거(비움)</b>까지 한 번에 처리하는 무번들러 풀스택 웹 플랫폼입니다.
 
 - **핵심 철학**: 회원가입 없는 비회원 1분 다품목 접수(4자리 PIN 조회) · 1건 신청 대비 1~20개 품목 독립 상태머신 · 서버 직렬화 단 비공개 메모 원천 격리
 - **무충돌 순수 웹 표준**: 번들러(Webpack/Next.js)와 네이티브 C++ 빌드(`node-gyp`) 의존성 0개 — `tsc` + `Express 4` + Node 내장 `node:sqlite (WAL)`만으로 웹·PWA·Electron 동시 구동
 - **디자인 시스템**: 남색(`#14284B`)·흰색(`#F5F7FB`) 베이스 팔레트 + 자체 호스팅 `Pretendard` 단일 글꼴(라이트/다크 모드 지원)
+
+## 기술 스택
+
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=ts,html,css,nodejs,express,sqlite,electron,vercel,cloudflare,ubuntu,figma,github&perline=12" alt="TypeScript, HTML, CSS, Node.js, Express, SQLite, Electron, Vercel, Cloudflare, Ubuntu, Figma, GitHub 아이콘">
+</p>
+
+<p align="center">
+  번들러 없이 <b>TypeScript 컴파일러(tsc)</b>와 <b>Node.js 기본 기능</b>으로 만든 웹앱입니다.<br>
+  운영에 필요한 외부 패키지는 <code>express</code>와 <code>multer</code> 두 개뿐입니다.
+</p>
+
+<h4>화면</h4>
+<p>
+  <img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript 5.9">
+  <img src="https://img.shields.io/badge/HTML5-Markup-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5 Markup">
+  <img src="https://img.shields.io/badge/CSS-Design%20Tokens-1572B6?style=for-the-badge&logo=css&logoColor=white" alt="CSS Design Tokens">
+  <img src="https://img.shields.io/badge/PWA-Service%20Worker-14284B?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA Service Worker">
+</p>
+<p>프레임워크와 번들러 없이 TypeScript를 브라우저 모듈로 바로 컴파일합니다. 색·글자·간격은 <code>tokens.css</code> 토큰과 <code>@layer</code>로 관리하고(밝은·어두운 화면), 통계 차트도 라이브러리 없이 SVG로 그립니다.</p>
+
+<h4>서버</h4>
+<p>
+  <img src="https://img.shields.io/badge/Node.js-24-5FA04E?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js 24">
+  <img src="https://img.shields.io/badge/Express-4-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express 4">
+  <img src="https://img.shields.io/badge/Multer-2.5-333333?style=for-the-badge" alt="Multer 2.5">
+</p>
+<p>REST API 27종과 고객·관리자 화면을 한 서버에서 내보냅니다. 사진 업로드(품목마다 1~6장), 요청 횟수 제한, 다른 사이트에서 온 요청 차단을 맡습니다.</p>
+
+<h4>데이터</h4>
+<p>
+  <img src="https://img.shields.io/badge/SQLite-node%3Asqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite node:sqlite">
+</p>
+<p>Node에 들어 있는 SQLite를 씁니다. 따로 DB 서버를 띄우거나 C++ 모듈을 빌드하지 않고 파일 하나로 동작합니다.</p>
+
+<h4>보안</h4>
+<p>
+  <img src="https://img.shields.io/badge/node%3Acrypto-scrypt-14284B?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="node:crypto scrypt">
+</p>
+<p>비밀번호와 조회용 PIN은 되돌릴 수 없게 저장하고, 로그인은 서명한 쿠키로 확인합니다. 올린 사진의 위치 정보(EXIF)를 지우고, 방문 기록은 하루 단위 해시로만 남깁니다.</p>
+
+<h4>데스크톱</h4>
+<p>
+  <img src="https://img.shields.io/badge/Electron-45-47848F?style=for-the-badge&logo=electron&logoColor=white" alt="Electron 45">
+</p>
+<p>운영자가 관리자 화면을 설치형 프로그램 창으로 쓸 수 있게 감쌉니다(<code>desktop/</code>).</p>
+
+<h4>배포</h4>
+<p>
+  <img src="https://img.shields.io/badge/Vercel-Seoul-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Seoul">
+  <img src="https://img.shields.io/badge/Cloudflare-Tunnel-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare Tunnel">
+  <img src="https://img.shields.io/badge/Ubuntu-Server-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Ubuntu Server">
+</p>
+<p>Vercel(서울 리전)에 시연용으로, 데이터를 보존하는 개인 서버(Ubuntu)에는 Cloudflare 터널로 도메인을 연결해 운영합니다.</p>
+
+<h4>외부 서비스</h4>
+<p>
+  <img src="https://img.shields.io/badge/Kakao-Postcode-FFCD00?style=for-the-badge&logo=kakao&logoColor=000000" alt="Kakao Postcode">
+  <img src="https://img.shields.io/badge/SOLAPI-SMS-14284B?style=for-the-badge" alt="SOLAPI SMS">
+</p>
+<p>접수 화면의 주소 검색과, 운영자가 고른 문구를 신청자에게 보내는 문자(설정했을 때만)입니다.</p>
+
+<h4>디자인</h4>
+<p>
+  <img src="https://img.shields.io/badge/Pretendard-Font-14284B?style=for-the-badge" alt="Pretendard Font">
+  <img src="https://img.shields.io/badge/Figma-Design-F24E1E?style=for-the-badge&logo=figma&logoColor=white" alt="Figma Design">
+</p>
+<p>글꼴은 Pretendard 하나를 직접 내보내 오프라인에서도 같게 보입니다. 홈 화면 시안과 개선안은 Figma로 만들었습니다.</p>
+
+<h4>테스트·점검</h4>
+<p>
+  <img src="https://img.shields.io/badge/node%3Atest-58%20tests-14284B?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="node:test 58 tests">
+  <img src="https://img.shields.io/badge/Playwright-3%20Browsers-2EAD33?style=for-the-badge" alt="Playwright 3 Browsers">
+  <img src="https://img.shields.io/badge/axe--core-a11y-14284B?style=for-the-badge" alt="axe-core a11y">
+</p>
+<p>자동 테스트 58개, 실제 브라우저 세 엔진에서의 화면 점검과 이용 가이드 그림 촬영, 접근성 자동 검사입니다.</p>
+
+<h4>사진</h4>
+<p>
+  <img src="https://img.shields.io/badge/Unsplash-Photos-000000?style=for-the-badge&logo=unsplash&logoColor=white" alt="Unsplash Photos">
+  <img src="https://img.shields.io/badge/Pexels-Photos-05A081?style=for-the-badge&logo=pexels&logoColor=white" alt="Pexels Photos">
+</p>
+<p>홈 화면과 예시 접수에 쓴 무료 이용 사진입니다. 출처는 <code>public/assets/demo/CREDITS.md</code>와 <code>prototype/assets/photos/credits.js</code>에 있습니다.</p>
 
 ---
 
@@ -413,15 +497,9 @@ npm run perf
 | `TASK-04` | 자동화 테스트(`node:test` 58개)·접근성 자동 검사(axe-core)·성능 측정(`500`/`5,000`건) 및 품질 검수 | **부분 완료** | `tests/*.test.ts`, `scripts/perf.ts` |
 | **프로토타입 분리** | 고객 웹(`customer.html`)·관리자 웹(`admin.html`) 6단계 정적 프로토타입 분리 | **완료 (6단계 마무리 점검까지)** | `prototype/*`, [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md) |
 
-### 확정 기술 스택
+### 기술 스택
 
-| 계층 | 확정 기술 | 핵심 선정 사유 |
-| --- | --- | --- |
-| **프론트엔드** | `HTML5` + `CSS3 (디자인 토큰)` + `Vanilla TypeScript (ES2022 Modules)` | 무거운 번들러 의존성 0개, 공식 `tsc`만으로 표준 브라우저 모듈 컴파일 |
-| **백엔드** | `Node.js` + `Express 4` + `TypeScript (strict)` + `multer 2.5` | 단일 서버에서 REST API 27종 및 고객(`index.html`)·운영자(`admin.html`) 물리 격리 서빙 |
-| **데이터베이스** | Node 내장 `node:sqlite` (`DatabaseSync`, WAL 모드) | C++ 빌드(`node-gyp`) 없이 Windows/Linux 환경에서 즉시 구동 |
-| **보안·미디어** | `node:crypto (scrypt)`, 매직바이트 검증, 버퍼 단위 EXIF 제거 | 자택 촬영 사진 위치정보 자동 삭제, 비공개 운영 메모 서버 단 차단 |
-| **멀티 플랫폼** | `PWA (manifest.webmanifest + Service Worker)` + `Electron 45` | 동일 웹 코드로 모바일/PC 설치형 웹앱 및 운영자 데스크탑 앱 동시 지원 |
+분야별 기술과 쓰임새는 문서 앞쪽의 [기술 스택](#기술-스택)에 아이콘과 함께 정리했습니다.
 
 ### 디렉터리 구조
 
