@@ -526,7 +526,7 @@ gagudabang/
 ├── public/                                # 실서버 정적 엔트리·스타일·PWA·자체 호스팅 폰트
 │   ├── index.html / admin.html / manifest.webmanifest / sw.js
 │   ├── styles/{tokens.css, base.css, customer.css, admin.css}   # 토큰 → 공통 부품 → 화면별 (docs/DESIGN_SYSTEM.md)
-│   └── assets/{brand/logo.svg, brand/icon.svg, brand/og-image.jpg, photos/moving-sofa.jpg, demo/*.jpg (예시 접수 사진), fonts/PretendardVariable.woff2}
+│   └── assets/{brand/logo.svg, brand/icon.svg, brand/og-image.jpg, brand/og-admin.jpg (링크 공유 그림), photos/moving-sofa.jpg, demo/*.jpg (예시 접수 사진), fonts/PretendardVariable.woff2}
 ├── prototype/                             # 분리형 정적 프로토타입 (고객 웹 + 관리자 웹, 6단계 완료)
 │   ├── customer.{html,css,js} / admin.{html,css,js} / tokens.css / base.css / ui.css / data.js / store.js
 │   └── assets/{logo.svg, icon.svg, fonts/, photos/}

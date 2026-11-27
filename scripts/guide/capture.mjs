@@ -160,7 +160,7 @@ try {
   await A.shot('a01-login', [['[name=loginId]', 1], ['[name=password]', 2], ['#loginForm button', 3]], { from: '#loginForm' });
   await A.p.click('#loginForm button'); await A.p.waitForSelector('.tbl tbody a');
   need(await A.p.locator('.tbl tbody tr').count() === 3, '관리자 목록 3건');
-  await A.shot('a02-dashboard', [['.gd-stats', 1], ['#filterForm', 2], ['.tbl tbody tr', 3], ['.li-thumb', 4], [['.gd-top-link', 1], 5], [['.gd-top-link', 2], 6], [['.gd-top-link', 3], 7], ['.gd-admin-bar [data-theme-toggle]', 8], ['#logout', 9]]);
+  await A.shot('a02-dashboard', [['.gd-stats', 1], ['#filterForm', 2], ['.tbl tbody tr', 3], ['.li-thumb', 4], [['.gd-top-link', 1], 5], [['.gd-top-link', 2], 6], [['.gd-top-link', 3], 7], ['.gd-admin-bar [data-theme-toggle]', 8], ['#logout', 9], ['.gd-brand', 10]]);
   await A.p.locator('.tbl tbody a', { hasText: code }).click(); await A.p.waitForSelector('form[data-item]');
   await A.p.fill('#memoForm [name=adminMemo]', '오전 10시 이후 통화 가능');
   await A.shot('a03-detail-top', [['main h1', 1], ['main a[href^="tel:"]', 2], [['main section.card p', 1], 3], ['#memoForm', 4]], { from: 'main a[href="#dashboard"]', to: '#memoForm' });
