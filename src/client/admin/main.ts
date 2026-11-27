@@ -17,7 +17,7 @@ const nav = () => {
   const cur = TABS.some(([h]) => h === hash) ? hash : 'dashboard'; // 상세 화면은 접수 목록에 속한다
   const links = (cls: string) => TABS.map(([h, l]) => `<a class="${cls}" href="#${h}"${h === cur ? ' aria-current="page"' : ''}>${l}</a>`).join('');
   return `<header class="gd-admin-bar"><div class="gd-admin-bar-in">
-  <img src="/assets/brand/logo.svg" alt="가구다방" width="85" height="32"><strong>파트너스 스튜디오</strong>
+  <a class="gd-brand" href="#dashboard" aria-label="가구다방 관리자 홈"><img src="/assets/brand/logo.svg" alt="" width="85" height="32"><strong>파트너스 스튜디오</strong></a>
   <span class="sp"></span>${links('btn ghost sm gd-top-link')}
   <div class="gd-admin-tools">${themeButton(true)}<button class="btn ghost sm" id="logout">로그아웃</button></div></div></header>
   <nav class="gd-tabbar" aria-label="주요 메뉴">${links('')}</nav>`;
@@ -41,10 +41,13 @@ function loginView() {
 
 const ddayBadge = (d: number | null, label = '') => (d === null ? '' : `<b class="dday${d <= 3 ? ' soon' : ''}">${label}D${d >= 0 ? '-' + d : '+' + -d}</b>`);
 
-/** 목록의 작은 사진. 누르면 그 품목의 사진 전체를 크게 본다 (주소를 |로 이어 data-photos에 담는다) */
-const thumb = (name: string, photos: string[]) => (photos[0]
-  ? `<a class="gd-thumb li-thumb" data-photo data-photos="${esc(photos.join('|'))}" href="${esc(photos[0])}" aria-label="${esc(name)} 사진 ${photos.length}장 크게 보기"><img src="${esc(photos[0])}" alt="${esc(name)} 사진" width="44" height="44" loading="lazy">${photos.length > 1 ? `<small aria-hidden="true">+${photos.length - 1}</small>` : ''}</a>`
-  : '<span class="li-thumb" aria-hidden="true"></span>');
+/** 목록의 작은 사진. 접수 하나에 첫 사진 한 장과 +남은 장 수만 보이고, 누르면 그 접수의 모든 품목 사진을 넘겨 본다 (data-photos에 JSON으로 담는다) */
+const thumb = (items: AdminApplicationSummaryDto['items']) => {
+  const photos = items.flatMap((i) => i.photos.map((src) => ({ src, alt: `${i.itemName} 사진` })));
+  const first = photos[0];
+  if (!first) return '<span class="li-thumb" aria-hidden="true"></span>';
+  return `<a class="gd-thumb li-thumb" data-photo data-photos="${esc(JSON.stringify(photos))}" href="${esc(first.src)}" aria-label="사진 ${photos.length}장 크게 보기"><img src="${esc(first.src)}" alt="${esc(first.alt)}" width="44" height="44" loading="lazy">${photos.length > 1 ? `<small aria-hidden="true">+${photos.length - 1}</small>` : ''}</a>`;
+};
 
 async function dashboardView() {
   const qs = new URLSearchParams({ sort: 'moving_asc', page: String(filter.page) });
@@ -80,14 +83,15 @@ async function dashboardView() {
       <li>7일 내 반출예정 <b>${k.pickupIn7DaysItems}</b></li></ul>
     <form id="filterForm" class="gd-filter">
       <select name="status" aria-label="상태"><option value="">전체 상태</option>${options(STATUS_LABEL, filter.status)}</select>
-      <select name="handling" aria-label="처리구분"><option value="">전체 처리구분</option>${options({ RESALE: HANDLING_LABEL.RESALE, DISPOSE: HANDLING_LABEL.DISPOSE, UNDECIDED: HANDLING_LABEL.UNDECIDED }, filter.handling)}</select>
+      <select name="handling" aria-label="처리구분"><option value="">전체</option>${options({ RESALE: HANDLING_LABEL.RESALE, DISPOSE: HANDLING_LABEL.DISPOSE, UNDECIDED: HANDLING_LABEL.UNDECIDED }, filter.handling)}</select>
       <input name="q" value="${esc(filter.q)}" placeholder="이름·연락처·접수번호·주소·품목">
       <button class="btn primary">검색</button></form>
     <p class="muted small gd-filter-hint">상태와 처리 구분은 고르면 바로 걸러집니다. 검색어는 입력한 뒤 Enter나 검색 버튼을 누릅니다. 사진을 누르면 크게 볼 수 있습니다.</p>
-    <div class="tbl-wrap"><table class="tbl gd-list"><thead><tr><th>접수번호</th><th>신청자</th><th>이사일</th><th>품목 상태</th></tr></thead><tbody>
+    <div class="tbl-wrap"><table class="tbl gd-list"><thead><tr><th>접수번호</th><th>신청자</th><th>이사일</th><th>품목</th><th>상태</th></tr></thead><tbody>
       ${d.items.map((a) => `<tr><td><a href="#detail/${a.id}" class="tabular">${esc(a.requestCode)}</a></td><td>${esc(a.applicantName)}<div class="muted small">${esc(a.phone)}</div></td>
         <td>${esc(a.movingDate)} ${ddayBadge(a.movingDday)}</td>
-        <td><ul class="li-items">${a.items.map((i) => `<li>${thumb(i.itemName, i.photos)}<span>${esc(i.itemName)} <b>${STATUS_LABEL[i.status]}</b> ${ddayBadge(i.deadlineDday, '마감 ')}</span></li>`).join('')}</ul></td></tr>`).join('') || '<tr><td colspan="4" class="empty">접수 내역이 없습니다.</td></tr>'}
+        <td><div class="li-row">${thumb(a.items)}<ul class="li-items">${a.items.map((i) => `<li><span>${esc(i.itemName)} ${ddayBadge(i.deadlineDday, '마감 ')}</span></li>`).join('')}</ul></div></td>
+        <td><ul class="li-items" aria-label="품목별 상태">${a.items.map((i) => `<li><span class="st st-${i.status.toLowerCase()}">${STATUS_LABEL[i.status]}</span></li>`).join('')}</ul></td></tr>`).join('') || '<tr><td colspan="5" class="empty">접수 내역이 없습니다.</td></tr>'}
     </tbody></table></div>
     <div class="pager">${d.page > 1 ? `<button class="btn outline sm" data-page="${d.page - 1}">이전</button>` : ''}
       <span class="muted small">${d.page} / ${pages} · 총 ${d.total}건</span>${d.page < pages ? `<button class="btn outline sm" data-page="${d.page + 1}">다음</button>` : ''}</div>
@@ -455,6 +459,11 @@ async function render() {
     decorate(app);
     wire.fn?.();
     $('#logout')?.addEventListener('click', async () => { await api.post('/api/admin/logout'); loggedIn = false; render(); });
+    // 로고 = 관리자 홈: 거르기와 쪽을 처음으로 되돌린다. 이미 접수 목록이면 주소가 안 바뀌어 hashchange가 없으니 직접 다시 그린다
+    $('.gd-brand')?.addEventListener('click', () => {
+      Object.assign(filter, { status: '', handling: '', q: '', page: 1, focus: '' });
+      if (location.hash === '#dashboard') void render();
+    });
   } catch (e) {
     if (e instanceof ApiError && e.status === 401) { loggedIn = false; app.innerHTML = loginView(); decorate(app); wire.fn?.(); return; }
     showError(e);
@@ -490,14 +499,16 @@ function showPhoto(i: number) {
   const big = $<HTMLImageElement>('img', dlg)!, cur = viewer.list[viewer.at]!;
   big.src = cur.src;
   big.alt = cur.alt;
-  $('#photoCap', dlg)!.textContent = `${cur.alt} · ${viewer.at + 1} / ${n}`;
+  const count = document.createElement('span');
+  count.className = 'nowrap'; // 좁은 화면에서 "2 / 2"가 두 줄로 꺾이지 않게
+  count.textContent = `${viewer.at + 1} / ${n}`;
+  $('#photoCap', dlg)!.replaceChildren(`${cur.alt} · `, count);
 }
 document.addEventListener('click', (ev) => {
   const link = (ev.target as Element).closest<HTMLAnchorElement>('a[data-photo]');
   if (!link || ev.ctrlKey || ev.metaKey || ev.shiftKey) return; // 새 탭으로 열려는 클릭은 그대로 둔다
   ev.preventDefault();
-  const alt = link.querySelector('img')?.alt ?? '';
-  if (link.dataset.photos) { viewer.list = link.dataset.photos.split('|').map((src) => ({ src, alt })); viewer.at = 0; }
+  if (link.dataset.photos) { viewer.list = JSON.parse(link.dataset.photos) as typeof viewer.list; viewer.at = 0; }
   else {
     const group = [...(link.closest('.gd-photo-row') ?? link.parentElement!).querySelectorAll<HTMLAnchorElement>('a[data-photo]')];
     viewer.list = group.map((a) => ({ src: a.href, alt: a.querySelector('img')?.alt ?? '' }));

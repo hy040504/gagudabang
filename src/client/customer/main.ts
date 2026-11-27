@@ -24,7 +24,7 @@ function shell(body: string) {
       <a href="#home" class="gd-brand" aria-label="가구다방 홈">${logo(40)}</a>
       <nav aria-label="주 메뉴"><a class="btn ghost sm" href="#lookup">진행 조회</a>${me
         ? `<a class="btn ghost sm" href="#my">${esc(me.name)}님</a><button class="btn ghost sm" id="logoutBtn">로그아웃</button>`
-        : '<a class="btn ghost sm" href="#login">로그인</a>'}${themeButton(true)}<a class="btn primary sm" href="#apply">가구 접수</a></nav>
+        : '<a class="btn ghost sm" href="#login">로그인</a>'}${themeButton(true)}<a class="btn primary sm" href="#apply"><span aria-hidden="true">+</span> 가구 접수</a></nav>
     </div></header>
     <main class="main"><div class="main-inner">${body}</div></main>
     <footer class="gd-footer"><div class="gd-footer-in">

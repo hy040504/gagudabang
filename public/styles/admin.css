@@ -11,6 +11,7 @@
 
   /* ---------- 상단 바와 휴대폰 아래 탭 ---------- */
   .gd-admin-tools { display: flex; align-items: center; gap: var(--space-1); }
+  .gd-brand { display: inline-flex; align-items: center; gap: var(--space-4); border-radius: var(--radius-sm); color: inherit; text-decoration: none; }
   .gd-tabbar { display: none; }
   @media (max-width: 40rem) {
     :root { --toast-lift: 3.5rem; }
@@ -35,9 +36,17 @@
   .gd-filter select { width: auto; min-width: 9.5rem; }
   .gd-filter [name="q"] { flex: 1; width: auto; min-width: 12.5rem; }
   .gd-filter-hint { margin: calc(var(--space-2) * -1) 0 var(--space-4); }
-  /* 목록의 품목: 작은 사진 + 이름과 상태 */
-  .li-items { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
-  .li-items li { display: flex; align-items: center; gap: var(--space-3); }
+  /* 목록의 품목: 접수마다 작은 사진 한 장 + 품목별 이름과 상태 */
+  .li-row { display: flex; align-items: flex-start; gap: var(--space-3); }
+  .li-items { display: grid; gap: var(--space-2); min-width: 0; margin: 0; padding: 0; list-style: none; }
+  /* 품목 칸과 상태 칸의 줄이 나란히 맞도록 두 목록의 한 줄 높이를 같게 둔다 */
+  .li-items li { display: flex; align-items: center; min-block-size: 1.75rem; white-space: nowrap; } /* 이름이 꺾이면 옆 칸과 줄이 어긋난다. 좁은 화면에서는 표를 옆으로 민다 */
+  /* 상태 뱃지: 글자색은 상태의 의미 색, 바탕은 그 색을 옅게 깐다 (글자로도 상태를 말하므로 색만으로 구분하지 않는다) */
+  .st { --k: var(--text-3); display: inline-block; padding: 0.125rem var(--space-2); border-radius: var(--radius-full); background: color-mix(in oklab, var(--k) 8%, transparent); /* 8%: 밝은 화면 접수대기(주황)도 글자 대비 4.5:1 이상 */ color: var(--k); font-size: var(--fs-caption); font-weight: var(--fw-semibold); line-height: var(--lh-snug); white-space: nowrap; }
+  .st-pending { --k: var(--warn); }
+  .st-in_progress { --k: var(--info); }
+  .st-scheduled { --k: var(--primary); }
+  .st-completed { --k: var(--good); }
   .li-thumb { position: relative; flex: none; display: block; inline-size: 2.75rem; block-size: 2.75rem; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-muted); }
   .li-thumb img { inline-size: 100%; block-size: 100%; object-fit: cover; transition: transform var(--dur-base) var(--ease-out); }
   .li-thumb small { position: absolute; inset: auto 2px 2px auto; padding: 0 0.25rem; border-radius: 4px; background: var(--photo-badge-bg); color: var(--photo-badge-fg); font-size: var(--fs-micro); line-height: var(--lh-snug); }
@@ -63,6 +72,7 @@
   .gd-lightbox-in { display: grid; gap: var(--space-3); padding: var(--space-3); }
   .gd-lightbox img { width: 100%; max-height: calc(100dvh - 9.5rem); border-radius: var(--radius-md); background: var(--bg-muted); object-fit: contain; }
   .gd-lightbox .btn { min-height: var(--control-touch); }
+  .gd-lightbox .nowrap { white-space: nowrap; }
 
   /* ---------- 일정 ---------- */
   /* 일정 종류의 색. 색만으로 구분하지 않도록 옆에 항상 이름을 적는다 */
