@@ -63,7 +63,15 @@ export interface AdminApplicationSummaryDto {
 }
 export interface AdminKpis { pendingItems: number; movingSoonApplications: number; deadlineAlertItems: number; pickupIn7DaysItems: number }
 export interface ScheduleCalendarEventDto {
-  date: string; kind: 'MOVING' | 'DEADLINE' | 'PICKUP'; applicationId: number; requestCode: string; itemId: number | null; label: string;
+  date: string; kind: 'MOVING' | 'DEADLINE' | 'PICKUP' | 'CUSTOM'; applicationId: number; requestCode: string; itemId: number | null; label: string;
+  /** 운영자가 직접 추가한 일정(CUSTOM)일 때만 있다. 삭제할 때 쓴다. */
+  eventId?: number;
+}
+/** 관리자 통계: 지금까지 쌓인 접수와 품목을 종류별로 센 값 */
+export interface AdminStatsDto {
+  applications: number; items: number; members: number; smsSent: number;
+  byStatus: Record<string, number>; byHandling: Record<string, number>; byCategory: Record<string, number>;
+  monthly: { month: string; applications: number; items: number }[];
 }
 
 export interface ApplicationPayload {

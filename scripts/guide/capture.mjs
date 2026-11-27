@@ -158,7 +158,7 @@ try {
   await A.shot('a01-login', [['[name=loginId]', 1], ['[name=password]', 2], ['#loginForm button', 3]], { from: '#loginForm' });
   await A.p.click('#loginForm button'); await A.p.waitForSelector('.tbl tbody a');
   need(await A.p.locator('.tbl tbody tr').count() === 3, '관리자 목록 3건');
-  await A.shot('a02-dashboard', [['.gd-stats', 1], ['#filterForm', 2], ['.tbl tbody tr', 3], [['.gd-top-link', 1], 4], [['.gd-top-link', 2], 5], ['.gd-admin-bar a[href^="/api/admin/export"]', 6], ['.gd-admin-bar [data-theme-toggle]', 7], ['#logout', 8]]);
+  await A.shot('a02-dashboard', [['.gd-stats', 1], ['#filterForm', 2], ['.tbl tbody tr', 3], [['.gd-top-link', 1], 4], [['.gd-top-link', 2], 5], [['.gd-top-link', 3], 6], ['.gd-admin-bar a[href^="/api/admin/export"]', 7], ['.gd-admin-bar [data-theme-toggle]', 8], ['#logout', 9]]);
   await A.p.locator('.tbl tbody a', { hasText: code }).click(); await A.p.waitForSelector('form[data-item]');
   await A.p.fill('#memoForm [name=adminMemo]', '오전 10시 이후 통화 가능');
   await A.shot('a03-detail-top', [['main h1', 1], ['main a[href^="tel:"]', 2], [['main section.card p', 1], 3], ['#memoForm', 4]], { from: 'main a[href="#dashboard"]', to: '#memoForm' });
@@ -191,7 +191,15 @@ try {
   for (let i = 0; i < 3 && !(await A.p.locator(`.cal-cell[data-date="${PICKUP}"]`).count()); i++) { await A.p.click('[data-shift="1"]'); await A.p.waitForTimeout(500); }
   await A.p.click(`.cal-cell[data-date="${PICKUP}"]`); await A.p.waitForTimeout(500);
   need(await A.has('4인용 식탁 반출'), '일정 화면에 반출 일정');
-  await A.shot('a09-schedule', [['[data-shift="-1"]', 1], ['[data-shift="1"]', 2], ['#calToday', 3], ['.cal-cell.sel', 4], ['.cal-wrap aside', 5]]);
+  // 직접 추가하는 일정: 넣고, 보이는지 확인하고, 그림을 찍은 뒤 지워 본다
+  await A.p.fill('#evForm [name=title]', '수거 차량 정기 점검'); await A.p.click('#evForm button'); await A.p.waitForSelector('[data-ev-del]');
+  need(await A.has('수거 차량 정기 점검'), '직접 추가한 일정이 보임');
+  await A.shot('a09-schedule', [['[data-shift="-1"]', 1], ['[data-shift="1"]', 2], ['#calToday', 3], ['.cal-cell.sel', 4], ['.cal-wrap aside', 5], ['#evForm', 6], ['[data-ev-del]', 7]]);
+  await A.p.click('[data-ev-del]'); await A.p.waitForTimeout(700);
+  need(!(await A.has('수거 차량 정기 점검')), '직접 추가한 일정을 지움');
+  await go(A.p, '/admin.html#stats');
+  need(await A.has('상태별') && await A.has('월별 접수'), '통계 화면');
+  await A.shot('a13-stats', [['.gd-stats', 1], ['.gd-stat-card', 2], [['.gd-stat-card', 1], 3], [['.gd-stat-card', 2], 4], [['.gd-stat-card', 3], 5]]);
   await go(A.p, '/admin.html#settings');
   await A.shot('a10-settings', [['#siteForm', 1], ['#pwForm', 2]], { from: '#siteForm', to: '#pwForm' });
 
@@ -220,7 +228,7 @@ try {
   await go(M.p, '/admin.html');
   await M.p.fill('[name=loginId]', 'admin'); await M.p.fill('[name=password]', ADMIN_PW); await M.p.click('#loginForm button'); await M.p.waitForSelector('.tbl tbody a');
   need(await M.p.evaluate(() => getComputedStyle(document.querySelector('.gd-tabbar')).display !== 'none'), '휴대폰 하단 탭');
-  await M.shot('a11-mobile-dashboard', [['.gd-stats', 1], ['#filterForm', 2], ['.tbl tbody tr', 3], ['.gd-tabbar', 4]]);
+  await M.shot('a11-mobile-dashboard', [['.gd-stats', 1], ['#filterForm', 2], ['.tbl tbody tr', 3], ['.gd-tabbar', 4], ['.gd-admin-tools', 5]]);
   await M.p.locator('.tbl tbody a', { hasText: code }).click(); await M.p.waitForSelector('form[data-item]');
   await M.shot('a12-mobile-detail', [['form[data-item] [name=status]', 1], ['form[data-item] [name=publicNotice]', 2], ['form[data-item] [data-save]', 3], ['form[data-item] summary', 4]], { from: 'form[data-item]' });
   await M.ctx.close();

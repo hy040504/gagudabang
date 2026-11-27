@@ -8,7 +8,7 @@ import {
 } from '../services/applications.js';
 import { sendSms } from '../services/sms.js';
 import { authOf, type Ctx } from './public.js';
-import type { AdminApplicationSummaryDto, AdminItemPatchDto, AdminKpis, ScheduleCalendarEventDto } from '../../shared/types.js';
+import type { AdminApplicationSummaryDto, AdminItemPatchDto, AdminKpis, AdminStatsDto, ScheduleCalendarEventDto } from '../../shared/types.js';
 
 type Row = Record<string, any>;
 const ADMIN_TTL = 12 * 3600;
@@ -119,8 +119,44 @@ export function adminRouter(ctx: Ctx) {
         if (pd.startsWith(month) && isIsoDate(pd) && i.status === 'SCHEDULED') events.push({ ...base, date: pd, kind: 'PICKUP', itemId: i.id, label: `${i.item_name} 반출` });
       }
     }
+    // 운영자가 직접 추가한 일정
+    for (const c of db.prepare('SELECT * FROM custom_events WHERE event_date LIKE ? ORDER BY id').all(`${month}%`) as Row[]) events.push({ date: c.event_date, kind: 'CUSTOM', applicationId: 0, requestCode: '', itemId: null, label: c.title, eventId: c.id });
     events.sort((a, b) => a.date.localeCompare(b.date));
     ok(res, { month, events });
+  }));
+
+  // 직접 추가하는 일정: 접수와 상관없는 메모성 일정(휴무, 차량 점검 등)을 달력에 넣는다
+  r.post('/admin/events', wrap((req, res) => {
+    requireAdmin(req);
+    const date = String(req.body?.date ?? ''), title = typeof req.body?.title === 'string' ? req.body.title.trim() : '';
+    const f: Record<string, string> = {};
+    if (!isIsoDate(date)) f.date = '날짜를 확인해 주세요.';
+    if (!title || title.length > 100) f.title = '일정 이름은 1자 이상 100자 이하로 입력해 주세요.';
+    if (Object.keys(f).length) throw new AppError(422, 'VALIDATION_ERROR', '입력값을 확인해 주세요.', f);
+    const id = Number(db.prepare('INSERT INTO custom_events (event_date, title) VALUES (?, ?)').run(date, title).lastInsertRowid);
+    ok(res, { event: { id, date, title } }, 201);
+  }));
+  r.delete('/admin/events/:id', wrap((req, res) => {
+    requireAdmin(req);
+    if (!db.prepare('DELETE FROM custom_events WHERE id = ?').run(Number(req.params.id)).changes) throw new AppError(404, 'NOT_FOUND', '일정을 찾을 수 없습니다.');
+    ok(res, { deleted: true });
+  }));
+
+  // 통계: 쌓인 접수와 품목을 종류별로 센다
+  r.get('/admin/stats', wrap((req, res) => {
+    requireAdmin(req);
+    const one = (sql: string) => Number((db.prepare(sql).get() as Row).c);
+    const group = (col: string) => Object.fromEntries((db.prepare(`SELECT ${col} AS k, COUNT(*) AS c FROM application_items GROUP BY ${col}`).all() as Row[]).map((r) => [r.k, Number(r.c)]));
+    // 접수 시각은 UTC로 저장돼 있어 한국 시간(+9시간)으로 옮겨 달을 나눈다
+    const monthly = (db.prepare(`SELECT substr(datetime(a.created_at, '+9 hours'), 1, 7) AS month, COUNT(DISTINCT a.id) AS applications, COUNT(i.id) AS items
+      FROM applications a LEFT JOIN application_items i ON i.application_id = a.id GROUP BY month ORDER BY month DESC LIMIT 6`).all() as Row[])
+      .map((m) => ({ month: m.month, applications: Number(m.applications), items: Number(m.items) }));
+    const stats: AdminStatsDto = {
+      applications: one('SELECT COUNT(*) AS c FROM applications'), items: one('SELECT COUNT(*) AS c FROM application_items'),
+      members: one("SELECT COUNT(*) AS c FROM users WHERE role = 'CUSTOMER'"), smsSent: one('SELECT COUNT(*) AS c FROM sms_log'),
+      byStatus: group('status'), byHandling: group('handling_type'), byCategory: group('category'), monthly,
+    };
+    ok(res, stats);
   }));
 
   r.get('/admin/applications/:id', wrap((req, res) => {

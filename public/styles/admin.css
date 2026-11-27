@@ -639,3 +639,15 @@ form[data-item] [hidden], .gd-lightbox [hidden] { display: none; } /* .btn의 di
 .gd-lightbox-in { display: grid; gap: 12px; padding: 12px; }
 .gd-lightbox img { display: block; width: 100%; max-height: calc(100vh - 150px); max-height: calc(100dvh - 150px); object-fit: contain; border-radius: var(--radius-sm); background: var(--bg-muted); }
 .gd-lightbox .btn { min-height: 44px; }
+
+/* 상단 바의 도구 묶음(CSV, 테마, 로그아웃). 휴대폰에서는 로고 아래 줄 오른쪽에 모은다 */
+.gd-admin-tools { display: flex; align-items: center; gap: 4px; }
+.gd-admin-tools .gd-theme-icon { width: 36px; padding: 0; }
+.gd-theme-icon .i-sun, html[data-theme="dark"] .gd-theme-icon .i-moon { display: none; }
+html[data-theme="dark"] .gd-theme-icon .i-sun { display: block; }
+@media (max-width: 640px) { .gd-admin-tools { flex-basis: 100%; justify-content: flex-end; } }
+/* 통계 */
+.gd-stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.gd-stat-card { padding: 20px; }
+.tbl .num { text-align: right; }
+@media (max-width: 768px) { .gd-stat-grid { grid-template-columns: minmax(0, 1fr); } }

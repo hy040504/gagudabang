@@ -1,7 +1,7 @@
 import { api, ApiError } from '../common/api.js';
 import { $, decorate, logo, CATEGORY_LABEL, CONDITION_LABEL, HANDLING_LABEL, PREFERENCE_LABEL, STATUS_LABEL, esc, initTheme, themeButton, options, registerServiceWorker, showError, toast } from '../common/ui.js';
 import { BRAND_NAME, DEFAULT_PUBLIC_NOTICE, TRANSITIONS } from '../../shared/types.js';
-import type { AdminApplicationDetailDto, AdminApplicationSummaryDto, AdminItemDto, AdminKpis, ItemStatus, PublicConfig, ScheduleCalendarEventDto, StatusHistoryDto } from '../../shared/types.js';
+import type { AdminApplicationDetailDto, AdminApplicationSummaryDto, AdminItemDto, AdminKpis, AdminStatsDto, ItemStatus, PublicConfig, ScheduleCalendarEventDto, StatusHistoryDto } from '../../shared/types.js';
 
 const app = document.getElementById('app')!;
 let loggedIn = false;
@@ -9,17 +9,17 @@ const wire: { fn: (() => void) | null } = { fn: null };
 const resetWire = () => { wire.fn = null; }; // 함수 호출로 감싸 TS의 대입 후 타입 좁힘을 피한다 // 뷰가 등록하고 render()가 innerHTML 설정 뒤에 실행
 const filter = { status: '', handling: '', q: '', page: 1 };
 
-const TABS = [['dashboard', '접수 목록'], ['schedule', '일정'], ['settings', '설정']] as const;
+const TABS = [['dashboard', '접수 목록'], ['schedule', '일정'], ['stats', '통계'], ['settings', '설정']] as const;
 // 같은 목적지를 넓은 화면에서는 상단 링크로, 640px 이하에서는 하단 탭으로 보여 준다 (전환은 admin.css)
 const nav = () => {
   const hash = location.hash.slice(1);
-  const cur = hash === 'schedule' || hash === 'settings' ? hash : 'dashboard'; // 상세 화면은 접수 목록에 속한다
+  const cur = TABS.some(([h]) => h === hash) ? hash : 'dashboard'; // 상세 화면은 접수 목록에 속한다
   const links = (cls: string) => TABS.map(([h, l]) => `<a class="${cls}" href="#${h}"${h === cur ? ' aria-current="page"' : ''}>${l}</a>`).join('');
   return `<header class="gd-admin-top gd-admin-bar"><div class="gd-admin-bar-in">
   <img src="/assets/brand/logo.svg" alt="가구다방" width="85" height="32"><strong>파트너스 스튜디오</strong>
   <span style="flex:1"></span>${links('btn ghost sm gd-top-link')}
-  <a class="btn ghost sm" href="/api/admin/export/csv">CSV</a>
-  ${themeButton()}<button class="btn outline sm" id="logout">로그아웃</button></div></header>
+  <div class="gd-admin-tools"><a class="btn ghost sm" href="/api/admin/export/csv">CSV</a>
+  ${themeButton(true)}<button class="btn ghost sm" id="logout">로그아웃</button></div></div></header>
   <nav class="gd-tabbar" aria-label="주요 메뉴">${links('')}</nav>`;
 };
 function loginView() {
@@ -236,6 +236,7 @@ const KIND = {
   MOVING: { label: '이사일', color: 'var(--info)' },
   DEADLINE: { label: '판매 마감', color: 'var(--warn)' },
   PICKUP: { label: '확정 반출', color: 'var(--good)' },
+  CUSTOM: { label: '직접 추가', color: 'var(--text-3)' },
 } as const;
 const todayKst = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
 const cal = { month: todayKst().slice(0, 7), selected: todayKst() };
@@ -273,6 +274,17 @@ async function scheduleView() {
     document.querySelectorAll<HTMLElement>('[data-shift]').forEach((b) => b.addEventListener('click', () => { cal.month = shiftMonth(cal.month, Number(b.dataset.shift)); void render(); }));
     document.querySelectorAll<HTMLElement>('[data-date]').forEach((b) => b.addEventListener('click', () => { cal.selected = b.dataset.date!; void render(); }));
     $('#calToday')?.addEventListener('click', () => { cal.month = today.slice(0, 7); cal.selected = today; void render(); });
+    const evForm = $<HTMLFormElement>('#evForm')!;
+    evForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      try { await api.post('/api/admin/events', { date: cal.selected, title: (evForm.elements.namedItem('title') as HTMLInputElement).value }); toast('일정을 추가했습니다.', 'ok'); void render(); }
+      catch (e) { showError(e, evForm); }
+    });
+    document.querySelectorAll<HTMLElement>('[data-ev-del]').forEach((b) => b.addEventListener('click', async () => {
+      if (!confirm(`'${b.dataset.evTitle}' 일정을 지울까요?`)) return;
+      try { await api.delete(`/api/admin/events/${b.dataset.evDel}`); toast('일정을 지웠습니다.', 'ok'); } catch (e) { showError(e); }
+      void render();
+    }));
   };
 
   const sel = byDate.get(cal.selected) ?? [];
@@ -307,10 +319,31 @@ async function scheduleView() {
       <section class="card" style="padding:14px"><div class="cal-grid" role="group" aria-label="${y}년 ${m}월 달력">
         ${['일', '월', '화', '수', '목', '금', '토'].map((d) => `<div class="cal-dow">${d}</div>`).join('')}${cells}</div></section>
       <aside class="card" style="padding:16px" aria-live="polite"><h2 class="card-title" style="margin-top:0">${esc(cal.selected)}</h2>
-        ${sel.length ? sel.map((e) => `<div class="cal-ev"><i style="background:${KIND[e.kind].color}"></i><div>
-          <div class="small muted">${KIND[e.kind].label}</div><a href="#detail/${e.applicationId}">${esc(e.label)}</a>
-          <div class="small muted tabular">${esc(e.requestCode)}</div></div></div>`).join('') : '<p class="muted small">이 날의 일정이 없습니다.</p>'}
+        ${sel.length ? sel.map((e) => `<div class="cal-ev"><i style="background:${KIND[e.kind].color}"></i><div style="flex:1;min-width:0">
+          <div class="small muted">${KIND[e.kind].label}</div>${e.kind === 'CUSTOM' ? `<span>${esc(e.label)}</span>` : `<a href="#detail/${e.applicationId}">${esc(e.label)}</a>
+          <div class="small muted tabular">${esc(e.requestCode)}</div>`}</div>${e.kind === 'CUSTOM' ? `<button type="button" class="btn ghost sm" data-ev-del="${e.eventId}" data-ev-title="${esc(e.label)}">삭제</button>` : ''}</div>`).join('') : '<p class="muted small">이 날의 일정이 없습니다.</p>'}
+        <form id="evForm" novalidate style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div class="field"><label>이 날에 일정 추가</label><input name="title" maxlength="100" required></div>
+          <button class="btn outline sm">일정 추가</button></form>
       </aside>
+    </div></div></main>`;
+}
+
+// ---------- 통계 ----------
+async function statsView() {
+  const s = await api.get<AdminStatsDto>('/api/admin/stats');
+  const pct = (n: number, total: number) => (total ? `${Math.round((n / total) * 100)}%` : '0%');
+  // 종류별 건수와 비율을 표로 보여 준다. 0건인 종류도 빠뜨리지 않는다.
+  const table = (title: string, labels: Record<string, string>, data: Record<string, number>) => `<section class="card gd-stat-card"><h2 class="card-title">${title}</h2>
+    <table class="tbl"><thead><tr><th>구분</th><th class="num">품목 수</th><th class="num">비율</th></tr></thead><tbody>
+    ${Object.entries(labels).map(([k, l]) => `<tr><td>${esc(l)}</td><td class="num tabular">${data[k] ?? 0}</td><td class="num tabular">${pct(data[k] ?? 0, s.items)}</td></tr>`).join('')}</tbody></table></section>`;
+  return `<main class="main"><div class="main-inner"><h1 class="card-title">통계</h1>
+    <ul class="gd-stats" aria-label="전체 합계"><li>접수 <b>${s.applications}</b></li><li>가구(품목) <b>${s.items}</b></li><li>회원 <b>${s.members}</b></li><li>보낸 문자 <b>${s.smsSent}</b></li></ul>
+    <div class="gd-stat-grid">
+      ${table('상태별', STATUS_LABEL, s.byStatus)}${table('처리 구분별', HANDLING_LABEL, s.byHandling)}${table('가구 종류별', CATEGORY_LABEL, s.byCategory)}
+      <section class="card gd-stat-card"><h2 class="card-title">월별 접수 (최근 6개월)</h2>
+        <table class="tbl"><thead><tr><th>달</th><th class="num">접수</th><th class="num">품목 수</th></tr></thead><tbody>
+        ${s.monthly.map((m) => `<tr><td class="tabular">${esc(m.month)}</td><td class="num tabular">${m.applications}</td><td class="num tabular">${m.items}</td></tr>`).join('') || '<tr><td colspan="3" class="empty">접수 내역이 없습니다.</td></tr>'}</tbody></table></section>
     </div></div></main>`;
 }
 
@@ -360,6 +393,7 @@ async function render() {
     if (!loggedIn) body = loginView();
     else if (hash === 'schedule') body = nav() + (await scheduleView());
     else if (hash === 'settings') body = nav() + (await settingsView());
+    else if (hash === 'stats') body = nav() + (await statsView());
     else if (hash.startsWith('detail/')) body = nav() + (await detailView(Number(hash.slice(7))));
     else body = nav() + (await dashboardView());
     app.innerHTML = body;

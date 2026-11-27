@@ -81,6 +81,13 @@ CREATE TABLE IF NOT EXISTS status_history (
   note TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+CREATE TABLE IF NOT EXISTS custom_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  event_date TEXT NOT NULL,
+  title TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_custom_events_date ON custom_events(event_date);
 CREATE TABLE IF NOT EXISTS sms_log (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   application_id INTEGER NOT NULL REFERENCES applications(id) ON DELETE CASCADE,

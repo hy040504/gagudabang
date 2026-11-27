@@ -294,6 +294,8 @@ erDiagram
 | **관리자 인증** | `POST /api/admin/login` · `POST /api/admin/logout` | `fr_admin` (12시간) | 타이밍 공격 완화 `scrypt` 검증, 5회 실패 60초 잠금(`429 AUTH_LOCKED`) |
 | **운영 대시보드** | `GET /api/admin/applications` · `GET /api/admin/schedule` | `fr_admin` | 4대 실시간 KPI, 필터·검색·정렬·페이징, 월간 3색 일정 캘린더 집계 |
 | **상세/처리** | `GET / PATCH /api/admin/applications/:id` · `PATCH /api/admin/items/:itemId` | `fr_admin` | 내부 메모 및 품목 상태·마감일·반출일 갱신(`version` `409` 낙관적 락 + 감사 로그) |
+| **직접 추가 일정** | `POST /api/admin/events` · `DELETE /api/admin/events/:id` | `fr_admin` | 접수와 상관없는 일정을 달력에 추가·삭제 |
+| **통계** | `GET /api/admin/stats` | `fr_admin` | 접수·품목·회원·문자 합계, 상태·처리 구분·종류별 수, 최근 6개월 월별 접수 |
 | **문자 발송** | `POST /api/admin/items/:itemId/sms` | `fr_admin` | 운영자가 확인한 문구를 신청자 번호로 발송(솔라피), 발송 기록 저장. 발송 설정이 없으면 `503 SMS_NOT_CONFIGURED` |
 | **내보내기/설정** | `GET /api/admin/export/csv` · `PATCH /api/admin/settings` | `fr_admin` | UTF-8 BOM + 수식 인젝션 방어 CSV 다운로드, 비밀번호 및 공개 사업자 정보 변경 |
 
@@ -342,7 +344,7 @@ npm start
 # 서버 · 클라이언트 · 테스트 전체 strict 타입 검사
 npm run check
 
-# 자동화 테스트 (52개 통과: API 34 + 보안·미디어 6 + 시간 의존 10 + 문자 발송 2)
+# 자동화 테스트 (54개 통과: API 34 + 보안·미디어 6 + 시간 의존 10 + 문자 발송 2 + 일정·통계 2)
 npm test
 
 # 성능 벤치마크 (500건 · 5,000건 기준 p95 측정)
@@ -367,9 +369,9 @@ npm run perf
 | --- | --- | :---: | --- |
 | `DOC-01` | 국내 7개 플랫폼 벤치마킹, 서비스 종합 설계기획서·상세 기술 기획서 작성 | **완료** | `docs/*.md`, `docs/*.pdf`, `docs/assets/design/*.svg` |
 | `TASK-01` / `R1` | 「가구다방」 리브랜딩 및 인터랙티브 프로토타입 제작 | **완료** | `docs/assets/brand/*.svg` (내부 데모본 별도 보관) |
-| `TASK-02` | 실서버 백엔드(`Express + TypeScript + node:sqlite`) DB·인증·보안·REST API 19종 | **완료** | `src/shared/*`, `src/server/*` |
+| `TASK-02` | 실서버 백엔드(`Express + TypeScript + node:sqlite`) DB·인증·보안·REST API 22종 | **완료** | `src/shared/*`, `src/server/*` |
 | `TASK-03` | 실서버 무번들러 프론트엔드(고객 포털·관리자 콘솔)·PWA·Electron 연동 | **부분 완료** (화면 기능 완료, 실제 기기 확인 남음) | `public/*`, `src/client/*`, `desktop/main.cjs` |
-| `TASK-04` | 자동화 테스트(`node:test` 52개)·접근성 자동 검사(axe-core)·성능 측정(`500`/`5,000`건) 및 품질 검수 | **부분 완료** | `tests/*.test.ts`, `scripts/perf.ts` |
+| `TASK-04` | 자동화 테스트(`node:test` 54개)·접근성 자동 검사(axe-core)·성능 측정(`500`/`5,000`건) 및 품질 검수 | **부분 완료** | `tests/*.test.ts`, `scripts/perf.ts` |
 | **프로토타입 분리** | 고객 웹(`customer.html`)·관리자 웹(`admin.html`) 6단계 정적 프로토타입 분리 | **완료 (6단계 마무리 점검까지)** | `prototype/*`, [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md) |
 
 ### 확정 기술 스택
@@ -377,7 +379,7 @@ npm run perf
 | 계층 | 확정 기술 | 핵심 선정 사유 |
 | --- | --- | --- |
 | **프론트엔드** | `HTML5` + `CSS3 (디자인 토큰)` + `Vanilla TypeScript (ES2022 Modules)` | 무거운 번들러 의존성 0개, 공식 `tsc`만으로 표준 브라우저 모듈 컴파일 |
-| **백엔드** | `Node.js` + `Express 4` + `TypeScript (strict)` + `multer 2.5` | 단일 서버에서 REST API 19종 및 고객(`index.html`)·운영자(`admin.html`) 물리 격리 서빙 |
+| **백엔드** | `Node.js` + `Express 4` + `TypeScript (strict)` + `multer 2.5` | 단일 서버에서 REST API 22종 및 고객(`index.html`)·운영자(`admin.html`) 물리 격리 서빙 |
 | **데이터베이스** | Node 내장 `node:sqlite` (`DatabaseSync`, WAL 모드) | C++ 빌드(`node-gyp`) 없이 Windows/Linux 환경에서 즉시 구동 |
 | **보안·미디어** | `node:crypto (scrypt)`, 매직바이트 검증, 버퍼 단위 EXIF 제거 | 자택 촬영 사진 위치정보 자동 삭제, 비공개 운영 메모 서버 단 차단 |
 | **멀티 플랫폼** | `PWA (manifest.webmanifest + Service Worker)` + `Electron 45` | 동일 웹 코드로 모바일/PC 설치형 웹앱 및 운영자 데스크탑 앱 동시 지원 |
@@ -394,7 +396,7 @@ gagudabang/
 ├── src/
 │   ├── shared/types.ts                    # 프론트·백엔드 공용 타입 및 상태 전이 계약
 │   ├── index.ts                           # Vercel 배포용 진입점 (Express 앱을 내보낸다)
-│   ├── server/                            # Express + node:sqlite 백엔드 (API 19종)
+│   ├── server/                            # Express + node:sqlite 백엔드 (API 22종)
 │   │   ├── index.ts / app.ts / db.ts / lib.ts
 │   │   ├── routes/{public.ts, admin.ts}
 │   │   └── services/{applications.ts, media.ts, sms.ts}
@@ -410,7 +412,7 @@ gagudabang/
 │   ├── customer.{html,css,js} / admin.{html,css,js} / tokens.css / base.css / ui.css / data.js / store.js
 │   └── assets/{logo.svg, icon.svg, fonts/, photos/}
 ├── desktop/                               # Electron 운영자 데스크탑 래퍼(main.cjs)와 설치 파일 설정(electron-builder.json, icon.png)
-├── tests/                                 # node:test 자동화 테스트 스위트 (52개)
+├── tests/                                 # node:test 자동화 테스트 스위트 (54개)
 │   └── {api.test.ts, security-media.test.ts, time.test.ts, sms.test.ts, helpers.ts}
 ├── scripts/guide/{capture.mjs, build-pdf.mjs} # 이용 가이드의 화면 그림과 PDF를 다시 만드는 스크립트
 ├── scripts/perf.ts                        # 500건 / 5,000건 성능 벤치마크 스크립트
