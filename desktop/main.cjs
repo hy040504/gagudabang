@@ -1,14 +1,14 @@
-﻿// 운영자용 Electron 래퍼. 서버(npm start)가 떠 있어야 한다. 주소는 GAGU_URL로 변경 가능.
+﻿// 운영자용 Electron 래퍼: 서버의 관리자 화면을 창 하나로 연다.
+// 주소는 GAGU_URL로 바꿀 수 있다. 정하지 않으면 설치한 앱은 배포된 서버를, 개발 실행(npm run desktop)은 로컬 서버(npm start)를 연다.
 const { app, BrowserWindow } = require('electron');
-const http = require('node:http');
-const base = process.env.GAGU_URL || 'http://127.0.0.1:3000';
+const base = process.env.GAGU_URL || (app.isPackaged ? 'https://gagudabang.vercel.app' : 'http://127.0.0.1:3000');
 
-function waitForServer(tries = 30) {
-  return new Promise((resolve, reject) => {
-    const ping = (n) => http.get(base + '/api/health', (r) => { r.resume(); r.statusCode === 200 ? resolve() : retry(n); }).on('error', () => retry(n));
-    const retry = (n) => (n <= 0 ? reject(new Error('서버에 연결할 수 없습니다: ' + base)) : setTimeout(() => ping(n - 1), 500));
-    ping(tries);
-  });
+async function waitForServer(tries = 30) {
+  for (let n = 0; n < tries; n++) {
+    try { if ((await fetch(base + '/api/health')).ok) return; } catch { /* 아직 안 떴다 */ }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  throw new Error('서버에 연결할 수 없습니다: ' + base);
 }
 
 app.whenReady().then(async () => {

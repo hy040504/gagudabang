@@ -10,6 +10,7 @@
         "build": "npm run build:server && npm run build:client",
         "start": "npm run build && node dist/server/index.js",
         "desktop": "electron desktop/main.cjs",
+        "dist:desktop": "npx --yes electron-builder@26 --config desktop/electron-builder.json --win",
         "test": "tsc -p tsconfig.test.json && node --test dist-test/tests/",
         "check": "tsc -p tsconfig.server.json --noEmit && tsc -p tsconfig.client.json --noEmit && tsc -p tsconfig.test.json --noEmit",
         "perf": "tsc -p tsconfig.test.json && node dist-test/scripts/perf.js"

@@ -4,6 +4,7 @@ dist
 dist-test
 public/dist
 data
+release
 
 # Secrets, local env & DB files
 .env

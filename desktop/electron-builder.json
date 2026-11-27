@@ -1,0 +1,10 @@
+{
+  "appId": "app.gagudabang.partners",
+  "productName": "가구다방 파트너스 스튜디오",
+  "artifactName": "gagudabang-partners-setup-${version}.${ext}",
+  "directories": { "output": "release" },
+  "files": ["desktop/main.cjs", "!node_modules/**/*"],
+  "extraMetadata": { "main": "desktop/main.cjs", "description": "가구다방 운영자용 데스크톱 앱", "author": "가구다방" },
+  "win": { "target": "nsis", "icon": "desktop/icon.png" },
+  "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
+}
