@@ -35,3 +35,7 @@ prototype/.hallmark/shots/
 
 .vercel
 .env*
+
+# 프로젝트에 설치한 외부 스킬 (용량이 크고 각자 라이선스가 있다)
+.claude/
+.taste-skill/

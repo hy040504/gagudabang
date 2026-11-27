@@ -80,7 +80,7 @@ a18fa06 style(type): 글자 굵기를 400/600/700 세 가지로 수렴 [T3]
 dd29cb1 style(type): 글자 크기를 기준 단계(12/13/14/16/18/20)로 정리 [T1 T2 Y1]
 ```
 
-보정 규칙은 `public/styles/responsive.css` 끝의 "디자인 점검 보정" 구역에 모여 있다. 새 스타일은 `tokens.css`의 `--fs-*`, `--fw-*`, `--space-*`, `--control-h*` 값을 쓴다.
+보정 규칙은 `public/styles/responsive.css` 끝의 "디자인 점검 보정" 구역에 모여 있었다. 그 뒤(2026-11-27) 스타일 전체를 토큰 기준으로 다시 짜면서 이 파일은 없어졌고, 보정 내용은 `tokens.css`와 `base.css`의 기본값이 됐다. 지금의 기준은 `docs/DESIGN_SYSTEM.md`에 있다.
 
 ## 되돌리는 방법
 git switch main && git branch -D design-audit/20261127-1214

@@ -4,11 +4,11 @@ import type { PublicConfig } from '../../shared/types.js';
 // 이용약관·개인정보처리방침. 서비스가 실제로 하는 일(코드 기준)만 적었다.
 // 수수료 금액, 보관 기간(일수), 책임자 이름, 시행일은 정해지지 않아 숫자나 이름을 지어내지 않고 일반 문장으로 두었다. 정해지면 채우고 법률 검토를 받는다.
 const shown = (s?: string) => (s && s !== '[TBD]' ? s : ''); // 예전 DB에 남은 [TBD] 값은 비어 있는 것으로 본다
-const sec = (title: string, body: string) => `<h2 style="font-size:18px;margin:24px 0 8px">${title}</h2>${body}`;
-const box = (inner: string) => `<section class="card" style="padding:28px;max-width:760px;margin:0 auto;line-height:1.75">${inner}</section>`;
+const sec = (title: string, body: string) => `<h2>${title}</h2>${body}`;
+const box = (inner: string) => `<section class="card gd-page gd-legal">${inner}</section>`;
 
 export const terms = (c: PublicConfig | null) => box(`
-  <h1 class="card-title">이용약관</h1>
+  <h1 class="page-title">이용약관</h1>
   ${sec('제1조 (목적)', `<p>이 약관은 ${esc(c?.companyName ?? '가구다방')}(이하 "회사")가 제공하는 중고가구 위탁 판매 및 방문 반출(비움) 서비스의 이용 조건과 절차, 회사와 이용자의 권리·의무를 정합니다.</p>`)}
   ${sec('제2조 (서비스)', '<p>회사는 이용자가 접수한 가구의 사진·상태를 확인한 뒤 위탁 판매 또는 단순 처분을 진행하고, 약속한 일정에 방문해 반출합니다. 접수는 회원가입 없이도 가능하며, 회원은 내 접수 내역을 모아 볼 수 있습니다.</p>')}
   ${sec('제3조 (접수와 진행)', '<ul><li>접수 직후 상태는 "접수대기"이며, 회사의 확인 후 진행중·반출예정·처리완료로 바뀝니다.</li><li>회사는 가구 상태에 따라 위탁 판매를 거절하거나 처분으로 전환을 제안할 수 있습니다.</li><li>판매 마감일까지 판매되지 않은 가구의 처리 방법은 접수 시 선택한 내용과 상담 결과에 따릅니다.</li></ul>')}
@@ -20,7 +20,7 @@ export const terms = (c: PublicConfig | null) => box(`
 `);
 
 export const privacy = (c: PublicConfig | null) => box(`
-  <h1 class="card-title">개인정보 처리방침</h1>
+  <h1 class="page-title">개인정보 처리방침</h1>
   ${sec('1. 수집 항목과 목적', '<ul><li><b>접수 시(필수)</b>: 이름, 연락처, 주소, 이사일·희망 반출일, 가구 정보와 사진, 조회용 PIN → 접수 처리·방문 반출·진행 안내</li><li><b>회원가입 시</b>: 아이디, 이름, 연락처, 비밀번호 → 접수 내역 관리</li><li><b>선택</b>: 이벤트·혜택 안내 수신 동의 → 마케팅 안내(동의하지 않아도 서비스 이용 가능)</li></ul>')}
   ${sec('2. 보관 기간', '<p>수집한 정보는 접수 처리와 진행 안내에 필요한 동안 보관합니다. 법령에 따라 보존이 필요한 정보는 해당 기간 동안 보관합니다.</p>')}
   ${sec('3. 안전 조치', '<ul><li>비밀번호와 조회용 PIN은 복원할 수 없는 방식(해시)으로 저장합니다.</li><li>업로드한 사진은 위치 정보 등 메타데이터(EXIF)를 제거한 뒤 저장합니다.</li><li>운영자 내부 메모는 고객 화면과 고객용 API에 노출되지 않습니다.</li></ul>')}

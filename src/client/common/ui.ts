@@ -58,9 +58,13 @@ export function decorate(root: ParentNode = document) {
   });
 }
 
+// 테마: 고르지 않았으면 기기 설정을 따른다(색은 CSS의 light-dark()가 고른다). 버튼으로 고른 값만 저장한다.
+const systemTheme = () => (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+const storedTheme = () => { try { const t = localStorage.getItem('gd_theme'); return t === 'dark' || t === 'light' ? t : null; } catch { return null; } };
 export function applyTheme(theme: 'light' | 'dark') {
   document.documentElement.dataset.theme = theme;
-  try { localStorage.setItem('gd_theme', theme); } catch { /* 저장소 차단 환경 */ }
+  // 기기 설정과 같은 쪽으로 돌아가면 저장을 지운다. 그래야 기기 설정이 바뀔 때 다시 따라간다.
+  try { if (theme === systemTheme()) localStorage.removeItem('gd_theme'); else localStorage.setItem('gd_theme', theme); } catch { /* 저장소 차단 환경 */ }
 }
 const themeLabel = () => (document.documentElement.dataset.theme === 'dark' ? '라이트 모드' : '다크 모드');
 const ICON_ATTRS = 'viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
@@ -78,16 +82,19 @@ export const themeButton = (icon = false) => {
 };
 
 export function initTheme() {
-  let t: string | null = null;
-  try { t = localStorage.getItem('gd_theme'); } catch { /* ignore */ }
-  applyTheme(t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
-  document.addEventListener('click', (e) => {
-    if (!(e.target as Element).closest('[data-theme-toggle]')) return;
-    applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+  const relabel = () => {
     const label = `${themeLabel()}로 전환`;
     document.querySelectorAll('[data-theme-toggle]').forEach((b) => {
       if (b.hasAttribute('data-icon')) { b.setAttribute('aria-label', label); b.setAttribute('title', label); } else b.textContent = themeLabel(); // 글자 버튼은 보이는 글자가 곧 이름이다
     });
+  };
+  const show = () => { document.documentElement.dataset.theme = storedTheme() ?? systemTheme(); relabel(); };
+  show();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', show);
+  document.addEventListener('click', (e) => {
+    if (!(e.target as Element).closest('[data-theme-toggle]')) return;
+    applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+    relabel();
   });
 }
 

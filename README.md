@@ -407,6 +407,7 @@ gagudabang/
 ├── tsconfig.{base,server,client,test}.json   # tsconfig.json은 서버 설정을 그대로 잇는다 (편집기와 Vercel용)
 ├── vercel.json / .vercelignore            # Vercel 배포 설정 (설치·빌드 명령, 서울 리전, 첫 화면 경로, 보안 헤더)과 올릴 파일 목록
 ├── DESIGN_AUDIT.md                        # 디자인 점검 보고서 (측정 지표, 고친 것, 제안)
+├── docs/DESIGN_SYSTEM.md                  # 디자인 시스템 (토큰, 부품, 규칙, 고치기 전의 문제)
 ├── src/
 │   ├── shared/types.ts                    # 프론트·백엔드 공용 타입 및 상태 전이 계약
 │   ├── index.ts                           # Vercel 배포용 진입점 (Express 앱을 내보낸다)
@@ -420,7 +421,7 @@ gagudabang/
 │       └── admin/main.ts
 ├── public/                                # 실서버 정적 엔트리·스타일·PWA·자체 호스팅 폰트
 │   ├── index.html / admin.html / manifest.webmanifest / sw.js
-│   ├── styles/{tokens.css, customer.css, admin.css, responsive.css}
+│   ├── styles/{tokens.css, base.css, customer.css, admin.css}   # 토큰 → 공통 부품 → 화면별 (docs/DESIGN_SYSTEM.md)
 │   └── assets/{brand/logo.svg, brand/icon.svg, brand/og-image.jpg, photos/moving-sofa.jpg, fonts/PretendardVariable.woff2}
 ├── prototype/                             # 분리형 정적 프로토타입 (고객 웹 + 관리자 웹, 6단계 완료)
 │   ├── customer.{html,css,js} / admin.{html,css,js} / tokens.css / base.css / ui.css / data.js / store.js

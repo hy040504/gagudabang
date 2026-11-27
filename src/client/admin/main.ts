@@ -15,9 +15,9 @@ const nav = () => {
   const hash = location.hash.slice(1);
   const cur = TABS.some(([h]) => h === hash) ? hash : 'dashboard'; // 상세 화면은 접수 목록에 속한다
   const links = (cls: string) => TABS.map(([h, l]) => `<a class="${cls}" href="#${h}"${h === cur ? ' aria-current="page"' : ''}>${l}</a>`).join('');
-  return `<header class="gd-admin-top gd-admin-bar"><div class="gd-admin-bar-in">
+  return `<header class="gd-admin-bar"><div class="gd-admin-bar-in">
   <img src="/assets/brand/logo.svg" alt="가구다방" width="85" height="32"><strong>파트너스 스튜디오</strong>
-  <span style="flex:1"></span>${links('btn ghost sm gd-top-link')}
+  <span class="sp"></span>${links('btn ghost sm gd-top-link')}
   <div class="gd-admin-tools"><a class="btn ghost sm" href="/api/admin/export/csv">CSV</a>
   ${themeButton(true)}<button class="btn ghost sm" id="logout">로그아웃</button></div></div></header>
   <nav class="gd-tabbar" aria-label="주요 메뉴">${links('')}</nav>`;
@@ -32,14 +32,14 @@ function loginView() {
       catch (e) { showError(e, form); }
     });
   };
-  return `<main class="main"><div class="main-inner" style="max-width:420px"><form id="loginForm" class="card" style="padding:28px" novalidate>
-    ${logo(40)}<h1 class="card-title">운영자 로그인</h1>
+  return `<main class="main"><div class="main-inner narrow"><form id="loginForm" class="card gd-login" novalidate>
+    ${logo(40)}<h1 class="page-title">운영자 로그인</h1>
     <div class="field"><label>아이디</label><input name="loginId" autocomplete="username" required></div>
     <div class="field"><label>비밀번호</label><input name="password" type="password" autocomplete="current-password" required></div>
     <button class="btn primary block">로그인</button></form></div></main>`;
 }
 
-const ddayBadge = (d: number | null, label = '') => (d === null ? '' : `<b style="color:var(${d <= 3 ? '--bad' : '--text-3'})">${label}D${d >= 0 ? '-' + d : '+' + -d}</b>`);
+const ddayBadge = (d: number | null, label = '') => (d === null ? '' : `<b class="dday${d <= 3 ? ' soon' : ''}">${label}D${d >= 0 ? '-' + d : '+' + -d}</b>`);
 
 async function dashboardView() {
   const qs = new URLSearchParams({ sort: 'moving_asc', page: String(filter.page) });
@@ -65,24 +65,24 @@ async function dashboardView() {
       <li${k.movingSoonApplications ? ' class="alert"' : ''}>이사일 D-3 이내 <b>${k.movingSoonApplications}</b></li>
       <li${k.deadlineAlertItems ? ' class="alert"' : ''}>판매마감 임박·경과 <b>${k.deadlineAlertItems}</b></li>
       <li>7일 내 반출예정 <b>${k.pickupIn7DaysItems}</b></li></ul>
-    <form id="filterForm" class="row gd-filter" style="gap:10px;flex-wrap:wrap">
-      <select name="status" aria-label="상태" style="width:auto;min-width:150px"><option value="">전체 상태</option>${options(STATUS_LABEL, filter.status)}</select>
-      <select name="handling" aria-label="처리구분" style="width:auto;min-width:150px"><option value="">전체 처리구분</option>${options({ RESALE: HANDLING_LABEL.RESALE, DISPOSE: HANDLING_LABEL.DISPOSE, UNDECIDED: HANDLING_LABEL.UNDECIDED }, filter.handling)}</select>
-      <input name="q" value="${esc(filter.q)}" placeholder="이름·연락처·접수번호·주소·품목" style="flex:1;min-width:200px">
-      <button class="btn primary sm">검색</button></form>
-    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>접수번호</th><th>신청자</th><th>이사일</th><th>품목 상태</th></tr></thead><tbody>
+    <form id="filterForm" class="gd-filter">
+      <select name="status" aria-label="상태"><option value="">전체 상태</option>${options(STATUS_LABEL, filter.status)}</select>
+      <select name="handling" aria-label="처리구분"><option value="">전체 처리구분</option>${options({ RESALE: HANDLING_LABEL.RESALE, DISPOSE: HANDLING_LABEL.DISPOSE, UNDECIDED: HANDLING_LABEL.UNDECIDED }, filter.handling)}</select>
+      <input name="q" value="${esc(filter.q)}" placeholder="이름·연락처·접수번호·주소·품목">
+      <button class="btn primary">검색</button></form>
+    <div class="tbl-wrap"><table class="tbl gd-list"><thead><tr><th>접수번호</th><th>신청자</th><th>이사일</th><th>품목 상태</th></tr></thead><tbody>
       ${d.items.map((a) => `<tr><td><a href="#detail/${a.id}" class="tabular">${esc(a.requestCode)}</a></td><td>${esc(a.applicantName)}<div class="muted small">${esc(a.phone)}</div></td>
         <td>${esc(a.movingDate)} ${ddayBadge(a.movingDday)}</td>
         <td>${a.items.map((i) => `${esc(i.itemName)} <b>${STATUS_LABEL[i.status]}</b> ${ddayBadge(i.deadlineDday, '마감 ')}`).join('<br>')}</td></tr>`).join('') || '<tr><td colspan="4" class="empty">접수 내역이 없습니다.</td></tr>'}
     </tbody></table></div>
-    <div class="row" style="gap:8px;margin-top:12px;justify-content:center">${d.page > 1 ? `<button class="btn outline sm" data-page="${d.page - 1}">이전</button>` : ''}
+    <div class="pager">${d.page > 1 ? `<button class="btn outline sm" data-page="${d.page - 1}">이전</button>` : ''}
       <span class="muted small">${d.page} / ${pages} · 총 ${d.total}건</span>${d.page < pages ? `<button class="btn outline sm" data-page="${d.page + 1}">다음</button>` : ''}</div>
   </div></main>`;
 }
 
-const itemForm = (it: AdminItemDto, smsOn: boolean) => `<form class="card" data-item="${it.id}" data-version="${it.version}" style="padding:18px;margin-bottom:14px" novalidate>
+const itemForm = (it: AdminItemDto, smsOn: boolean) => `<form class="card gd-item-card" data-item="${it.id}" data-version="${it.version}" novalidate>
   <h2 class="card-title">${esc(it.itemName)} <span class="muted small">${esc(CATEGORY_LABEL[it.category])} · 고객 희망 ${esc(PREFERENCE_LABEL[it.customerPreference])} · 상태 ${esc(CONDITION_LABEL[it.conditionGrade])}</span></h2>
-  <div class="row" style="gap:6px;margin-bottom:10px">${it.photos.map((p) => `<a class="gd-thumb" data-photo href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.url)}" alt="${esc(it.itemName)} ${p.photoTag === 'DETAIL' ? '디테일' : '전체'}" width="96" height="96" style="object-fit:cover;border-radius:8px"></a>`).join('')}</div>
+  <div class="gd-photo-row">${it.photos.map((p) => `<a class="gd-thumb" data-photo href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.url)}" alt="${esc(it.itemName)} ${p.photoTag === 'DETAIL' ? '디테일' : '전체'}" width="96" height="96"></a>`).join('')}</div>
   <div class="grid2">
     <div class="field"><label>처리 구분</label><select name="handlingType">${options(HANDLING_LABEL, it.handlingType)}</select></div>
     <div class="field"><label>상태</label><select name="status">${options(Object.fromEntries([it.status, ...TRANSITIONS[it.status]].map((s) => [s, STATUS_LABEL[s]])), it.status)}</select></div>
@@ -97,7 +97,7 @@ const itemForm = (it: AdminItemDto, smsOn: boolean) => `<form class="card" data-
     <p class="muted small">저장된 내용으로 문구를 채웁니다. ${smsOn ? '보내기를 누르면 신청자 번호로 문자가 나갑니다.' : '문자 발송이 설정되지 않아 복사해서 직접 보내야 합니다.'}</p>
     <div class="field"><label>상황</label><select data-sms-kind>${options(SMS_LABEL, it.status)}</select></div>
     <div class="field"><label>문구</label><textarea data-sms-text rows="5"></textarea></div>
-    <div class="row" style="gap:8px"><button type="button" class="btn outline sm" data-sms-copy>복사</button>${smsOn ? '<button type="button" class="btn primary sm" data-sms-send>문자 보내기</button>' : ''}</div></details></form>`;
+    <div class="row"><button type="button" class="btn outline sm" data-sms-copy>복사</button>${smsOn ? '<button type="button" class="btn primary sm" data-sms-send>문자 보내기</button>' : ''}</div></details></form>`;
 
 // 상황은 품목 상태와 하나씩 대응한다. 비어 있는 값은 지어내지 않고 대괄호로 남겨 운영자가 채우게 한다.
 const SMS_LABEL: Record<ItemStatus, string> = { PENDING: '접수 확인', IN_PROGRESS: '판매 진행', SCHEDULED: '반출 일정 확정', COMPLETED: '처리 완료', CANCELED: '취소' };
@@ -215,28 +215,28 @@ async function detailView(id: number) {
   };
   return `<main class="main"><div class="main-inner">
     <a href="#dashboard" class="btn ghost sm">← 목록</a>
-    <section class="card" style="padding:20px;margin:12px 0"><h1 class="card-title tabular">${esc(a.requestCode)}</h1>
+    <div class="gd-cards"><section class="card"><h1 class="page-title tabular">${esc(a.requestCode)}</h1>
       <p>${esc(a.applicantName)} · <a href="tel:${esc(a.phone)}">${esc(a.phone)}</a><br>${esc(a.zipcode)} ${esc(a.address)} ${esc(a.addressDetail)}<br>
       이사일 ${esc(a.movingDate)} · 희망 반출일 ${esc(a.preferredPickupDate)}</p>
       <p class="muted">고객 요청: ${esc(a.customerMemo) || '없음'}</p>
       <form id="memoForm" novalidate><div class="field"><label>운영 메모 (고객 비공개)</label><input name="adminMemo" value="${esc(a.adminMemo)}" maxlength="2000"></div><button class="btn outline sm">메모 저장</button></form></section>
     ${a.items.map((it) => itemForm(it, d.smsEnabled)).join('')}
-    <section class="card" style="padding:18px"><h2 class="card-title">변경 이력</h2>
-      ${d.history.map((h) => `<div class="small" style="padding:6px 0;border-top:1px solid var(--border)">${esc(h.createdAt)} · ${esc(h.actorName)} · ${esc(HISTORY_LABEL[h.actionType] ?? h.actionType)} ${esc(h.note)}</div>`).join('')}</section>
+    <section class="card gd-history"><h2 class="card-title">변경 이력</h2>
+      ${d.history.map((h) => `<div>${esc(h.createdAt)} · ${esc(h.actorName)} · ${esc(HISTORY_LABEL[h.actionType] ?? h.actionType)} ${esc(h.note)}</div>`).join('')}</section></div>
     <dialog id="photoDlg" class="gd-lightbox" aria-label="사진 크게 보기"><div class="gd-lightbox-in">
       <img alt="">
       <div class="row"><button type="button" class="btn outline" data-step="-1">이전</button><button type="button" class="btn outline" data-step="1">다음</button>
-        <span id="photoCap" class="small" aria-live="polite" style="flex:1"></span><button type="button" class="btn primary" data-close autofocus>닫기</button></div>
+        <span id="photoCap" class="small sp" aria-live="polite"></span><button type="button" class="btn primary" data-close autofocus>닫기</button></div>
     </div></dialog>
   </div></main>`;
 }
 
 // ---------- A-03 일정 캘린더 ----------
 const KIND = {
-  MOVING: { label: '이사일', color: 'var(--info)' },
-  DEADLINE: { label: '판매 마감', color: 'var(--warn)' },
-  PICKUP: { label: '확정 반출', color: 'var(--good)' },
-  CUSTOM: { label: '직접 추가', color: 'var(--text-3)' },
+  MOVING: { label: '이사일' },
+  DEADLINE: { label: '판매 마감' },
+  PICKUP: { label: '확정 반출' },
+  CUSTOM: { label: '직접 추가' },
 } as const;
 const todayKst = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
 const cal = { month: todayKst().slice(0, 7), selected: todayKst() };
@@ -266,7 +266,7 @@ async function scheduleView() {
       return `<button type="button" class="cal-cell${date === cal.selected ? ' sel' : ''}${date === today ? ' today' : ''}" data-date="${date}"
         aria-pressed="${date === cal.selected}">
         <span class="vh">${m}월 </span><span class="cal-n">${i + 1}</span><span class="vh">일${evs.length ? `, 일정 ${evs.length}건` : ''}</span>
-        <span class="cal-dots" aria-hidden="true">${kinds.map((k) => `<i style="background:${KIND[k].color}"></i>`).join('')}${evs.length > 1 ? `<small>${evs.length}</small>` : ''}</span></button>`;
+        <span class="cal-dots" aria-hidden="true">${kinds.map((k) => `<i class="dot k-${k}"></i>`).join('')}${evs.length > 1 ? `<small>${evs.length}</small>` : ''}</span></button>`;
     }),
   ].join('');
 
@@ -289,40 +289,22 @@ async function scheduleView() {
 
   const sel = byDate.get(cal.selected) ?? [];
   return `<main class="main"><div class="main-inner">
-    <style>
-      .cal-wrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
-      .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-      .cal-dow{font-size:13px;font-weight:600;color:var(--text-3);text-align:center;padding:6px 0}
-      .cal-cell{min-height:76px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;font:inherit;color:var(--text-1);cursor:pointer;transition:background .15s ease-out,border-color .15s ease-out}
-      .cal-cell:hover{background:var(--bg-hover)}
-      .cal-cell.sel{background:var(--primary-soft);border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-ring)}
-      .cal-cell.today .cal-n{color:var(--primary-fg);background:var(--primary);border-radius:999px;padding:0 8px}
-      .cal-blank{border:0;background:none;cursor:default}
-      .cal-n{font-size:13px;font-weight:600;align-self:flex-start}
-      .cal-dots{display:flex;gap:4px;align-items:center;min-height:10px}
-      .cal-dots i{width:8px;height:8px;border-radius:50%;display:block}
-      .cal-dots small{font-size:12px;color:var(--text-3)}
-      .cal-ev{display:flex;gap:8px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--border)}
-      .cal-ev i{width:9px;height:9px;border-radius:50%;margin-top:6px;flex-shrink:0}
-      @media (max-width:900px){.cal-wrap{grid-template-columns:1fr}.cal-cell{min-height:56px;padding:4px 4px}}
-      @media (prefers-reduced-motion:reduce){.cal-cell{transition:none}}
-    </style>
-    <div class="row" style="gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+    <div class="cal-head">
       <button class="btn outline sm" data-shift="-1" aria-label="이전 달">←</button>
-      <h1 class="card-title" style="margin:0;min-width:7em;text-align:center">${y}년 ${m}월</h1>
+      <h1>${y}년 ${m}월</h1>
       <button class="btn outline sm" data-shift="1" aria-label="다음 달">→</button>
       <button class="btn ghost sm" id="calToday">오늘</button>
-      <span style="flex:1"></span>
-      ${Object.values(KIND).map((k) => `<span class="small" style="display:flex;gap:4px;align-items:center"><i style="width:9px;height:9px;border-radius:50%;background:${k.color};display:block"></i>${k.label}</span>`).join('')}
+      <span class="sp"></span>
+      <div class="cal-legend">${Object.entries(KIND).map(([k, v]) => `<span><i class="dot k-${k}"></i>${v.label}</span>`).join('')}</div>
     </div>
     <div class="cal-wrap">
-      <section class="card" style="padding:14px"><div class="cal-grid" role="group" aria-label="${y}년 ${m}월 달력">
+      <section class="card"><div class="cal-grid" role="group" aria-label="${y}년 ${m}월 달력">
         ${['일', '월', '화', '수', '목', '금', '토'].map((d) => `<div class="cal-dow">${d}</div>`).join('')}${cells}</div></section>
-      <aside class="card" style="padding:16px" aria-live="polite"><h2 class="card-title" style="margin-top:0">${esc(cal.selected)}</h2>
-        ${sel.length ? sel.map((e) => `<div class="cal-ev"><i style="background:${KIND[e.kind].color}"></i><div style="flex:1;min-width:0">
+      <aside class="card" aria-live="polite"><h2 class="card-title">${esc(cal.selected)}</h2>
+        ${sel.length ? sel.map((e) => `<div class="cal-ev"><i class="dot k-${e.kind}"></i><div>
           <div class="small muted">${KIND[e.kind].label}</div>${e.kind === 'CUSTOM' ? `<span>${esc(e.label)}</span>` : `<a href="#detail/${e.applicationId}">${esc(e.label)}</a>
           <div class="small muted tabular">${esc(e.requestCode)}</div>`}</div>${e.kind === 'CUSTOM' ? `<button type="button" class="btn ghost sm" data-ev-del="${e.eventId}" data-ev-title="${esc(e.label)}">삭제</button>` : ''}</div>`).join('') : '<p class="muted small">이 날의 일정이 없습니다.</p>'}
-        <form id="evForm" novalidate style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+        <form id="evForm" novalidate>
           <div class="field"><label>이 날에 일정 추가</label><input name="title" maxlength="100" required></div>
           <button class="btn outline sm">일정 추가</button></form>
       </aside>
@@ -337,7 +319,7 @@ async function statsView() {
   const table = (title: string, labels: Record<string, string>, data: Record<string, number>) => `<section class="card gd-stat-card"><h2 class="card-title">${title}</h2>
     <table class="tbl"><thead><tr><th>구분</th><th class="num">품목 수</th><th class="num">비율</th></tr></thead><tbody>
     ${Object.entries(labels).map(([k, l]) => `<tr><td>${esc(l)}</td><td class="num tabular">${data[k] ?? 0}</td><td class="num tabular">${pct(data[k] ?? 0, s.items)}</td></tr>`).join('')}</tbody></table></section>`;
-  return `<main class="main"><div class="main-inner"><h1 class="card-title">통계</h1>
+  return `<main class="main"><div class="main-inner"><h1 class="page-title">통계</h1>
     <ul class="gd-stats" aria-label="전체 합계"><li>접수 <b>${s.applications}</b></li><li>가구(품목) <b>${s.items}</b></li><li>회원 <b>${s.members}</b></li><li>보낸 문자 <b>${s.smsSent}</b></li></ul>
     <div class="gd-stat-grid">
       ${table('상태별', STATUS_LABEL, s.byStatus)}${table('처리 구분별', HANDLING_LABEL, s.byHandling)}${table('가구 종류별', CATEGORY_LABEL, s.byCategory)}
@@ -371,12 +353,12 @@ async function settingsView() {
       catch (e) { showError(e, pwForm); }
     });
   };
-  return `<main class="main"><div class="main-inner" style="max-width:720px">
-    <form id="siteForm" class="card" style="padding:24px;margin-bottom:16px" novalidate><h1 class="card-title">고객 화면 사업자 정보</h1>
+  return `<main class="main"><div class="main-inner mid gd-cards">
+    <form id="siteForm" class="card" novalidate><h1 class="page-title">고객 화면 사업자 정보</h1>
       <p class="muted small">고객 화면 아래쪽에 표시됩니다. 비워 둔 항목은 표시되지 않습니다.</p>
       <div class="grid2">${SITE_FIELDS.map(([k, l]) => `<div class="field"><label>${l}</label><input name="${k}" value="${esc(c[k])}" maxlength="200"></div>`).join('')}</div>
       <button class="btn primary">저장</button></form>
-    <form id="pwForm" class="card" style="padding:24px" novalidate><h2 class="card-title">관리자 비밀번호 변경</h2>
+    <form id="pwForm" class="card" novalidate><h2 class="card-title">관리자 비밀번호 변경</h2>
       <div class="field"><label>현재 비밀번호</label><input name="currentPassword" type="password" autocomplete="current-password" required></div>
       <div class="grid2"><div class="field"><label>새 비밀번호 (8자 이상)</label><input name="newPassword" type="password" autocomplete="new-password" minlength="8" required></div>
       <div class="field"><label>새 비밀번호 확인</label><input name="confirmPassword" type="password" autocomplete="new-password" required></div></div>

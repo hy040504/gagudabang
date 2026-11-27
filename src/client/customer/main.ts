@@ -20,7 +20,7 @@ const joinInfo = (...p: Array<[string, string | undefined]>) => p.filter(([, v])
 function shell(body: string) {
   const biz = joinInfo(['대표 ', config?.ceoName], ['사업자번호 ', config?.bizNo]);
   const contact = joinInfo(['고객센터 ', config?.phone], ['', config?.hours], ['', config?.address]);
-  return `<header class="c-header gd-header gd-site"><div class="gd-hd-inner">
+  return `<header class="gd-site"><div class="gd-hd-inner">
       <a href="#home" class="gd-brand" aria-label="가구다방 홈">${logo(40)}</a>
       <nav aria-label="주 메뉴"><a class="btn ghost sm" href="#lookup">진행 조회</a>${me
         ? `<a class="btn ghost sm" href="#my">${esc(me.name)}님</a><button class="btn ghost sm" id="logoutBtn">로그아웃</button>`
@@ -49,7 +49,7 @@ const home = () => `
     <div class="gd-hero-copy">
       <h1>이사 전 가구, <span>먼저 팔고 <span>남은 건 비워 드립니다</span></span></h1>
       <p>가구 사진과 이사일만 남기면 접수가 끝납니다. 팔 수 있는 가구는 이사 전까지 위탁 판매하고, 남은 가구는 약속한 날 방문해 수거합니다.</p>
-      <div class="row" style="gap:10px"><a class="btn primary lg" href="#apply">가구 접수하기</a><a class="btn outline lg" href="#lookup">진행 조회</a></div>
+      <div class="gd-hero-actions"><a class="btn primary lg" href="#apply">가구 접수하기</a><a class="btn outline lg" href="#lookup">진행 조회</a></div>
       <p class="gd-facts"><span>회원가입 없이 접수</span> · <span>한 번에 최대 20개 품목</span> · <span>PIN 4자리로 진행 조회</span></p>
     </div>
     <div class="gd-timeline-box">
@@ -123,10 +123,10 @@ const itemBlock = (i: number) => `
       <div class="field"><label>희망 처리</label><select name="customerPreference">${options(PREFERENCE_LABEL, 'CONSULT')}</select></div>
     </div>
     <div class="field"><label>메모(선택)</label><input name="itemNote" maxlength="500"></div>
-    <div class="field gd-photos">
+    <div class="field">
       <span class="gd-photos-label">사진 <small>1~${MAX_PHOTOS}장 · 첫 장은 가구 전체가 보이게 찍어 주세요</small></span>
       <label class="btn outline sm gd-file"><input name="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple>사진 고르기</label>
-      <div class="gd-thumbs" aria-live="polite"></div>
+      <div class="gd-thumbs gd-photo-row" aria-live="polite"></div>
     </div>
     <div class="gd-item-foot"><button type="button" class="btn ghost sm" data-remove aria-label="가구 ${i + 1} 삭제">이 가구 삭제</button></div>
   </fieldset>`;
@@ -141,8 +141,7 @@ function apply() {
       <div class="grid2">
         <div class="field"><label>이름</label><input name="applicantName" value="${esc(me?.name)}" maxlength="50" required></div>
         <div class="field"><label>휴대폰 번호</label><input name="phone" value="${esc(me?.phone)}" inputmode="tel" placeholder="010-0000-0000" required></div>
-        <div class="field"><label>조회용 PIN (숫자 4자리)</label><input name="pin" inputmode="numeric" maxlength="4" pattern="\\d{4}" autocomplete="off" required></div>
-        <p class="gd-hint">접수 내역을 조회할 때 씁니다. 잊지 않게 기억해 두세요.</p>
+        <div class="field"><label>조회용 PIN (숫자 4자리)</label><input name="pin" inputmode="numeric" maxlength="4" pattern="\\d{4}" autocomplete="off" aria-describedby="pinHint" required><p id="pinHint">접수 내역을 조회할 때 씁니다. 잊지 않게 기억해 두세요.</p></div>
       </div></section>
     <section class="gd-sec"><h2>수거 장소</h2>
       <div class="grid2">
@@ -161,8 +160,8 @@ function apply() {
     <button type="button" class="btn outline" id="addItem">가구 추가</button></section>
     <section class="gd-sec"><h2>요청과 동의</h2>
     <div class="field"><label>요청 사항(선택)</label><input name="customerMemo" maxlength="1000"></div>
-    <div class="field"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="privacyConsented"> <span><a href="#privacy" target="_blank" rel="noopener">개인정보 수집·이용</a>에 동의합니다 (필수)</span></label></div>
-    <div class="field"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="marketingConsented"> 이벤트·혜택 안내 수신에 동의합니다 (선택)</label></div></section>
+    <div class="field"><label class="check"><input type="checkbox" name="privacyConsented"> <span><a href="#privacy" target="_blank" rel="noopener">개인정보 수집·이용</a>에 동의합니다 (필수)</span></label></div>
+    <div class="field"><label class="check"><input type="checkbox" name="marketingConsented"> 이벤트·혜택 안내 수신에 동의합니다 (선택)</label></div></section>
     <button class="btn primary lg block" id="submitBtn">접수하기</button>
   </form>`;
 }
@@ -202,7 +201,7 @@ function wireApply() {
     const input = ev.target as HTMLInputElement;
     if (input.type !== 'file') return;
     const files = [...(input.files ?? [])];
-    const box = input.closest('.gd-photos')!.querySelector<HTMLElement>('.gd-thumbs')!;
+    const box = input.closest('.field')!.querySelector<HTMLElement>('.gd-thumbs')!;
     box.querySelectorAll('img').forEach((im) => URL.revokeObjectURL(im.src));
     box.innerHTML = files.slice(0, MAX_PHOTOS).map((f) => `<img src="${URL.createObjectURL(f)}" alt="${esc(f.name)}" width="72" height="72">`).join('')
       + (files.length ? `<span>${Math.min(files.length, MAX_PHOTOS)}장 선택${files.length > MAX_PHOTOS ? ` · 앞의 ${MAX_PHOTOS}장만 접수됩니다` : ''}</span>` : '');
@@ -267,22 +266,22 @@ function wireApply() {
   });
 }
 
-const complete = () => `<section class="card" style="padding:32px;text-align:center">
-  <h1 class="card-title" style="justify-content:center;text-align:center">접수가 완료되었습니다</h1>
-  ${completedCode ? `<p>접수번호 <strong class="tabular" style="font-size:1.4em">${esc(completedCode)}</strong></p>` : ''}
+const complete = () => `<section class="card gd-page gd-done">
+  <h1 class="page-title">접수가 완료되었습니다</h1>
+  ${completedCode ? `<p>접수번호 <strong class="tabular gd-code">${esc(completedCode)}</strong></p>` : ''}
   <p class="muted">접수번호(또는 연락처)와 설정하신 PIN 4자리로 진행 상황을 조회할 수 있습니다.</p>
   <a class="btn primary" href="#lookup">진행 조회하기</a></section>`;
 
 function renderLookupResult(a: PublicApplicationDto) {
   const allPending = a.items.every((i) => i.status === 'PENDING');
-  return `<article class="card" style="padding:20px;margin-top:16px">
+  return `<article class="card gd-result">
     <h2 class="card-title tabular">${esc(a.requestCode)}</h2>
     <p class="muted small">이사일 ${esc(a.movingDate)} · 희망 반출일 ${esc(a.preferredPickupDate)}</p>
-    ${a.items.map((i) => `<div style="padding:12px 0;border-top:1px solid var(--border)">
+    ${a.items.map((i) => `<div class="gd-result-item">
       <strong>${esc(i.itemName)}</strong> <span class="muted small">${esc(CATEGORY_LABEL[i.category])} · ${esc(HANDLING_LABEL[i.handlingType])}</span>
       <div><b>${STATUS_LABEL[i.status]}</b>${i.saleDeadline ? ` · 판매 마감 ${esc(i.saleDeadline)}` : ''}${i.pickupSchedule ? ` · 반출 ${esc(i.pickupSchedule)}` : ''}</div>
       <div class="muted small">${esc(i.publicNotice)}</div>
-      <div class="row" style="gap:6px;margin-top:8px">${i.photos.map((p) => `<img src="${esc(p.url)}" alt="${esc(i.itemName)} 사진" width="72" height="72" style="object-fit:cover;border-radius:8px">`).join('')}</div>
+      <div class="gd-photo-row">${i.photos.map((p) => `<img src="${esc(p.url)}" alt="${esc(i.itemName)} 사진" width="72" height="72" loading="lazy">`).join('')}</div>
     </div>`).join('')}
     ${allPending ? `<button class="btn danger sm" data-cancel="${esc(a.requestCode)}">신청 취소</button>` : ''}
   </article>`;
@@ -309,11 +308,11 @@ function lookup() {
       void load(v('identifier'), v('pin'));
     });
   });
-  return `<form id="lookupForm" class="card" style="padding:24px" novalidate><h1 class="card-title">진행 조회</h1>
+  return `<div class="gd-page"><form id="lookupForm" class="card" novalidate><h1 class="page-title">진행 조회</h1>
     <div class="grid2">
       <div class="field"><label>접수번호 또는 연락처</label><input name="identifier" placeholder="FR-20261126-001 또는 010…" required></div>
       <div class="field"><label>PIN 4자리</label><input name="pin" inputmode="numeric" maxlength="4" autocomplete="off" required></div>
-    </div><button class="btn primary">조회</button></form><div id="lookupOut" aria-live="polite"></div>`;
+    </div><button class="btn primary">조회</button></form><div id="lookupOut" aria-live="polite"></div></div>`;
 }
 
 // ---------- 회원: 로그인 · 가입 · 마이페이지 ----------
@@ -330,7 +329,7 @@ function login() {
       catch (e) { showError(e, f); }
     });
   });
-  return `<form id="loginForm" class="card gd-auth" novalidate><h1 class="card-title">회원 로그인</h1>
+  return `<form id="loginForm" class="card gd-auth" novalidate><h1 class="page-title">회원 로그인</h1>
     <div class="field"><label>휴대폰 번호 또는 아이디</label><input name="identifier" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
     <div class="field"><label>비밀번호</label><input name="password" type="password" autocomplete="current-password" required></div>
     <button class="btn primary block">로그인</button>
@@ -359,7 +358,7 @@ function signup() {
       } catch (e) { showError(e, f); }
     });
   });
-  return `<form id="signupForm" class="card gd-auth wide" novalidate><h1 class="card-title">회원가입</h1>
+  return `<form id="signupForm" class="card gd-auth wide" novalidate><h1 class="page-title">회원가입</h1>
     <p class="muted small">가입하면 접수할 때 이름과 기본 수거지가 자동으로 채워지고, 접수 내역을 한곳에서 볼 수 있습니다.</p>
     <div class="field"><label>아이디</label><input name="username" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="4" maxlength="20" aria-describedby="usernameHint" required>
       <p class="muted small" id="usernameHint">영문 소문자로 시작하는 영문 소문자·숫자 4~20자. 로그인할 때 휴대폰 번호 대신 쓸 수 있습니다.</p></div>
@@ -367,7 +366,7 @@ function signup() {
     <div class="field"><label>비밀번호 확인</label><input name="confirm" type="password" autocomplete="new-password" required></div>
     <div class="field"><label>이름</label><input name="name" autocomplete="name" maxlength="50" required></div>
     <div class="field"><label>휴대폰 번호</label><input name="phone" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" required></div></div>
-    <h2 class="card-title" style="font-size:1rem">기본 수거지 (선택)</h2>
+    <h2 class="card-title">기본 수거지 (선택)</h2>
     <div class="grid2"><div class="field"><label>우편번호</label><input name="defaultZipcode" maxlength="10"></div>
     <div class="field"><label>주소</label><input name="defaultAddress" maxlength="200"></div></div>
     <div class="field"><label>상세 주소</label><input name="defaultAddressDetail" maxlength="100"></div>
@@ -417,21 +416,21 @@ function myPage() {
       } catch (e) { showError(e, cf); }
     });
   });
-  return `<h1 class="card-title">마이페이지</h1>
-    <section><h2 class="card-title" style="font-size:1rem">내 신청 내역</h2><div id="myList" aria-live="polite"><p class="muted">불러오는 중…</p></div></section>
-    <div class="grid2" style="margin-top:20px;align-items:start">
-    <form id="claimForm" class="card" style="padding:20px" novalidate><h2 class="card-title" style="font-size:1rem">비회원 신청 건 연결</h2>
+  return `<div class="gd-page wide"><h1 class="page-title">마이페이지</h1>
+    <section><h2 class="card-title">내 신청 내역</h2><div id="myList" aria-live="polite"><p class="muted">불러오는 중…</p></div></section>
+    <div class="gd-my-forms">
+    <form id="claimForm" class="card" novalidate><h2 class="card-title">비회원 신청 건 연결</h2>
       <p class="muted small">로그인 전에 접수한 건의 접수번호와 PIN을 입력하면 내 계정에서 함께 볼 수 있습니다.</p>
       <div class="field"><label>접수번호</label><input name="requestCode" placeholder="FR-20261126-001" required></div>
       <div class="field"><label>PIN 4자리</label><input name="pin" inputmode="numeric" maxlength="4" autocomplete="off" required></div>
       <button class="btn outline">연결하기</button></form>
-    <form id="profileForm" class="card" style="padding:20px" novalidate><h2 class="card-title" style="font-size:1rem">내 정보 · 기본 수거지</h2>
+    <form id="profileForm" class="card" novalidate><h2 class="card-title">내 정보 · 기본 수거지</h2>
       <p class="muted small tabular">${user.username ? `아이디 ${esc(user.username)} · ` : ''}${esc(user.phone)}</p>
       <div class="field"><label>이름</label><input name="name" value="${esc(user.name)}" maxlength="50" required></div>
       <div class="grid2"><div class="field"><label>우편번호</label><input name="defaultZipcode" value="${esc(user.defaultZipcode)}" maxlength="10"></div>
       <div class="field"><label>주소</label><input name="defaultAddress" value="${esc(user.defaultAddress)}" maxlength="200"></div></div>
       <div class="field"><label>상세 주소</label><input name="defaultAddressDetail" value="${esc(user.defaultAddressDetail)}" maxlength="100"></div>
-      <button class="btn primary">저장</button></form></div>`;
+      <button class="btn primary">저장</button></form></div></div>`;
 }
 
 function render() {
