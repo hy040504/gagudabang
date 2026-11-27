@@ -1,0 +1,13 @@
+# Vercel에 올릴 것만 남긴다. 이 파일이 있으면 .gitignore는 적용되지 않으므로, 전부 막은 뒤 필요한 것만 연다.
+# (개인 정보가 든 로컬 파일, 설치 파일, 문서가 배포에 섞이지 않게 한다)
+/*
+!/package.json
+!/package-lock.json
+!/tsconfig.json
+!/tsconfig.base.json
+!/tsconfig.server.json
+!/tsconfig.client.json
+!/vercel.json
+!/src
+!/public
+/public/dist
