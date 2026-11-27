@@ -353,7 +353,7 @@ npm run perf
 
 ### 분리형 정적 프로토타입 (`prototype/`, 6단계 완료)
 
-고객 웹([prototype/customer.html](prototype/customer.html))과 관리자 웹([prototype/admin.html](prototype/admin.html))을 6단계로 나눠 만들었습니다. 서버 없이 열리고 데이터는 브라우저(`localStorage`)에 있습니다. 관리자 웹에서 접수, 자주 묻는 질문, 공지사항을 추가·수정·삭제하면 고객 웹에 바로 반영됩니다. 공용 값은 `tokens.css`, 샘플 데이터는 `data.js` 한 파일에 있습니다. 주소 끝에 `?data=worst`, `?data=empty`, `?data=one`, `?data=huge`를 붙이면 깨짐 점검용 데이터로 열립니다. 자세한 내용은 [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md). 가구 사진은 Pexels의 무료 이용 사진이고 출처는 고객 화면 푸터에 있습니다. 로고는 남색 바탕에 흰 글자인 글자 로고(`assets/logo.svg`)입니다. 실제 앱 홈의 사진(`public/assets/photos/moving-sofa.jpg`)도 Pexels의 무료 이용 사진입니다.
+고객 웹([prototype/customer.html](prototype/customer.html))과 관리자 웹([prototype/admin.html](prototype/admin.html))을 6단계로 나눠 만들었습니다. 서버 없이 열리고 데이터는 브라우저(`localStorage`)에 있습니다. 관리자 웹에서 접수, 자주 묻는 질문, 공지사항을 추가·수정·삭제하면 고객 웹에 바로 반영됩니다. 공용 값은 `tokens.css`, 샘플 데이터는 `data.js` 한 파일에 있습니다. 주소 끝에 `?data=worst`, `?data=empty`, `?data=one`, `?data=huge`를 붙이면 깨짐 점검용 데이터로 열립니다. 자세한 내용은 [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md). 가구 사진은 Pexels의 무료 이용 사진이고 출처는 고객 화면 푸터에 있습니다. 로고는 남색 바탕에 흰 글자인 글자 로고(`assets/logo.svg`)입니다. 실제 앱 홈의 사진(`public/assets/photos/moving-sofa.jpg`)은 AI로 생성한 그림입니다(한국 아파트 거실에서 두 사람이 소파를 옮기는 장면, 실제 인물이 아닙니다).
 
 ---
 
