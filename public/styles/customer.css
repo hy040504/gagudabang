@@ -1177,8 +1177,8 @@ html[data-theme="dark"] .gd-theme-icon .i-sun { display: block; }
 }
 @media (max-width: 600px) {
   .gd-site .gd-hd-inner { padding-top: 10px; padding-bottom: 10px; }
-  .gd-site nav { width: 100%; justify-content: space-between; }
-  .gd-site nav .btn.primary { margin-left: 0; }
-  .gd-site nav > :first-child { margin-left: -12px; }
+  /* 휴대폰에서는 메뉴를 오른쪽으로 모은다 (진행 조회, 로그인, 테마 버튼이 가구 접수 버튼 옆에 붙는다) */
+  .gd-site nav { width: 100%; justify-content: flex-end; }
+  .gd-site nav .btn.primary { margin-left: 6px; }
   .gd-footer-in { padding-top: 24px; padding-bottom: 36px; }
 }
