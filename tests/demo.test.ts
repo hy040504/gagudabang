@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { ADMIN_PW, client, startServer } from './helpers.js';
-import { DEMO_COUNT, DEMO_PIN, demoPhotoLoader, seedDemoData } from '../src/server/demo.js';
+import { DEMO_COUNT, DEMO_PIN, clearDemoData, demoPhotoLoader, seedDemoData } from '../src/server/demo.js';
 
 test('예시 데이터: 접수 목록·진행 조회·사진·통계에 나오고, 한 번만 들어간다', async () => {
   const s = startServer(undefined, { demoData: true, publicDir: path.join(process.cwd(), 'public'), testAccount: true });
@@ -33,5 +33,19 @@ test('예시 데이터: 접수 목록·진행 조회·사진·통계에 나오�
 
     assert.equal(await seedDemoData(s.db, path.join(s.dir, 'uploads'), demoPhotoLoader(path.join(process.cwd(), 'public'))), false, '두 번째는 넣지 않는다');
     assert.equal((s.db.prepare('SELECT COUNT(*) AS c FROM applications').get() as { c: number }).c, DEMO_COUNT);
+
+    // 지우기: 실제 접수는 남기고 예시만 지운다. 지운 뒤에는 다시 넣지 않는다.
+    await guest.call('POST', '/api/visit', { path: 'home' });
+    s.db.prepare("UPDATE applications SET is_demo = 0 WHERE phone = '01029653174'").run(); // 실제 고객의 접수라고 치고 남는지 본다
+    const uploads = path.join(s.dir, 'uploads');
+    const r = clearDemoData(s.db, uploads);
+    assert.deepEqual([r.applications, r.events], [DEMO_COUNT - 1, 3]);
+    assert.ok(r.files > 0 && r.visits > 1000);
+    const left = s.db.prepare('SELECT COUNT(*) AS c FROM applications').get() as { c: number };
+    assert.equal(left.c, 1, '실제 접수는 남는다');
+    assert.equal((s.db.prepare('SELECT COUNT(*) AS c FROM visits').get() as { c: number }).c, 1, '실제 방문 기록은 남는다');
+    assert.equal((s.db.prepare('SELECT COUNT(*) AS c FROM custom_events').get() as { c: number }).c, 0);
+    assert.equal((await guest.call('GET', photo)).status, 200, '남은 접수의 사진은 그대로');
+    assert.equal(await seedDemoData(s.db, uploads, demoPhotoLoader(path.join(process.cwd(), 'public'))), false, '지운 뒤에도 다시 넣지 않는다');
   } finally { s.close(); }
 });

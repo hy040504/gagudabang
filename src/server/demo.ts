@@ -177,9 +177,7 @@ export async function seedDemoData(db: Db, uploadDir: string, loadPhoto: (name: 
 
     // 직접 추가한 일정
     const insEv = db.prepare('INSERT INTO custom_events (event_date, title) VALUES (?, ?)');
-    insEv.run(addDays(today, 3), '1톤 트럭 정기 점검');
-    insEv.run(addDays(today, 10), '물류 창고 정리');
-    insEv.run(addDays(today, -4), '중고 플랫폼 판매글 일괄 갱신');
+    [3, 10, -4].forEach((d, i) => insEv.run(addDays(today, d), DEMO_EVENTS[i]!));
 
     // 방문 기록: 15개월 전부터 오늘까지. 조금씩 늘어나고 주말에 더 많다.
     const rand = rng(20261127);
@@ -203,3 +201,23 @@ export async function seedDemoData(db: Db, uploadDir: string, loadPhoto: (name: 
   return true;
 }
 
+
+const DEMO_EVENTS = ['1톤 트럭 정기 점검', '물류 창고 정리', '중고 플랫폼 판매글 일괄 갱신'];
+
+/**
+ * 예시 데이터를 지운다: is_demo 접수(품목·사진·이력·문자 기록은 함께 지워진다), 사진 파일, 예시 방문 기록, 예시 일정.
+ * 다시 넣지 않도록 demoSeeded 표시는 'cleared'로 남긴다. 실제 고객의 접수와 방문 기록은 건드리지 않는다.
+ */
+export function clearDemoData(db: Db, uploadDir: string) {
+  const files = (db.prepare('SELECT p.stored_name AS n FROM item_photos p JOIN application_items i ON i.id = p.item_id JOIN applications a ON a.id = i.application_id WHERE a.is_demo = 1').all() as { n: string }[]).map((r) => r.n);
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    const apps = Number(db.prepare('DELETE FROM applications WHERE is_demo = 1').run().changes);
+    const visits = Number(db.prepare('DELETE FROM visits WHERE is_demo = 1').run().changes);
+    const events = Number(db.prepare(`DELETE FROM custom_events WHERE title IN (${DEMO_EVENTS.map(() => '?').join(',')})`).run(...DEMO_EVENTS).changes);
+    db.prepare("INSERT INTO site_settings (key, value) VALUES ('demoSeeded', 'cleared') ON CONFLICT(key) DO UPDATE SET value = 'cleared'").run();
+    db.exec('COMMIT');
+    for (const n of files) fs.rmSync(path.join(uploadDir, n), { force: true });
+    return { applications: apps, visits, events, files: files.length };
+  } catch (e) { db.exec('ROLLBACK'); throw e; }
+}

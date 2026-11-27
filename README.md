@@ -269,9 +269,25 @@ erDiagram
     }
 
     SITE_SETTINGS {
-        TEXT key PK "companyName | ceoName | bizNo | phone | hours | address"
+        TEXT key PK "companyName | ceoName | bizNo | phone | hours | address | demoSeeded"
         TEXT value
         TEXT updated_at
+    }
+
+    CUSTOM_EVENTS {
+        INTEGER id PK
+        TEXT event_date "직접 추가한 일정"
+        TEXT title
+        TEXT created_at
+    }
+
+    VISITS {
+        INTEGER id PK
+        TEXT day "한국 날짜"
+        TEXT visitor "IP·브라우저 정보를 그날만 쓰는 값과 섞은 해시"
+        TEXT path "고객 화면 이름"
+        INTEGER is_demo
+        TEXT created_at
     }
 ```
 
@@ -351,6 +367,14 @@ node --env-file=.env dist/server/index.js
 - 테스트용 회원 계정 `abcd` / `1234`가 서버가 뜰 때 자동으로 만들어집니다. 실제 고객을 받기 전에 `src/index.ts`와 `src/server/index.ts`의 `testAccount: true`를 빼세요.
 - 올릴 파일은 `.vercelignore`가 `src`, `public`, 설정 파일로 한정합니다.
 
+### 예시 데이터 (`src/server/demo.ts`)
+
+화면을 둘러볼 수 있게, 서버가 처음 뜰 때 예시 데이터를 한 번 넣습니다(Vercel과 개인 서버 모두).
+
+- 접수 20건(가구 28개, 사진 포함), 지난 15개월의 방문 기록, 직접 추가한 일정 3개. 이름·번호·주소는 지어낸 값이고 사진 출처는 `public/assets/demo/CREDITS.md`에 있습니다.
+- 진행 조회: 예시 접수의 PIN은 모두 `1234`입니다. 예: 연락처 `010-6739-1845` + `1234`. 테스트 회원 `abcd`의 마이페이지에는 예시 접수 2건이 연결돼 있습니다.
+- 실제 운영 전에 지우기: 서버를 끄고 `npm run build && npm run demo:clear`를 실행한 뒤, `.env`에 `DEMO_DATA=0`을 넣고 다시 켭니다. 실제 고객의 접수와 방문 기록은 지우지 않습니다. Vercel에서는 환경 변수 `DEMO_DATA=0`만 넣으면 됩니다(데이터가 보존되지 않으므로).
+
 > **알아 둘 제한**: Vercel 함수는 임시 폴더에만 쓸 수 있어, 접수 데이터(SQLite)와 사진이 인스턴스가 바뀌면 지워집니다. 지금 구성은 화면과 흐름을 보여 주는 시연용입니다. 실제 접수를 받으려면 외부 DB와 파일 저장소로 바꿔야 합니다. 한 번에 보내는 요청은 4.5MB까지라 사진이 많으면 접수가 거절될 수 있습니다.
 
 ### 타입 검사 · 자동화 테스트 · 성능 측정
@@ -384,9 +408,9 @@ npm run perf
 | --- | --- | :---: | --- |
 | `DOC-01` | 국내 7개 플랫폼 벤치마킹, 서비스 종합 설계기획서·상세 기술 기획서 작성 | **완료** | `docs/*.md`, `docs/*.pdf`, `docs/assets/design/*.svg` |
 | `TASK-01` / `R1` | 「가구다방」 리브랜딩 및 인터랙티브 프로토타입 제작 | **완료** | `docs/assets/brand/*.svg` (내부 데모본 별도 보관) |
-| `TASK-02` | 실서버 백엔드(`Express + TypeScript + node:sqlite`) DB·인증·보안·REST API 22종 | **완료** | `src/shared/*`, `src/server/*` |
+| `TASK-02` | 실서버 백엔드(`Express + TypeScript + node:sqlite`) DB·인증·보안·REST API 27종 | **완료** | `src/shared/*`, `src/server/*` |
 | `TASK-03` | 실서버 무번들러 프론트엔드(고객 포털·관리자 콘솔)·PWA·Electron 연동 | **부분 완료** (화면 기능 완료, 실제 기기 확인 남음) | `public/*`, `src/client/*`, `desktop/main.cjs` |
-| `TASK-04` | 자동화 테스트(`node:test` 54개)·접근성 자동 검사(axe-core)·성능 측정(`500`/`5,000`건) 및 품질 검수 | **부분 완료** | `tests/*.test.ts`, `scripts/perf.ts` |
+| `TASK-04` | 자동화 테스트(`node:test` 58개)·접근성 자동 검사(axe-core)·성능 측정(`500`/`5,000`건) 및 품질 검수 | **부분 완료** | `tests/*.test.ts`, `scripts/perf.ts` |
 | **프로토타입 분리** | 고객 웹(`customer.html`)·관리자 웹(`admin.html`) 6단계 정적 프로토타입 분리 | **완료 (6단계 마무리 점검까지)** | `prototype/*`, [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md) |
 
 ### 확정 기술 스택
@@ -394,7 +418,7 @@ npm run perf
 | 계층 | 확정 기술 | 핵심 선정 사유 |
 | --- | --- | --- |
 | **프론트엔드** | `HTML5` + `CSS3 (디자인 토큰)` + `Vanilla TypeScript (ES2022 Modules)` | 무거운 번들러 의존성 0개, 공식 `tsc`만으로 표준 브라우저 모듈 컴파일 |
-| **백엔드** | `Node.js` + `Express 4` + `TypeScript (strict)` + `multer 2.5` | 단일 서버에서 REST API 22종 및 고객(`index.html`)·운영자(`admin.html`) 물리 격리 서빙 |
+| **백엔드** | `Node.js` + `Express 4` + `TypeScript (strict)` + `multer 2.5` | 단일 서버에서 REST API 27종 및 고객(`index.html`)·운영자(`admin.html`) 물리 격리 서빙 |
 | **데이터베이스** | Node 내장 `node:sqlite` (`DatabaseSync`, WAL 모드) | C++ 빌드(`node-gyp`) 없이 Windows/Linux 환경에서 즉시 구동 |
 | **보안·미디어** | `node:crypto (scrypt)`, 매직바이트 검증, 버퍼 단위 EXIF 제거 | 자택 촬영 사진 위치정보 자동 삭제, 비공개 운영 메모 서버 단 차단 |
 | **멀티 플랫폼** | `PWA (manifest.webmanifest + Service Worker)` + `Electron 45` | 동일 웹 코드로 모바일/PC 설치형 웹앱 및 운영자 데스크탑 앱 동시 지원 |
@@ -412,23 +436,24 @@ gagudabang/
 ├── src/
 │   ├── shared/types.ts                    # 프론트·백엔드 공용 타입 및 상태 전이 계약
 │   ├── index.ts                           # Vercel 배포용 진입점 (Express 앱을 내보낸다)
-│   ├── server/                            # Express + node:sqlite 백엔드 (API 22종)
+│   ├── server/                            # Express + node:sqlite 백엔드 (API 27종)
 │   │   ├── index.ts / app.ts / db.ts / lib.ts
+│   │   ├── demo.ts / clear-demo.ts         # 예시 데이터 넣기, 지우기 (npm run demo:clear)
 │   │   ├── routes/{public.ts, admin.ts}
 │   │   └── services/{applications.ts, media.ts, sms.ts}
 │   └── client/                            # Vanilla TypeScript 프론트엔드
 │       ├── common/{api.ts, ui.ts}
 │       ├── customer/{main.ts, legal.ts}
-│       └── admin/main.ts
+│       └── admin/{main.ts, charts.ts}      # charts.ts: 통계 차트 (라이브러리 없이 SVG)
 ├── public/                                # 실서버 정적 엔트리·스타일·PWA·자체 호스팅 폰트
 │   ├── index.html / admin.html / manifest.webmanifest / sw.js
 │   ├── styles/{tokens.css, base.css, customer.css, admin.css}   # 토큰 → 공통 부품 → 화면별 (docs/DESIGN_SYSTEM.md)
-│   └── assets/{brand/logo.svg, brand/icon.svg, brand/og-image.jpg, photos/moving-sofa.jpg, fonts/PretendardVariable.woff2}
+│   └── assets/{brand/logo.svg, brand/icon.svg, brand/og-image.jpg, photos/moving-sofa.jpg, demo/*.jpg (예시 접수 사진), fonts/PretendardVariable.woff2}
 ├── prototype/                             # 분리형 정적 프로토타입 (고객 웹 + 관리자 웹, 6단계 완료)
 │   ├── customer.{html,css,js} / admin.{html,css,js} / tokens.css / base.css / ui.css / data.js / store.js
 │   └── assets/{logo.svg, icon.svg, fonts/, photos/}
 ├── desktop/                               # Electron 운영자 데스크탑 래퍼(main.cjs)와 설치 파일 설정(electron-builder.json, icon.png)
-├── tests/                                 # node:test 자동화 테스트 스위트 (54개)
+├── tests/                                 # node:test 자동화 테스트 스위트 (58개)
 │   └── {api.test.ts, security-media.test.ts, time.test.ts, sms.test.ts, helpers.ts}
 ├── scripts/guide/{capture.mjs, build-pdf.mjs} # 이용 가이드의 화면 그림과 PDF를 다시 만드는 스크립트
 ├── scripts/perf.ts                        # 500건 / 5,000건 성능 벤치마크 스크립트
