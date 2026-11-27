@@ -177,6 +177,7 @@ erDiagram
         INTEGER id PK
         TEXT role "CUSTOMER | ADMIN"
         TEXT login_id UK "휴대폰번호 또는 관리자 ID"
+        TEXT username UK "회원 아이디 (없을 수 있음)"
         TEXT password_hash "scrypt salt:hash"
         TEXT name
         TEXT phone
@@ -277,7 +278,7 @@ erDiagram
 | **조회/취소** | `POST /api/applications/lookup` | PIN (5회 잠금) | 접수번호/연락처 + 4자리 PIN 검증 후 `fr_lookup`(30분) 발급, 비공개 메모 제외 반환 |
 | **조회/취소** | `POST /api/applications/:code/cancel` | 본인(회원/PIN) | 전 품목 `PENDING` 시에만 취소 허용(진행 중 `409 TRANSITION_DENIED`) |
 | **미디어** | `GET /api/uploads/:storedName` | 관리자 / 본인 | UUID 패턴 검증 + 권한 확인 후 스트리밍(미권한·경로탈출 무조건 `404`) |
-| **고객 회원** | `GET /api/auth/me` · `POST /api/auth/{signup,login,logout}` | `fr_customer` (7일) | `scrypt` 인증, 회원 쿠키 발급/해제(관리자 쿠키 독립 유지) |
+| **고객 회원** | `GET /api/auth/me` · `POST /api/auth/{signup,login,logout}` | `fr_customer` (7일) | 아이디 또는 휴대폰 번호 + 비밀번호(`scrypt`) 인증, 회원 쿠키 발급/해제(관리자 쿠키 독립 유지) |
 | **마이페이지** | `GET /api/my/applications` · `PATCH /api/my/profile` · `POST /api/my/claim` | `fr_customer` | 내 이력 조회, 기본 수거지 수정, 비회원 신청 건(접수번호+PIN) 계정 승계 |
 | **관리자 인증** | `POST /api/admin/login` · `POST /api/admin/logout` | `fr_admin` (12시간) | 타이밍 공격 완화 `scrypt` 검증, 5회 실패 60초 잠금(`429 AUTH_LOCKED`) |
 | **운영 대시보드** | `GET /api/admin/applications` · `GET /api/admin/schedule` | `fr_admin` | 4대 실시간 KPI, 필터·검색·정렬·페이징, 월간 3색 일정 캘린더 집계 |
@@ -306,13 +307,23 @@ npm start
   - `ADMIN_ID` / `ADMIN_PASSWORD`: 운영자 초기 계정·비밀번호 (**실배포 전 반드시 환경변수로 지정**)
   - `SESSION_SECRET`: HMAC 세션 쿠키 서명 비밀키 (**실배포 전 무작위 비밀키 지정**)
 
+### Vercel 무료 배포 (`vercel.json`, `src/index.ts`)
+
+1. [vercel.com/new](https://vercel.com/new)에서 이 저장소를 가져옵니다. Express 프로젝트로 자동 인식되고, 설치·빌드 명령과 서울 리전(`icn1`)은 `vercel.json`에 들어 있습니다.
+2. 프로젝트의 Settings → Environment Variables에 아래 값을 넣고 배포합니다. 두 값이 없으면 서버가 시작되지 않습니다.
+   - `ADMIN_PASSWORD`: 운영자 비밀번호 (`ADMIN_ID`는 선택, 기본 `admin`)
+   - `SESSION_SECRET`: 무작위 긴 문자열. 예: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+3. 화면 파일(`public/`)은 Vercel이 직접 내보내고, `/api` 요청은 `src/index.ts`가 내보낸 Express 앱이 함수 하나로 처리합니다.
+
+> **알아 둘 제한**: Vercel 함수는 임시 폴더에만 쓸 수 있어, 접수 데이터(SQLite)와 사진이 인스턴스가 바뀌면 지워집니다. 지금 구성은 화면과 흐름을 보여 주는 시연용입니다. 실제 접수를 받으려면 외부 DB와 파일 저장소로 바꿔야 합니다. 한 번에 보내는 요청은 4.5MB까지라 사진이 많으면 접수가 거절될 수 있습니다.
+
 ### 타입 검사 · 자동화 테스트 · 성능 측정
 
 ```bash
 # 서버 · 클라이언트 · 테스트 전체 strict 타입 검사
 npm run check
 
-# 자동화 테스트 (47개 통과: API 32 + 보안·미디어 6 + 시간 의존 9)
+# 자동화 테스트 (49개 통과: API 33 + 보안·미디어 6 + 시간 의존 10)
 npm test
 
 # 성능 벤치마크 (500건 · 5,000건 기준 p95 측정)
@@ -321,7 +332,7 @@ npm run perf
 
 ### 분리형 정적 프로토타입 (`prototype/`, 6단계 완료)
 
-고객 웹([prototype/customer.html](prototype/customer.html))과 관리자 웹([prototype/admin.html](prototype/admin.html))을 6단계로 나눠 만들었습니다. 서버 없이 열리고 데이터는 브라우저(`localStorage`)에 있습니다. 관리자 웹에서 접수, 자주 묻는 질문, 공지사항을 추가·수정·삭제하면 고객 웹에 바로 반영됩니다. 공용 값은 `tokens.css`, 샘플 데이터는 `data.js` 한 파일에 있습니다. 주소 끝에 `?data=worst`, `?data=empty`, `?data=one`, `?data=huge`를 붙이면 깨짐 점검용 데이터로 열립니다. 자세한 내용은 [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md). 가구 사진은 Pexels의 무료 이용 사진이고 출처는 고객 화면 푸터에 있습니다. 로고는 남색 바탕에 흰 글자인 글자 로고(`assets/logo.svg`)입니다.
+고객 웹([prototype/customer.html](prototype/customer.html))과 관리자 웹([prototype/admin.html](prototype/admin.html))을 6단계로 나눠 만들었습니다. 서버 없이 열리고 데이터는 브라우저(`localStorage`)에 있습니다. 관리자 웹에서 접수, 자주 묻는 질문, 공지사항을 추가·수정·삭제하면 고객 웹에 바로 반영됩니다. 공용 값은 `tokens.css`, 샘플 데이터는 `data.js` 한 파일에 있습니다. 주소 끝에 `?data=worst`, `?data=empty`, `?data=one`, `?data=huge`를 붙이면 깨짐 점검용 데이터로 열립니다. 자세한 내용은 [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md). 가구 사진은 Pexels의 무료 이용 사진이고 출처는 고객 화면 푸터에 있습니다. 로고는 남색 바탕에 흰 글자인 글자 로고(`assets/logo.svg`)입니다. 실제 앱 홈의 사진(`public/assets/photos/moving-sofa.jpg`)도 Pexels의 무료 이용 사진입니다.
 
 ---
 
@@ -337,7 +348,7 @@ npm run perf
 | `TASK-01` / `R1` | 「가구다방」 리브랜딩 및 인터랙티브 프로토타입 제작 | **완료** | `docs/assets/brand/*.svg` (내부 데모본 별도 보관) |
 | `TASK-02` | 실서버 백엔드(`Express + TypeScript + node:sqlite`) DB·인증·보안·REST API 18종 | **완료** | `src/shared/*`, `src/server/*` |
 | `TASK-03` | 실서버 무번들러 프론트엔드(고객 포털·관리자 콘솔)·PWA·Electron 연동 | **부분 완료** (화면 기능 완료, 실제 기기 확인 남음) | `public/*`, `src/client/*`, `desktop/main.cjs` |
-| `TASK-04` | 자동화 테스트(`node:test` 47개)·접근성 자동 검사(axe-core)·성능 측정(`500`/`5,000`건) 및 품질 검수 | **부분 완료** | `tests/*.test.ts`, `scripts/perf.ts` |
+| `TASK-04` | 자동화 테스트(`node:test` 49개)·접근성 자동 검사(axe-core)·성능 측정(`500`/`5,000`건) 및 품질 검수 | **부분 완료** | `tests/*.test.ts`, `scripts/perf.ts` |
 | **프로토타입 분리** | 고객 웹(`customer.html`)·관리자 웹(`admin.html`) 6단계 정적 프로토타입 분리 | **완료 (6단계 마무리 점검까지)** | `prototype/*`, [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md) |
 
 ### 확정 기술 스택
@@ -356,9 +367,11 @@ npm run perf
 gagudabang/
 ├── README.md                              # 프로젝트 안내·아키텍처·파이프라인·ERD 문서
 ├── package.json                           # 빌드·실행·테스트·성능 스크립트 및 의존성
-├── tsconfig.{base,server,client,test}.json
+├── tsconfig.{base,server,client,test}.json   # tsconfig.json은 서버 설정을 그대로 잇는다 (편집기와 Vercel용)
+├── vercel.json                            # Vercel 배포 설정 (설치·빌드 명령, 서울 리전, 보안 헤더)
 ├── src/
 │   ├── shared/types.ts                    # 프론트·백엔드 공용 타입 및 상태 전이 계약
+│   ├── index.ts                           # Vercel 배포용 진입점 (Express 앱을 내보낸다)
 │   ├── server/                            # Express + node:sqlite 백엔드 (API 18종)
 │   │   ├── index.ts / app.ts / db.ts / lib.ts
 │   │   ├── routes/{public.ts, admin.ts}
@@ -370,12 +383,12 @@ gagudabang/
 ├── public/                                # 실서버 정적 엔트리·스타일·PWA·자체 호스팅 폰트
 │   ├── index.html / admin.html / manifest.webmanifest / sw.js
 │   ├── styles/{tokens.css, customer.css, admin.css, responsive.css}
-│   └── assets/{brand/logo.svg, brand/icon.svg, fonts/PretendardVariable.woff2}
+│   └── assets/{brand/logo.svg, brand/icon.svg, photos/moving-sofa.jpg, fonts/PretendardVariable.woff2}
 ├── prototype/                             # 분리형 정적 프로토타입 (고객 웹 + 관리자 웹, 6단계 완료)
 │   ├── customer.{html,css,js} / admin.{html,css,js} / tokens.css / base.css / ui.css / data.js / store.js
 │   └── assets/{logo.svg, icon.svg, fonts/, photos/}
 ├── desktop/main.cjs                       # Electron 운영자 데스크탑 래퍼
-├── tests/                                 # node:test 자동화 테스트 스위트 (47개)
+├── tests/                                 # node:test 자동화 테스트 스위트 (49개)
 │   └── {api.test.ts, security-media.test.ts, time.test.ts, helpers.ts}
 ├── scripts/perf.ts                        # 500건 / 5,000건 성능 벤치마크 스크립트
 ├── scripts/split-demo.mjs                 # 로컬 demo.html을 고객 화면과 관리자 화면 파일로 나눔 (결과물 demo/는 저장소에 올리지 않음)
