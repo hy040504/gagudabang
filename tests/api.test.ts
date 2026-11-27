@@ -300,10 +300,12 @@ describe('회원·쿠키 분리·CSRF·설정', () => {
   test('설정: 사업자 정보 저장, 현재 비밀번호 검증 후 변경', async () => {
     assert.equal((await client(srv.base).call('PATCH', '/api/admin/settings', { siteConfig: { phone: '1' } })).status, 401);
     assert.equal((await admin.call('PATCH', '/api/admin/settings', { siteConfig: { phone: '043-000-0000', hacker: 'x' } })).status, 200);
+    srv.db.prepare("INSERT OR REPLACE INTO site_settings (key, value) VALUES ('demoSeeded', '2026-01-01')").run(); // 내부 표시값
     const cfg = (await client(srv.base).call('GET', '/api/public/config')).json.data;
     assert.equal(cfg.phone, '043-000-0000');
     assert.equal(cfg.companyName, '가구다방');
     assert.equal('hacker' in cfg, false);
+    assert.equal('demoSeeded' in cfg, false, '내부 설정값은 고객 화면에 내보내지 않는다');
     assert.equal((await admin.call('PATCH', '/api/admin/settings', { currentPassword: 'wrong', newPassword: 'newpassw0rd' })).status, 422);
     assert.equal((await admin.call('PATCH', '/api/admin/settings', { currentPassword: ADMIN_PW, newPassword: 'short' })).status, 422);
     assert.equal((await admin.call('PATCH', '/api/admin/settings', { currentPassword: ADMIN_PW, newPassword: 'newpassw0rd' })).status, 200);

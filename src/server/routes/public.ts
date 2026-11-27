@@ -11,7 +11,7 @@ import {
   cancelByCustomer, claimApplication, createApplication, getApplicationByCode, toPublicApplicationDto, type UploadedFile,
 } from '../services/applications.js';
 import type { SmsConfig } from '../services/sms.js';
-import type { ApplicationPayload, CustomerProfileDto } from '../../shared/types.js';
+import { SITE_SETTING_KEYS, type ApplicationPayload, type CustomerProfileDto } from '../../shared/types.js';
 
 type Row = Record<string, any>;
 export interface Ctx { db: Db; signer: Signer; uploadDir: string; clock: Clock; sms?: SmsConfig; visitSalt: string }
@@ -64,7 +64,7 @@ export function publicRouter(ctx: Ctx) {
   }));
 
   r.get('/public/config', wrap((_req, res) => {
-    const rows = db.prepare('SELECT key, value FROM site_settings').all() as Row[];
+    const rows = db.prepare(`SELECT key, value FROM site_settings WHERE key IN (${SITE_SETTING_KEYS.map(() => '?').join(',')})`).all(...SITE_SETTING_KEYS) as Row[];
     ok(res, Object.fromEntries(rows.map((x) => [x.key, x.value])));
   }));
 

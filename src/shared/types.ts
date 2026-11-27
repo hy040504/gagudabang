@@ -34,6 +34,8 @@ export interface ApiOk<T> { ok: true; data: T }
 export interface ApiErr { ok: false; error: { code: string; message: string; fieldErrors?: Record<string, string> } }
 
 export interface PublicConfig { companyName: string; ceoName: string; bizNo: string; phone: string; hours: string; address: string }
+/** 관리자가 고치고 고객 화면에 내보내는 설정 키. site_settings의 다른 행(예: 내부 표시 demoSeeded)은 밖으로 내보내지 않는다 */
+export const SITE_SETTING_KEYS = ['companyName', 'ceoName', 'bizNo', 'phone', 'hours', 'address'] as const satisfies readonly (keyof PublicConfig)[];
 
 export interface PublicPhotoDto { storedName: string; url: string; photoTag: 'FULL' | 'DETAIL'; mimeType: string }
 export interface PublicItemDto {

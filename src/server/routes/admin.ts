@@ -8,12 +8,11 @@ import {
 } from '../services/applications.js';
 import { sendSms } from '../services/sms.js';
 import { authOf, type Ctx } from './public.js';
-import { STATS_PERIODS, type AdminApplicationSummaryDto, type AdminItemPatchDto, type AdminKpis, type AdminStatsDto, type StatsCounts, type StatsPeriod, type ScheduleCalendarEventDto } from '../../shared/types.js';
+import { SITE_SETTING_KEYS, STATS_PERIODS, type AdminApplicationSummaryDto, type AdminItemPatchDto, type AdminKpis, type AdminStatsDto, type StatsCounts, type StatsPeriod, type ScheduleCalendarEventDto } from '../../shared/types.js';
 
 type Row = Record<string, any>;
 const ADMIN_TTL = 12 * 3600;
 const PAGE_SIZE = 20;
-const SETTING_KEYS = ['companyName', 'ceoName', 'bizNo', 'phone', 'hours', 'address'] as const;
 
 export function adminRouter(ctx: Ctx) {
   const { db, signer } = ctx;
@@ -265,7 +264,7 @@ export function adminRouter(ctx: Ctx) {
     }
     if (siteConfig && typeof siteConfig === 'object') {
       const up = db.prepare("INSERT INTO site_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = datetime('now')");
-      for (const k of SETTING_KEYS) if (typeof siteConfig[k] === 'string') up.run(k, siteConfig[k].trim().slice(0, 200));
+      for (const k of SITE_SETTING_KEYS) if (typeof siteConfig[k] === 'string') up.run(k, siteConfig[k].trim().slice(0, 200));
     }
     ok(res, { updated: true });
   }));
