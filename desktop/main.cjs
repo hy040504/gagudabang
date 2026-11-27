@@ -15,6 +15,6 @@ app.whenReady().then(async () => {
   await waitForServer();
   const win = new BrowserWindow({ width: 1440, height: 900, title: '가구다방 파트너스 스튜디오', webPreferences: { contextIsolation: true, nodeIntegration: false } });
   win.setMenuBarVisibility(false);
-  await win.loadURL(base + '/admin.html');
+  await win.loadURL(base + '/admin');
 }).catch((e) => { console.error(e.message); app.quit(); });
 app.on('window-all-closed', () => app.quit());

@@ -314,7 +314,7 @@ npm start
 ```
 
 - **고객 포털**: `http://localhost:<PORT>/` (`public/index.html`)
-- **운영자 콘솔**: `http://localhost:<PORT>/admin.html` (`public/admin.html`, `noindex`)
+- **운영자 콘솔**: `http://localhost:<PORT>/admin` (`public/admin.html`, `noindex`)
 - **Electron 데스크탑 실행**: `npm run desktop` (`desktop/main.cjs`, 로컬 서버를 연다)
 - **Windows 설치 파일 만들기**: `npm run dist:desktop` → `release/gagudabang-partners-setup-<버전>.exe` (설치한 앱은 배포된 서버의 관리자 화면을 연다. 서명하지 않은 설치 파일이라 처음 실행할 때 Windows 경고가 뜬다)
 - **실배포 필수 환경변수**:
@@ -346,7 +346,7 @@ node --env-file=.env dist/server/index.js
 3. 화면 파일(`public/`)은 Vercel이 직접 내보내고, `/api` 요청은 `src/index.ts`가 내보낸 Express 앱이 함수 하나로 처리합니다. 첫 화면(`/`)은 `vercel.json`의 `routes`가 `public/index.html`로 이어 줍니다.
 4. 명령줄로 올릴 때는 `npx vercel login` 뒤에 `npx vercel deploy --prod`를 실행합니다.
 
-- 배포 주소: `https://gagudabang.vercel.app` (관리자 화면은 주소 끝에 `/admin.html`)
+- 배포 주소: `https://gagudabang.vercel.app` (관리자 화면은 주소 끝에 `/admin`). 데이터가 보존되는 개인 서버 주소는 `https://gagudabang.mib.dpdns.org`
 - 테스트용 회원 계정 `abcd` / `1234`가 서버가 뜰 때 자동으로 만들어집니다. 실제 고객을 받기 전에 `src/index.ts`와 `src/server/index.ts`의 `testAccount: true`를 빼세요.
 - 올릴 파일은 `.vercelignore`가 `src`, `public`, 설정 파일로 한정합니다.
 

@@ -34,7 +34,7 @@ export function createApp(opt: AppOptions): { app: express.Express; db: Db; ctx:
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'same-origin');
-    if (req.path.startsWith('/api/admin') || req.path === '/admin.html') res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    if (req.path.startsWith('/api/admin') || req.path === '/admin' || req.path === '/admin.html') res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     next();
   });
   // FN-25: Origin/Referer 호스트가 서버 호스트와 다르면 차단. 헤더가 아예 없는 비브라우저 호출은 통과(쿠키 기반 CSRF는 브라우저에서만 성립).
@@ -52,6 +52,9 @@ export function createApp(opt: AppOptions): { app: express.Express; db: Db; ctx:
   app.get('/api/health', (_req, res) => res.json({ ok: true, data: { status: 'up' } }));
   app.use('/api', publicRouter(ctx), adminRouter(ctx));
   app.use('/api', (_req, _res, next) => next(new AppError(404, 'NOT_FOUND', '존재하지 않는 API입니다.')));
+  // 관리자 화면 주소는 /admin 이다. 예전 주소(/admin.html)로 오면 새 주소로 넘긴다.
+  app.get('/admin.html', (_req, res) => res.redirect(301, '/admin'));
+  app.get('/admin', (_req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.sendFile(path.join(opt.publicDir, 'admin.html')); });
   // no-cache = 매번 ETag로 재검증(변경 없으면 304). 배포 후 낡은 JS/CSS가 남아 화면이 어긋나는 것을 막는다.
   app.use(express.static(opt.publicDir, { setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache') }));
 

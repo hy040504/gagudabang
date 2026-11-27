@@ -153,7 +153,7 @@ try {
 
   // ================= 관리자 · 컴퓨터 =================
   const A = await open(1280, 800);
-  await go(A.p, '/admin.html');
+  await go(A.p, '/admin');
   await A.p.fill('[name=loginId]', 'admin'); await A.p.fill('[name=password]', ADMIN_PW);
   await A.shot('a01-login', [['[name=loginId]', 1], ['[name=password]', 2], ['#loginForm button', 3]], { from: '#loginForm' });
   await A.p.click('#loginForm button'); await A.p.waitForSelector('.tbl tbody a');
@@ -187,7 +187,7 @@ try {
   need(await F(1).locator('[name=status]').inputValue() === 'SCHEDULED', '반출예정으로 저장');
   await A.shot('a08-history', [['main section.card:last-of-type', 1]], { from: 'main section.card:last-of-type' });
 
-  await go(A.p, '/admin.html#schedule');
+  await go(A.p, '/admin#schedule');
   for (let i = 0; i < 3 && !(await A.p.locator(`.cal-cell[data-date="${PICKUP}"]`).count()); i++) { await A.p.click('[data-shift="1"]'); await A.p.waitForTimeout(500); }
   await A.p.click(`.cal-cell[data-date="${PICKUP}"]`); await A.p.waitForTimeout(500);
   need(await A.has('4인용 식탁 반출'), '일정 화면에 반출 일정');
@@ -197,10 +197,10 @@ try {
   await A.shot('a09-schedule', [['[data-shift="-1"]', 1], ['[data-shift="1"]', 2], ['#calToday', 3], ['.cal-cell.sel', 4], ['.cal-wrap aside', 5], ['#evForm', 6], ['[data-ev-del]', 7]]);
   await A.p.click('[data-ev-del]'); await A.p.waitForTimeout(700);
   need(!(await A.has('수거 차량 정기 점검')), '직접 추가한 일정을 지움');
-  await go(A.p, '/admin.html#stats');
+  await go(A.p, '/admin#stats');
   need(await A.has('상태별') && await A.has('월별 접수'), '통계 화면');
   await A.shot('a13-stats', [['.gd-stats', 1], ['.gd-stat-card', 2], [['.gd-stat-card', 1], 3], [['.gd-stat-card', 2], 4], [['.gd-stat-card', 3], 5]]);
-  await go(A.p, '/admin.html#settings');
+  await go(A.p, '/admin#settings');
   await A.shot('a10-settings', [['#siteForm', 1], ['#pwForm', 2]], { from: '#siteForm', to: '#pwForm' });
 
   // 관리자가 바꾼 내용이 고객 조회 화면에 보이는지
@@ -225,7 +225,7 @@ try {
   need(await M.has(code), '연락처로 조회');
   await M.shot('c13-mobile-lookup', [['#lookupForm [name=identifier]', 1], ['#lookupForm button', 2], ['#lookupOut article b', 3]], { from: '#lookupForm', to: '#lookupOut article' });
 
-  await go(M.p, '/admin.html');
+  await go(M.p, '/admin');
   await M.p.fill('[name=loginId]', 'admin'); await M.p.fill('[name=password]', ADMIN_PW); await M.p.click('#loginForm button'); await M.p.waitForSelector('.tbl tbody a');
   need(await M.p.evaluate(() => getComputedStyle(document.querySelector('.gd-tabbar')).display !== 'none'), '휴대폰 하단 탭');
   await M.shot('a11-mobile-dashboard', [['.gd-stats', 1], ['#filterForm', 2], ['.tbl tbody tr', 3], ['.gd-tabbar', 4], ['.gd-admin-tools', 5]]);

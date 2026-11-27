@@ -9,7 +9,9 @@
       "headers": { "X-Content-Type-Options": "nosniff", "X-Frame-Options": "DENY", "Referrer-Policy": "same-origin" },
       "continue": true
     },
-    { "src": "/admin.html", "headers": { "X-Robots-Tag": "noindex, nofollow" }, "continue": true },
+    { "src": "/admin(\\.html)?", "headers": { "X-Robots-Tag": "noindex, nofollow" }, "continue": true },
+    { "src": "/admin.html", "status": 308, "headers": { "Location": "/admin" } },
+    { "src": "/admin", "dest": "/admin.html" },
     { "src": "/", "dest": "/index.html" }
   ]
 }

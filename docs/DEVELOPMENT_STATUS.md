@@ -103,7 +103,9 @@
 ### 직접 운영 서버 (2026-11-27)
 - Vercel과 별도로, 개인 서버(Ubuntu, Node 24)에 저장소를 복제해 실행 중이다. 서버 안의 `~/gagudabang`, 5020번 포트(서버 안에서만 접속), `start.sh`로 켜고 재부팅하면 자동으로 다시 켜진다(crontab). 환경 변수는 서버의 `.env`에 있다.
 - 이 서버에서는 접수 데이터와 사진이 `data/` 폴더에 남는다. Vercel의 "데이터가 지워지는 문제"가 없다.
-- 남은 것: 바깥 주소 연결. 서버의 Cloudflare 터널은 대시보드에서 관리하는 방식이라, 대시보드에서 공개 호스트 이름을 추가하고 `http://127.0.0.1:5020`으로 이어야 한다. 연결한 뒤에는 `public/index.html`과 `public/admin.html`의 공유 정보 주소(지금은 Vercel 주소)도 맞춰야 한다.
+- 주소: `https://gagudabang.mib.dpdns.org` (관리자 화면은 `/admin`). Cloudflare 터널에 이 호스트 이름을 추가해 5020번 포트로 이었다(2026-11-27).
+- 관리자 화면 주소를 `/admin.html`에서 `/admin`으로 바꿨다. 예전 주소로 오면 새 주소로 넘긴다. Vercel과 개인 서버 모두 같다.
+- 남은 것: `public/index.html`과 `public/admin.html`의 공유 정보 주소는 아직 Vercel 주소다. 어느 주소를 대표로 쓸지 정해지면 맞춘다.
 - 코드를 고친 뒤 서버에 반영하려면: `git pull && npm ci && npm run build && ./start.sh`.
 
 ### 관리자 추가 기능 (2026-11-27)
