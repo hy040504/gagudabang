@@ -285,6 +285,7 @@ erDiagram
 | --- | --- | --- | --- |
 | **시스템** | `GET /api/health` | 공개 | 서버 헬스체크 |
 | **공개 설정** | `GET /api/public/config` | 공개 | 푸터 사업자·고객센터 정보 조회 |
+| **방문 기록** | `POST /api/visit` | 공개 (분당 120회) | 고객 화면을 열 때마다 한 줄 기록. IP·브라우저 정보는 그날만 쓰는 해시로 바꿔 저장 |
 | **접수** | `POST /api/applications` | 공개 / 회원 | `Idempotency-Key` 중복 차단, 사진 1~6장/품목 매직바이트·EXIF 제거, 원자적 생성 |
 | **조회/취소** | `POST /api/applications/lookup` | PIN (5회 잠금) | 접수번호/연락처 + 4자리 PIN 검증 후 `fr_lookup`(30분) 발급, 비공개 메모 제외 반환 |
 | **조회/취소** | `POST /api/applications/:code/cancel` | 본인(회원/PIN) | 전 품목 `PENDING` 시에만 취소 허용(진행 중 `409 TRANSITION_DENIED`) |
@@ -295,7 +296,7 @@ erDiagram
 | **운영 대시보드** | `GET /api/admin/applications` · `GET /api/admin/schedule` | `fr_admin` | 4대 실시간 KPI, 필터·검색·정렬·페이징, 월간 3색 일정 캘린더 집계 |
 | **상세/처리** | `GET / PATCH /api/admin/applications/:id` · `PATCH /api/admin/items/:itemId` | `fr_admin` | 내부 메모 및 품목 상태·마감일·반출일 갱신(`version` `409` 낙관적 락 + 감사 로그) |
 | **직접 추가 일정** | `POST /api/admin/events` · `DELETE /api/admin/events/:id` | `fr_admin` | 접수와 상관없는 일정을 달력에 추가·삭제 |
-| **통계** | `GET /api/admin/stats` | `fr_admin` | 접수·품목·회원·문자 합계, 상태·처리 구분·종류별 수, 최근 6개월 월별 접수 |
+| **통계** | `GET /api/admin/stats?period=7d\|30d\|12m\|all` | `fr_admin` | 기간별 방문자·페이지뷰·접수·품목과 앞 기간 비교, 날짜(달, 연도)별 추이, 상태·처리 구분·종류별 수, 누적 합계 |
 | **문자 발송** | `POST /api/admin/items/:itemId/sms` | `fr_admin` | 운영자가 확인한 문구를 신청자 번호로 발송(솔라피), 발송 기록 저장. 발송 설정이 없으면 `503 SMS_NOT_CONFIGURED` |
 | **내보내기/설정** | `GET /api/admin/export/csv` · `PATCH /api/admin/settings` | `fr_admin` | UTF-8 BOM + 수식 인젝션 방어 CSV 다운로드, 비밀번호 및 공개 사업자 정보 변경 |
 
@@ -358,7 +359,7 @@ node --env-file=.env dist/server/index.js
 # 서버 · 클라이언트 · 테스트 전체 strict 타입 검사
 npm run check
 
-# 자동화 테스트 (54개 통과: API 34 + 보안·미디어 6 + 시간 의존 10 + 문자 발송 2 + 일정·통계 2)
+# 자동화 테스트 (58개 통과: API 34 + 보안·미디어 6 + 시간 의존 10 + 문자 발송 2 + 일정·통계 2 + 디자인 토큰 대비 3 + 예시 데이터 1)
 npm test
 
 # 성능 벤치마크 (500건 · 5,000건 기준 p95 측정)

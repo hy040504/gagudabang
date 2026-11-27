@@ -68,10 +68,21 @@ export interface ScheduleCalendarEventDto {
   eventId?: number;
 }
 /** 관리자 통계: 지금까지 쌓인 접수와 품목을 종류별로 센 값 */
+/** 통계 기간: 7일·30일은 날짜별, 12개월은 달별, 전체는 해별로 묶는다 */
+export const STATS_PERIODS = ['7d', '30d', '12m', 'all'] as const;
+export type StatsPeriod = (typeof STATS_PERIODS)[number];
+export interface StatsCounts { applications: number; items: number; visitors: number; pageviews: number }
 export interface AdminStatsDto {
-  applications: number; items: number; members: number; smsSent: number;
+  period: StatsPeriod; unit: 'day' | 'month' | 'year';
+  /** 기간과 상관없는 누적 값 */
+  totals: { applications: number; items: number; members: number; smsSent: number };
+  /** 고른 기간과 바로 앞 같은 길이의 기간 (전체 기간에는 앞 기간이 없다) */
+  current: StatsCounts; previous: StatsCounts | null;
+  today: { visitors: number; pageviews: number };
+  /** 고른 기간에 접수된 품목의 분포 */
   byStatus: Record<string, number>; byHandling: Record<string, number>; byCategory: Record<string, number>;
-  monthly: { month: string; applications: number; items: number }[];
+  /** 빈 칸 없이 기간의 모든 날(달, 해)을 담는다. key는 YYYY-MM-DD, YYYY-MM, YYYY */
+  series: ({ key: string } & StatsCounts)[];
 }
 
 export interface ApplicationPayload {

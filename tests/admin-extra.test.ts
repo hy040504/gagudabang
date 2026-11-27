@@ -24,23 +24,33 @@ describe('관리자: 직접 추가하는 일정과 통계', () => {
     } finally { s.close(); }
   });
 
-  test('통계는 접수와 품목을 종류별로 센다', async () => {
+  test('통계는 고른 기간의 접수와 방문을 날짜별로 센다', async () => {
     const s = startServer();
     try {
       const guest = client(s.base), admin = client(s.base);
       assert.equal((await admin.call('GET', '/api/admin/stats')).status, 401, '로그인 전');
       await guest.call('POST', '/api/applications', undefined, { form: applicationForm(validPayload()) });
       await guest.call('POST', '/api/applications', undefined, { form: applicationForm(validPayload({ items: [{ category: 'BED', itemName: '침대', conditionGrade: 'GOOD', customerPreference: 'CONSULT' }] })) });
+      for (const path of ['home', 'apply', 'Bad Path!']) assert.equal((await guest.call('POST', '/api/visit', { path })).status, 204);
+      await client(s.base).call('POST', '/api/visit', { path: 'home' }, { headers: { 'User-Agent': 'other-browser' } });
       await admin.call('POST', '/api/admin/login', { loginId: 'admin', password: ADMIN_PW });
-      const st = (await admin.call('GET', '/api/admin/stats')).json.data;
-      assert.equal(st.applications, 2);
-      assert.equal(st.items, 3);
+      const st = (await admin.call('GET', '/api/admin/stats?period=7d')).json.data;
+      assert.equal(st.unit, 'day');
+      assert.equal(st.series.length, 7, '빈 날도 빠짐없이');
+      assert.deepEqual([st.totals.applications, st.totals.items, st.totals.smsSent], [2, 3, 0]);
+      assert.deepEqual([st.current.applications, st.current.items, st.current.visitors, st.current.pageviews], [2, 3, 2, 4]);
+      assert.deepEqual(st.today, { visitors: 2, pageviews: 4 });
+      assert.deepEqual(st.previous, { applications: 0, items: 0, visitors: 0, pageviews: 0 });
       assert.deepEqual(st.byStatus, { PENDING: 3 });
       assert.deepEqual(st.byCategory, { BED: 1, DINING: 1, SOFA: 1 });
       assert.equal(st.byHandling.UNDECIDED, 3);
-      assert.equal(st.monthly.length, 1);
-      assert.deepEqual([st.monthly[0].applications, st.monthly[0].items], [2, 3]);
-      assert.equal(st.smsSent, 0);
+      const last = st.series.at(-1);
+      assert.deepEqual([last.applications, last.visitors, last.pageviews], [2, 2, 4], '오늘 칸');
+      const months = (await admin.call('GET', '/api/admin/stats?period=12m')).json.data;
+      assert.deepEqual([months.unit, months.series.length], ['month', 12]);
+      const all = (await admin.call('GET', '/api/admin/stats?period=all')).json.data;
+      assert.deepEqual([all.unit, all.previous, all.series.length], ['year', null, 1]);
+      assert.equal((await admin.call('GET', '/api/admin/stats?period=zzz')).json.data.period, '30d', '모르는 기간은 30일');
     } finally { s.close(); }
   });
 });

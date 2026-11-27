@@ -88,7 +88,99 @@
     .cal-cell { min-height: 3.5rem; padding: var(--space-1); }
   }
 
+  /* ---------- 로그인: 화면 한가운데 ---------- */
+  .gd-login-page { display: grid; place-items: center; min-height: 100vh; min-height: 100dvh; padding-block: var(--space-8); }
+  .gd-login-page .main-inner { width: 100%; }
+
   /* ---------- 통계 ---------- */
+  /* 위에서 아래로 중요한 순서: 기간 → 핵심 숫자 → 추이 → 구성. 차트는 테두리 카드 하나에 하나 */
+  .stats-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-4); }
+  .seg { display: inline-flex; flex-wrap: wrap; gap: var(--space-1); padding: var(--space-1); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-card); }
+  .seg .btn { min-width: 3.5rem; }
+  .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }
+  .kpi { display: grid; align-content: start; gap: var(--space-1); padding: var(--space-5); }
+  .kpi > span { color: var(--text-2); font-weight: var(--fw-semibold); }
+  .kpi > b { font-size: var(--fs-h1); line-height: var(--lh-tight); letter-spacing: var(--tracking-tight); }
+  .kpi small { color: var(--text-3); font-size: var(--fs-caption); }
+  .delta { color: var(--text-3); font-size: var(--fs-caption); font-weight: var(--fw-semibold); }
+  .delta.up { color: var(--good); }
+  .delta.down { color: var(--bad); }
+  .stats-note { margin: var(--space-3) 0 var(--space-5); }
   .gd-stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+  .chart-card { margin-bottom: var(--space-4); }
+  .gd-stat-grid .chart-card { display: flex; flex-direction: column; margin-bottom: 0; }
+  .gd-stat-grid .chart-table { margin-top: auto; }
+  .chart-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2) var(--space-4); margin-bottom: var(--space-3); }
+  .chart-head h2 { font-size: var(--fs-title); }
+  .chart { min-height: 12.5rem; margin-bottom: var(--space-3); }
+  .chart-table summary { padding-block: var(--space-2); color: var(--text-2); font-size: var(--fs-caption); font-weight: var(--fw-semibold); cursor: pointer; }
+  .chart-table .tbl-wrap { max-height: 20rem; overflow: auto; }
+  .chart-empty { display: grid; place-items: center; min-height: 12.5rem; margin: 0; border: 1px dashed var(--border-strong); border-radius: var(--radius-md); color: var(--text-3); }
+  @media (max-width: 64rem) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 48rem) { .gd-stat-grid { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 40rem) { .kpi { padding: var(--space-4); } .kpi > b { font-size: var(--fs-heading); } }
+
+  /* 차트 색: tokens.css의 --chart-* (밝은·어두운 화면 모두 검사함) */
+  .c-1 { --c: var(--chart-1); }
+  .c-2 { --c: var(--chart-2); }
+  .o-1 { --c: var(--chart-ord-1); }
+  .o-2 { --c: var(--chart-ord-2); }
+  .o-3 { --c: var(--chart-ord-3); }
+  .o-4 { --c: var(--chart-ord-4); }
+  .c-muted { --c: var(--chart-muted); }
+  .chart-svg { display: block; overflow: visible; }
+  .chart-svg .grid { stroke: var(--border); stroke-width: 1; }
+  .chart-svg .axis { stroke: var(--border-strong); stroke-width: 1; }
+  .chart-svg .tick { fill: var(--text-3); font-size: var(--fs-micro); font-variant-numeric: tabular-nums; }
+  .chart-svg .line { fill: none; stroke: var(--c); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .chart-svg .area { fill: var(--c); fill-opacity: 0.1; stroke: none; }
+  /* 점은 평소에 숨기고 고른 칸에서만 보인다 (선이 지저분해지지 않게) */
+  .chart-svg .dot { fill: var(--c); stroke: var(--bg-card); stroke-width: 2; opacity: 0; }
+  .chart-svg .dot.active { opacity: 1; }
+  .chart-svg .bar { fill: var(--c); transition: opacity var(--dur-fast) var(--ease-out); }
+  .chart-svg.on .bar:not(.active) { opacity: 0.45; }
+  .chart-svg .crosshair { stroke: var(--text-3); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; }
+  .chart-svg.on .crosshair { opacity: 1; }
+  .chart-svg .hit { fill: transparent; cursor: crosshair; }
+  .chart-svg .hit:focus-visible { outline: none; stroke: var(--focus); stroke-width: 2; }
+  .donut-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-6); }
+  .donut .donut-track { fill: none; stroke: var(--bg-muted); stroke-width: 22; }
+  .donut .seg { fill: none; stroke: var(--c); stroke-width: 22; cursor: pointer; }
+  .donut .seg:hover { stroke-width: 26; }
+  .donut .donut-total { fill: var(--text-1); font-size: var(--fs-h2); font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+  .chart-legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin: 0; padding: 0; list-style: none; font-size: var(--fs-caption); }
+  .donut-wrap .chart-legend { flex: 1; flex-direction: column; min-width: 11rem; max-width: 18rem; }
+  .chart-legend li { display: flex; align-items: center; gap: var(--space-2); }
+  .chart-legend b { margin-inline-start: auto; font-variant-numeric: tabular-nums; }
+  .chart-legend.line b { margin: 0; }
+  .key { flex: none; inline-size: 0.75rem; block-size: 0.75rem; border-radius: 3px; background: var(--c); }
+  .key.line { block-size: 2px; inline-size: 1rem; border-radius: 1px; }
+  .hbars { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+  .hbars li { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) 6.5rem; align-items: center; gap: var(--space-3); }
+  .hbars .track { block-size: 0.875rem; border-radius: 0 4px 4px 0; background: var(--bg-muted); }
+  .hbars .track i { display: block; block-size: 100%; min-inline-size: 2px; border-radius: 0 4px 4px 0; background: var(--c); }
+  .hbars b { text-align: end; font-variant-numeric: tabular-nums; font-size: var(--fs-caption); }
+  .stack { display: flex; gap: 2px; block-size: 1.75rem; margin-block: var(--space-4) var(--space-5); overflow: hidden; border-radius: var(--radius-sm); }
+  .stack i { min-inline-size: 4px; background: var(--c); cursor: pointer; }
+  .stack + .chart-legend { flex-direction: column; }
+
+  /* 툴팁: 값이 먼저, 이름은 그다음 */
+  .chart-tip { position: fixed; z-index: var(--z-toast); max-width: 16rem; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--bg-card); color: var(--text-1); box-shadow: var(--shadow-overlay); font-size: var(--fs-caption); pointer-events: none; }
+  .chart-tip-title { margin-bottom: var(--space-1); color: var(--text-3); }
+  .chart-tip-row { display: flex; align-items: center; gap: var(--space-2); }
+  .chart-tip-row .key { block-size: 2px; inline-size: 0.75rem; }
+  .chart-tip-row b { font-size: var(--fs-label); font-variant-numeric: tabular-nums; }
+
+  /* 불러오는 동안의 회색 틀 */
+  .skel { display: block; block-size: 0.875rem; inline-size: 100%; border-radius: var(--radius-sm); background: var(--bg-muted); }
+  .skel.w30 { inline-size: 30%; }
+  .skel.w40 { inline-size: 40%; }
+  .skel.w60 { inline-size: 60%; }
+  .skel.big { block-size: 2rem; inline-size: 50%; }
+  .skel.block { block-size: 12.5rem; margin-top: var(--space-3); }
+  .kpi .skel + .skel { margin-top: var(--space-2); }
+  @media (prefers-reduced-motion: no-preference) {
+    .skel { animation: skel 1.2s var(--ease-out) infinite alternate; }
+    @keyframes skel { to { opacity: 0.45; } }
+  }
 }

@@ -39,3 +39,6 @@ prototype/.hallmark/shots/
 # 프로젝트에 설치한 외부 스킬 (용량이 크고 각자 라이선스가 있다)
 .claude/
 .taste-skill/
+
+# 예시 접수 사진(src/server/demo.ts)은 위의 demo/ 규칙과 이름만 겹친다. 저장소에 올린다
+!public/assets/demo/

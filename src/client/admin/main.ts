@@ -1,7 +1,8 @@
 import { api, ApiError } from '../common/api.js';
 import { $, decorate, logo, CATEGORY_LABEL, CONDITION_LABEL, HANDLING_LABEL, PREFERENCE_LABEL, STATUS_LABEL, esc, initTheme, themeButton, options, registerServiceWorker, showError, toast } from '../common/ui.js';
 import { BRAND_NAME, DEFAULT_PUBLIC_NOTICE, TRANSITIONS } from '../../shared/types.js';
-import type { AdminApplicationDetailDto, AdminApplicationSummaryDto, AdminItemDto, AdminKpis, AdminStatsDto, ItemStatus, PublicConfig, ScheduleCalendarEventDto, StatusHistoryDto } from '../../shared/types.js';
+import type { AdminApplicationDetailDto, AdminApplicationSummaryDto, AdminItemDto, AdminKpis, AdminStatsDto, ItemStatus, PublicConfig, ScheduleCalendarEventDto, StatsPeriod, StatusHistoryDto } from '../../shared/types.js';
+import { donut, hbars, stack, xyChart, type Part } from './charts.js';
 
 const app = document.getElementById('app')!;
 let loggedIn = false;
@@ -32,7 +33,7 @@ function loginView() {
       catch (e) { showError(e, form); }
     });
   };
-  return `<main class="main"><div class="main-inner narrow"><form id="loginForm" class="card gd-login" novalidate>
+  return `<main class="main gd-login-page"><div class="main-inner narrow"><form id="loginForm" class="card gd-login" novalidate>
     ${logo(40)}<h1 class="page-title">운영자 로그인</h1>
     <div class="field"><label>아이디</label><input name="loginId" autocomplete="username" required></div>
     <div class="field"><label>비밀번호</label><input name="password" type="password" autocomplete="current-password" required></div>
@@ -312,21 +313,97 @@ async function scheduleView() {
 }
 
 // ---------- 통계 ----------
+// 위에서 아래로: 기간 → 핵심 숫자 → 방문 추이 → 접수 추이와 상태 → 종류와 처리 구분. 차트마다 아래에 같은 값의 표가 있다.
+let statsPeriod: StatsPeriod = '30d';
+const PERIODS: [StatsPeriod, string][] = [['7d', '7일'], ['30d', '30일'], ['12m', '12개월'], ['all', '전체']];
+const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
+const keyTitle = (k: string) => {
+  const [y, m, d] = k.split('-');
+  if (d) return `${y}년 ${Number(m)}월 ${Number(d)}일 (${WEEK[new Date(`${k}T00:00:00Z`).getUTCDay()]})`;
+  return m ? `${y}년 ${Number(m)}월` : `${y}년`;
+};
+const keyTick = (k: string) => { const [y, m, d] = k.split('-'); return d ? `${Number(m)}/${Number(d)}` : m ? `${Number(m)}월` : `${y}`; };
+const UNIT_WORD = { day: '일별', month: '월별', year: '연도별' } as const;
+const STATUS_CLS: Record<ItemStatus, string> = { PENDING: 'o-1', IN_PROGRESS: 'o-2', SCHEDULED: 'o-3', COMPLETED: 'o-4', CANCELED: 'c-muted' };
+
+/** 앞 기간과 비교한 변화. 색과 함께 글자로도 늘었는지 줄었는지 적는다 */
+function delta(cur: number, prev: number | undefined) {
+  if (prev === undefined) return '';
+  if (!prev) return cur ? '<span class="delta">앞 기간 기록 없음</span>' : '<span class="delta">앞 기간과 같음</span>';
+  const p = Math.round(((cur - prev) / prev) * 100);
+  if (!p) return '<span class="delta">앞 기간과 같음</span>';
+  return `<span class="delta ${p > 0 ? 'up' : 'down'}">${p > 0 ? '▲' : '▼'} ${Math.abs(p)}% <span class="vh">${p > 0 ? '늘었습니다' : '줄었습니다'}</span></span>`;
+}
+
+const statsHead = (busy = false) => `<div class="stats-head"><h1>통계</h1>
+  <div class="seg" role="group" aria-label="기간">${PERIODS.map(([p, l]) => `<button type="button" class="btn sm${p === statsPeriod ? ' primary' : ' ghost'}" data-period="${p}" aria-pressed="${p === statsPeriod}"${busy ? ' disabled' : ''}>${l}</button>`).join('')}</div></div>`;
+
+/** 불러오는 동안 같은 자리에 회색 틀을 보여 준다 */
+const statsSkeleton = () => `<main class="main"><div class="main-inner" aria-busy="true">${statsHead(true)}
+  <div class="kpis">${'<div class="card kpi"><i class="skel w40"></i><i class="skel big"></i><i class="skel w60"></i></div>'.repeat(4)}</div>
+  <div class="card chart-card"><i class="skel w30"></i><i class="skel block"></i></div>
+  <div class="gd-stat-grid">${'<div class="card chart-card"><i class="skel w40"></i><i class="skel block"></i></div>'.repeat(2)}</div>
+  <span class="vh">통계를 불러오는 중입니다.</span></div></main>`;
+
 async function statsView() {
-  const s = await api.get<AdminStatsDto>('/api/admin/stats');
-  const pct = (n: number, total: number) => (total ? `${Math.round((n / total) * 100)}%` : '0%');
-  // 종류별 건수와 비율을 표로 보여 준다. 0건인 종류도 빠뜨리지 않는다.
-  const table = (title: string, labels: Record<string, string>, data: Record<string, number>) => `<section class="card gd-stat-card"><h2 class="card-title">${title}</h2>
-    <table class="tbl"><thead><tr><th>구분</th><th class="num">품목 수</th><th class="num">비율</th></tr></thead><tbody>
-    ${Object.entries(labels).map(([k, l]) => `<tr><td>${esc(l)}</td><td class="num tabular">${data[k] ?? 0}</td><td class="num tabular">${pct(data[k] ?? 0, s.items)}</td></tr>`).join('')}</tbody></table></section>`;
-  return `<main class="main"><div class="main-inner"><h1 class="page-title">통계</h1>
-    <ul class="gd-stats" aria-label="전체 합계"><li>접수 <b>${s.applications}</b></li><li>가구(품목) <b>${s.items}</b></li><li>회원 <b>${s.members}</b></li><li>보낸 문자 <b>${s.smsSent}</b></li></ul>
+  const s = await api.get<AdminStatsDto>(`/api/admin/stats?period=${statsPeriod}`);
+  const unit = UNIT_WORD[s.unit];
+  const cur = s.current, prev = s.previous ?? undefined;
+  const kpi = (label: string, value: number, before: number | undefined, sub: string) => `<div class="card kpi"><span>${label}</span><b class="tabular">${value.toLocaleString('ko-KR')}</b>${delta(value, before)}<small>${sub}</small></div>`;
+  const periodName = PERIODS.find(([p]) => p === s.period)![1];
+  const range = s.period === 'all' ? '전체 기간' : `최근 ${periodName}`;
+  // 표 보기: 차트와 같은 값
+  const table = (head: string[], rows: (string | number)[][]) => `<details class="chart-table"><summary>표로 보기</summary><div class="tbl-wrap"><table class="tbl">
+    <thead><tr>${head.map((h, i) => `<th${i ? ' class="num"' : ''}>${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="num tabular"' : ''}>${typeof c === 'number' ? c.toLocaleString('ko-KR') : esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`;
+  const parts = (labels: Record<string, string>, data: Record<string, number>, cls: (k: string, i: number) => string): Part[] =>
+    Object.entries(labels).map(([k, l], i) => ({ label: l, value: data[k] ?? 0, cls: cls(k, i) }));
+  const statusParts = parts(STATUS_LABEL, s.byStatus, (k) => STATUS_CLS[k as ItemStatus]);
+  const handlingParts = parts({ RESALE: HANDLING_LABEL.RESALE, DISPOSE: HANDLING_LABEL.DISPOSE, UNDECIDED: HANDLING_LABEL.UNDECIDED }, s.byHandling, (k) => ({ RESALE: 'c-1', DISPOSE: 'c-2', UNDECIDED: 'c-muted' })[k]!);
+  const categoryParts = parts(CATEGORY_LABEL, s.byCategory, () => 'c-1');
+
+  wire.fn = () => {
+    document.querySelectorAll<HTMLElement>('[data-period]').forEach((b) => b.addEventListener('click', () => { statsPeriod = b.dataset.period as StatsPeriod; void render(); }));
+    const keys = s.series.map((r) => r.key);
+    xyChart($('#trafficChart')!, { kind: 'line', keys, tick: keyTick, title: keyTitle, label: `${unit} 방문자와 페이지뷰`,
+      series: [{ name: '방문자', cls: 'c-1', values: s.series.map((r) => r.visitors) }, { name: '페이지뷰', cls: 'c-2', values: s.series.map((r) => r.pageviews) }] });
+    xyChart($('#applyChart')!, { kind: 'bar', keys, tick: keyTick, title: keyTitle, label: `${unit} 접수 건수`,
+      series: [{ name: '접수', cls: 'c-1', values: s.series.map((r) => r.applications) }] });
+    donut($('#statusChart')!, statusParts, '품목');
+    hbars($('#categoryChart')!, categoryParts);
+    stack($('#handlingChart')!, handlingParts);
+  };
+  const seriesRows = [...s.series].reverse();
+  return `<main class="main"><div class="main-inner">${statsHead()}
+    <div class="kpis">
+      ${kpi('방문자', cur.visitors, prev?.visitors, `${range} · 오늘 ${s.today.visitors.toLocaleString('ko-KR')}명`)}
+      ${kpi('페이지뷰', cur.pageviews, prev?.pageviews, `${range} · 오늘 ${s.today.pageviews.toLocaleString('ko-KR')}회`)}
+      ${kpi('접수', cur.applications, prev?.applications, `${range} · 누적 ${s.totals.applications.toLocaleString('ko-KR')}건`)}
+      ${kpi('가구(품목)', cur.items, prev?.items, `${range} · 누적 ${s.totals.items.toLocaleString('ko-KR')}개`)}
+    </div>
+    <p class="stats-note muted small">${s.previous ? '▲▼는 바로 앞 같은 길이의 기간과 비교한 값입니다. ' : ''}회원 ${s.totals.members.toLocaleString('ko-KR')}명 · 보낸 문자 ${s.totals.smsSent.toLocaleString('ko-KR')}건 (누적)</p>
+
+    <section class="card chart-card"><div class="chart-head"><h2>${unit} 방문 추이</h2>
+      <ul class="chart-legend line"><li><i class="key line c-1"></i><span>방문자</span></li><li><i class="key line c-2"></i><span>페이지뷰</span></li></ul></div>
+      <div id="trafficChart" class="chart"></div>
+      <p class="muted small">방문자는 하루에 한 번만 셉니다(같은 기기·브라우저 기준). 여러 날을 묶으면 날마다 센 수를 더한 값입니다. 페이지뷰는 고객 화면을 연 횟수입니다.</p>
+      ${table([s.unit === 'day' ? '날짜' : s.unit === 'month' ? '달' : '연도', '방문자', '페이지뷰'], seriesRows.map((r) => [keyTitle(r.key), r.visitors, r.pageviews]))}</section>
+
     <div class="gd-stat-grid">
-      ${table('상태별', STATUS_LABEL, s.byStatus)}${table('처리 구분별', HANDLING_LABEL, s.byHandling)}${table('가구 종류별', CATEGORY_LABEL, s.byCategory)}
-      <section class="card gd-stat-card"><h2 class="card-title">월별 접수 (최근 6개월)</h2>
-        <table class="tbl"><thead><tr><th>달</th><th class="num">접수</th><th class="num">품목 수</th></tr></thead><tbody>
-        ${s.monthly.map((m) => `<tr><td class="tabular">${esc(m.month)}</td><td class="num tabular">${m.applications}</td><td class="num tabular">${m.items}</td></tr>`).join('') || '<tr><td colspan="3" class="empty">접수 내역이 없습니다.</td></tr>'}</tbody></table></section>
-    </div></div></main>`;
+      <section class="card chart-card"><div class="chart-head"><h2>${unit} 접수</h2></div>
+        <div id="applyChart" class="chart"></div>
+        ${table([s.unit === 'day' ? '날짜' : s.unit === 'month' ? '달' : '연도', '접수', '품목'], seriesRows.map((r) => [keyTitle(r.key), r.applications, r.items]))}</section>
+      <section class="card chart-card"><div class="chart-head"><h2>품목 상태</h2><span class="muted small">${range} 접수분</span></div>
+        <div id="statusChart" class="chart donut-wrap"></div>
+        ${table(['상태', '품목 수'], statusParts.map((p) => [p.label, p.value]))}</section>
+      <section class="card chart-card"><div class="chart-head"><h2>가구 종류</h2><span class="muted small">${range} 접수분</span></div>
+        <div id="categoryChart" class="chart"></div>
+        ${table(['종류', '품목 수'], categoryParts.map((p) => [p.label, p.value]))}</section>
+      <section class="card chart-card"><div class="chart-head"><h2>처리 구분</h2><span class="muted small">${range} 접수분</span></div>
+        <div id="handlingChart" class="chart"></div>
+        ${table(['처리 구분', '품목 수'], handlingParts.map((p) => [p.label, p.value]))}</section>
+    </div>
+  </div></main>`;
 }
 
 // ---------- A-04s 설정 ----------
@@ -375,7 +452,7 @@ async function render() {
     if (!loggedIn) body = loginView();
     else if (hash === 'schedule') body = nav() + (await scheduleView());
     else if (hash === 'settings') body = nav() + (await settingsView());
-    else if (hash === 'stats') body = nav() + (await statsView());
+    else if (hash === 'stats') { app.innerHTML = nav() + statsSkeleton(); body = nav() + (await statsView()); }
     else if (hash.startsWith('detail/')) body = nav() + (await detailView(Number(hash.slice(7))));
     else body = nav() + (await dashboardView());
     app.innerHTML = body;

@@ -198,8 +198,9 @@ try {
   await A.p.click('[data-ev-del]'); await A.p.waitForTimeout(700);
   need(!(await A.has('수거 차량 정기 점검')), '직접 추가한 일정을 지움');
   await go(A.p, '/admin#stats');
-  need(await A.has('상태별') && await A.has('월별 접수'), '통계 화면');
-  await A.shot('a13-stats', [['.gd-stats', 1], ['.gd-stat-card', 2], [['.gd-stat-card', 1], 3], [['.gd-stat-card', 2], 4], [['.gd-stat-card', 3], 5]]);
+  await A.p.waitForSelector('#trafficChart svg, #trafficChart .chart-empty');
+  need(await A.has('방문 추이') && await A.has('품목 상태') && (await A.p.locator('#trafficChart svg').count()) === 1, '통계 화면 (고객 화면을 연 기록이 방문 추이에 나온다)');
+  await A.shot('a13-stats', [['.seg', 1], ['.kpis', 2], [['.chart-card', 0], 3], [['.chart-card', 1], 4], [['.chart-card', 2], 5], [['.chart-card', 3], 6], [['.chart-card', 4], 7]], { from: '.stats-head', to: '.gd-stat-grid' });
   await go(A.p, '/admin#settings');
   await A.shot('a10-settings', [['#siteForm', 1], ['#pwForm', 2]], { from: '#siteForm', to: '#pwForm' });
 

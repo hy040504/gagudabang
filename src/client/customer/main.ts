@@ -433,10 +433,16 @@ function myPage() {
       <button class="btn primary">저장</button></form></div></div>`;
 }
 
+// 접속 통계: 화면을 바꿀 때마다 한 번 알린다. 보내지 못해도 화면에는 영향이 없다.
+function trackVisit(page: string) {
+  try { navigator.sendBeacon('/api/visit', new Blob([JSON.stringify({ path: page })], { type: 'application/json' })); } catch { /* 통계는 빠져도 된다 */ }
+}
+
 function render() {
   const views: Record<Route, () => string> = { home, apply, complete, lookup, login, signup, my: myPage, terms: () => terms(config), privacy: () => privacy(config) };
   app.innerHTML = shell(views[route()]());
   decorate(app);
+  trackVisit(route());
   $('#logoutBtn')?.addEventListener('click', async () => {
     try { await api.post('/api/auth/logout'); } catch { /* 이미 만료 */ }
     me = null; location.hash = '#home'; render();

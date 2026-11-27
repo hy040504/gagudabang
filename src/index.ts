@@ -17,6 +17,8 @@ const { app: inner } = createApp({
   secret: process.env.SESSION_SECRET,
   sms: smsFromEnv(),
   testAccount: true, // 테스트용 회원 abcd / 1234 (실제 운영 전에 뺀다)
+  demoData: process.env.DEMO_DATA !== '0', // 예시 접수 20건과 방문 기록. 함수에는 public/이 없어 사진은 배포 주소에서 받는다
+  demoPhotoBase: process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined,
 });
 // 요청이 Vercel 프록시를 거쳐 온다. 접속자 IP(요청 횟수 제한과 잠금의 기준)와 HTTPS 여부를 전달 헤더에서 읽는다.
 inner.set('trust proxy', true);

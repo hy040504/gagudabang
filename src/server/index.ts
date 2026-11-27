@@ -19,6 +19,7 @@ const { app, db } = createApp({
   secret: process.env.SESSION_SECRET,
   sms: smsFromEnv(),
   testAccount: true, // 테스트용 회원 abcd / 1234 (실제 운영 전에 뺀다)
+  demoData: process.env.DEMO_DATA !== '0', // 예시 접수 20건과 방문 기록 (실제 운영 전에 DEMO_DATA=0으로 끄고 is_demo 행을 지운다)
 });
 
 // FN-26: 24시간 지난 멱등성 키 정리 (1시간 주기)

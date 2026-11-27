@@ -97,6 +97,16 @@ CREATE TABLE IF NOT EXISTS sms_log (
   body TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+-- 접속 통계: 고객 화면을 열 때마다 한 줄. visitor는 IP와 브라우저 정보를 하루 단위로 바뀌는 값과 섞은 해시라 원래 값으로 되돌릴 수 없다
+CREATE TABLE IF NOT EXISTS visits (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  day TEXT NOT NULL,
+  visitor TEXT NOT NULL,
+  path TEXT NOT NULL DEFAULT '',
+  is_demo INTEGER NOT NULL DEFAULT 0 CHECK (is_demo IN (0, 1)),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_visits_day ON visits(day);
 CREATE TABLE IF NOT EXISTS idempotency_keys (
   key TEXT PRIMARY KEY,
   endpoint TEXT NOT NULL,

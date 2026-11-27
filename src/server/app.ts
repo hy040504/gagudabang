@@ -1,15 +1,18 @@
-﻿import express, { type NextFunction, type Request, type Response } from 'express';
+import express, { type NextFunction, type Request, type Response } from 'express';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import multer from 'multer';
 import { ensureAdmin, ensureTestCustomer, openDb, type Db } from './db.js';
+import { demoPhotoLoader, seedDemoData } from './demo.js';
 import { AppError, Signer, type Clock } from './lib.js';
 import { adminRouter } from './routes/admin.js';
 import { publicRouter, type Ctx } from './routes/public.js';
 import type { SmsConfig } from './services/sms.js';
 
-export interface AppOptions { dataDir: string; publicDir: string; dbFile?: string; adminId?: string; adminPassword?: string; secret?: string; clock?: Clock; sms?: SmsConfig; testAccount?: boolean }
+export interface AppOptions { dataDir: string; publicDir: string; dbFile?: string; adminId?: string; adminPassword?: string; secret?: string; clock?: Clock; sms?: SmsConfig; testAccount?: boolean;
+  /** 예시 접수 20건과 방문 기록을 한 번 넣는다. 사진을 파일로 못 읽으면 demoPhotoBase(배포 주소)에서 받는다 */
+  demoData?: boolean; demoPhotoBase?: string }
 
 function loadSecret(dataDir: string, given?: string): string {
   if (given) return given;
@@ -21,12 +24,16 @@ function loadSecret(dataDir: string, given?: string): string {
   return s;
 }
 
-export function createApp(opt: AppOptions): { app: express.Express; db: Db; ctx: Ctx } {
+export function createApp(opt: AppOptions): { app: express.Express; db: Db; ctx: Ctx; ready: Promise<void> } {
   const db = openDb(opt.dbFile ?? path.join(opt.dataDir, 'gagudabang.sqlite'));
   ensureAdmin(db, opt.adminId ?? 'admin', opt.adminPassword ?? 'admin1234!');
   if (opt.testAccount) ensureTestCustomer(db);
   const clock: Clock = opt.clock ?? Date.now;
-  const ctx: Ctx = { db, clock, signer: new Signer(loadSecret(opt.dataDir, opt.secret), clock), uploadDir: path.join(opt.dataDir, 'uploads'), sms: opt.sms };
+  const secret = loadSecret(opt.dataDir, opt.secret);
+  const ctx: Ctx = { db, clock, signer: new Signer(secret, clock), uploadDir: path.join(opt.dataDir, 'uploads'), sms: opt.sms, visitSalt: crypto.createHash('sha256').update(`visit:${secret}`).digest('hex') };
+  const ready = opt.demoData
+    ? seedDemoData(db, ctx.uploadDir, demoPhotoLoader(opt.publicDir, opt.demoPhotoBase), new Date(clock())).then(() => undefined, (e) => console.error('예시 데이터를 넣지 못했습니다:', e))
+    : Promise.resolve();
 
   const app = express();
   app.disable('x-powered-by');
@@ -49,6 +56,8 @@ export function createApp(opt: AppOptions): { app: express.Express; db: Db; ctx:
     next();
   });
   app.use(express.json({ limit: '100kb' }));
+  // 예시 데이터를 넣는 중에는 API 요청을 잠시 기다리게 한다 (첫 화면이 빈 목록으로 뜨지 않게)
+  if (opt.demoData) app.use('/api', (_req, _res, next) => { void ready.then(() => next()); });
   app.get('/api/health', (_req, res) => res.json({ ok: true, data: { status: 'up' } }));
   app.use('/api', publicRouter(ctx), adminRouter(ctx));
   app.use('/api', (_req, _res, next) => next(new AppError(404, 'NOT_FOUND', '존재하지 않는 API입니다.')));
@@ -67,5 +76,5 @@ export function createApp(opt: AppOptions): { app: express.Express; db: Db; ctx:
     else { console.error(err); e = new AppError(500, 'INTERNAL', '서버 오류가 발생했습니다.'); }
     res.status(e.status).json({ ok: false, error: { code: e.code, message: e.message, ...(e.fieldErrors ? { fieldErrors: e.fieldErrors } : {}) } });
   });
-  return { app, db, ctx };
+  return { app, db, ctx, ready };
 }

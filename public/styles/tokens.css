@@ -66,6 +66,14 @@
   --scrim: rgb(11 18 32 / 0.82);                      /* 대화상자 뒤 */
   --focus: var(--primary);
 
+  /* 차트: 두 계열(파랑·주황)과 순서가 있는 4단계 파랑, 그 밖의 값(취소, 미정)은 회색. 색만으로 구분하지 않게 늘 이름을 붙인다 (docs/DESIGN_SYSTEM.md) */
+  --chart-1: #257de0;
+  --chart-2: #f47230;
+  --chart-ord-1: #84b9f3;
+  --chart-ord-2: #519ced;
+  --chart-ord-3: #1b64be;
+  --chart-ord-4: #0e3d7e;
+  --chart-muted: #aab3c4;
   /* ---- 3. 글자 ---- */
   --font: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   /* 크기는 rem: 브라우저 글자 크기 설정을 따른다. 괄호 안은 기본 설정(16px)일 때의 값 */
@@ -166,6 +174,13 @@
   --panel-action-fg: var(--navy-950);
   --shadow-raised: 0 4px 16px rgb(0 0 0 / 0.42), 0 1px 3px rgb(0 0 0 / 0.28);
   --shadow-overlay: 0 16px 40px rgb(0 0 0 / 0.58), 0 4px 12px rgb(0 0 0 / 0.36);
+  --chart-1: #338ced;
+  --chart-2: #e76624;
+  --chart-ord-1: #1b64be;
+  --chart-ord-2: #338ced;
+  --chart-ord-3: #6aabf1;
+  --chart-ord-4: #b6d5f8;
+  --chart-muted: #4a5878;
 }
 
 /* 화면 코드가 뜨기 전에도 기기 설정이 어두우면 바탕을 어둡게 둔다 (밝은 화면이 번쩍이지 않게) */

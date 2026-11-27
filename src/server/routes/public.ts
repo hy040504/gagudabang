@@ -1,10 +1,11 @@
 import { Router, type Request } from 'express';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import multer from 'multer';
 import type { Db } from '../db.js';
 import {
-  AppError, COOKIES, FailureLock, Signer, type Clock, clearCookie, hashSecret, normalizePhone, ok, rateLimiter, readCookies, setCookie, verifySecret, wrap,
+  AppError, COOKIES, FailureLock, Signer, type Clock, clearCookie, hashSecret, normalizePhone, ok, rateLimiter, readCookies, setCookie, todayKst, verifySecret, wrap,
 } from '../lib.js';
 import {
   cancelByCustomer, claimApplication, createApplication, getApplicationByCode, toPublicApplicationDto, type UploadedFile,
@@ -13,7 +14,7 @@ import type { SmsConfig } from '../services/sms.js';
 import type { ApplicationPayload, CustomerProfileDto } from '../../shared/types.js';
 
 type Row = Record<string, any>;
-export interface Ctx { db: Db; signer: Signer; uploadDir: string; clock: Clock; sms?: SmsConfig }
+export interface Ctx { db: Db; signer: Signer; uploadDir: string; clock: Clock; sms?: SmsConfig; visitSalt: string }
 
 const CUSTOMER_TTL = 7 * 86400;
 const LOOKUP_TTL = 30 * 60;
@@ -51,6 +52,16 @@ export function publicRouter(ctx: Ctx) {
     if (!u) throw new AppError(401, 'UNAUTHORIZED', '로그인이 필요합니다.');
     return u;
   };
+
+  // 접속 통계: 고객 화면이 화면을 바꿀 때마다 보낸다. IP와 브라우저 정보는 그날만 쓰는 해시로 바꿔 저장하고 원래 값은 남기지 않는다.
+  const visitLimit = rateLimiter(120, 60_000, ctx.clock);
+  r.post('/visit', visitLimit, wrap((req, res) => {
+    const page = typeof req.body?.path === 'string' && /^[a-z]{0,12}$/.test(req.body.path) ? req.body.path || 'home' : 'home';
+    const day = todayKst(new Date(ctx.clock()));
+    const visitor = crypto.createHash('sha256').update(`${ctx.visitSalt}:${day}:${req.ip ?? ''}:${req.get('user-agent') ?? ''}`).digest('hex').slice(0, 16);
+    db.prepare('INSERT INTO visits (day, visitor, path) VALUES (?, ?, ?)').run(day, visitor, page);
+    res.status(204).end();
+  }));
 
   r.get('/public/config', wrap((_req, res) => {
     const rows = db.prepare('SELECT key, value FROM site_settings').all() as Row[];

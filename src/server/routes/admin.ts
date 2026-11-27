@@ -8,7 +8,7 @@ import {
 } from '../services/applications.js';
 import { sendSms } from '../services/sms.js';
 import { authOf, type Ctx } from './public.js';
-import type { AdminApplicationSummaryDto, AdminItemPatchDto, AdminKpis, AdminStatsDto, ScheduleCalendarEventDto } from '../../shared/types.js';
+import { STATS_PERIODS, type AdminApplicationSummaryDto, type AdminItemPatchDto, type AdminKpis, type AdminStatsDto, type StatsCounts, type StatsPeriod, type ScheduleCalendarEventDto } from '../../shared/types.js';
 
 type Row = Record<string, any>;
 const ADMIN_TTL = 12 * 3600;
@@ -142,19 +142,51 @@ export function adminRouter(ctx: Ctx) {
     ok(res, { deleted: true });
   }));
 
-  // 통계: 쌓인 접수와 품목을 종류별로 센다
+  // 통계: 기간(7일·30일·12개월·전체)을 받아 접수와 방문을 날짜(달, 해)별로 센다
   r.get('/admin/stats', wrap((req, res) => {
     requireAdmin(req);
+    const period: StatsPeriod = (STATS_PERIODS as readonly string[]).includes(String(req.query.period)) ? (req.query.period as StatsPeriod) : '30d';
     const one = (sql: string) => Number((db.prepare(sql).get() as Row).c);
-    const group = (col: string) => Object.fromEntries((db.prepare(`SELECT ${col} AS k, COUNT(*) AS c FROM application_items GROUP BY ${col}`).all() as Row[]).map((r) => [r.k, Number(r.c)]));
-    // 접수 시각은 UTC로 저장돼 있어 한국 시간(+9시간)으로 옮겨 달을 나눈다
-    const monthly = (db.prepare(`SELECT substr(datetime(a.created_at, '+9 hours'), 1, 7) AS month, COUNT(DISTINCT a.id) AS applications, COUNT(i.id) AS items
-      FROM applications a LEFT JOIN application_items i ON i.application_id = a.id GROUP BY month ORDER BY month DESC LIMIT 6`).all() as Row[])
-      .map((m) => ({ month: m.month, applications: Number(m.applications), items: Number(m.items) }));
+    const today = todayKst(new Date(ctx.clock()));
+    const day = (d: string, n: number) => new Date(Date.parse(`${d}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+    const month = (m: string, n: number) => { const [y, mo] = m.split('-').map(Number) as [number, number]; return new Date(Date.UTC(y, mo - 1 + n, 1)).toISOString().slice(0, 7); };
+    const KST = "datetime(a.created_at, '+9 hours')"; // 접수 시각은 UTC로 저장돼 있다
+    const range = (n: number, at: (i: number) => string) => Array.from({ length: n }, (_, i) => at(i - n + 1));
+    let unit: AdminStatsDto['unit'], keys: string[], prev: string[] | null;
+    if (period === '7d' || period === '30d') {
+      const n = period === '7d' ? 7 : 30;
+      unit = 'day'; keys = range(n, (i) => day(today, i)); prev = range(n, (i) => day(today, i - n));
+    } else if (period === '12m') {
+      unit = 'month'; keys = range(12, (i) => month(today.slice(0, 7), i)); prev = range(12, (i) => month(today.slice(0, 7), i - 12));
+    } else {
+      const first = Math.min(Number(today.slice(0, 4)),
+        Number((db.prepare(`SELECT MIN(substr(${KST}, 1, 4)) AS y FROM applications a`).get() as Row).y ?? 9999),
+        Number((db.prepare('SELECT MIN(substr(day, 1, 4)) AS y FROM visits').get() as Row).y ?? 9999));
+      unit = 'year'; keys = range(Number(today.slice(0, 4)) - first + 1, (i) => String(Number(today.slice(0, 4)) + i)); prev = null;
+    }
+    const len = keys[0]!.length; // 10, 7, 4: 날짜 문자열 앞부분으로 묶는다
+    const bucket = (from: string, to: string) => {
+      const apps = new Map((db.prepare(`SELECT substr(${KST}, 1, ${len}) AS k, COUNT(DISTINCT a.id) AS a, COUNT(i.id) AS i FROM applications a
+        LEFT JOIN application_items i ON i.application_id = a.id WHERE substr(${KST}, 1, ${len}) BETWEEN ? AND ? GROUP BY k`).all(from, to) as Row[]).map((r) => [r.k, r]));
+      const vis = new Map((db.prepare(`SELECT substr(day, 1, ${len}) AS k, COUNT(DISTINCT day || visitor) AS v, COUNT(*) AS p FROM visits
+        WHERE substr(day, 1, ${len}) BETWEEN ? AND ? GROUP BY k`).all(from, to) as Row[]).map((r) => [r.k, r]));
+      return (k: string): StatsCounts => ({ applications: Number(apps.get(k)?.a ?? 0), items: Number(apps.get(k)?.i ?? 0), visitors: Number(vis.get(k)?.v ?? 0), pageviews: Number(vis.get(k)?.p ?? 0) });
+    };
+    const sum = (rows: StatsCounts[]): StatsCounts => rows.reduce((s, r) => ({ applications: s.applications + r.applications, items: s.items + r.items, visitors: s.visitors + r.visitors, pageviews: s.pageviews + r.pageviews }), { applications: 0, items: 0, visitors: 0, pageviews: 0 });
+    const at = bucket(keys[0]!, keys.at(-1)!);
+    const series = keys.map((key) => ({ key, ...at(key) }));
+    const previous = prev ? sum(prev.map(bucket(prev[0]!, prev.at(-1)!))) : null;
+    const group = (col: string) => Object.fromEntries((db.prepare(`SELECT i.${col} AS k, COUNT(*) AS c FROM application_items i JOIN applications a ON a.id = i.application_id
+      WHERE substr(${KST}, 1, ${len}) BETWEEN ? AND ? GROUP BY i.${col}`).all(keys[0]!, keys.at(-1)!) as Row[]).map((r) => [r.k, Number(r.c)]));
+    const todayVisits = db.prepare('SELECT COUNT(DISTINCT visitor) AS v, COUNT(*) AS p FROM visits WHERE day = ?').get(today) as Row;
     const stats: AdminStatsDto = {
-      applications: one('SELECT COUNT(*) AS c FROM applications'), items: one('SELECT COUNT(*) AS c FROM application_items'),
-      members: one("SELECT COUNT(*) AS c FROM users WHERE role = 'CUSTOMER'"), smsSent: one('SELECT COUNT(*) AS c FROM sms_log'),
-      byStatus: group('status'), byHandling: group('handling_type'), byCategory: group('category'), monthly,
+      period, unit,
+      totals: {
+        applications: one('SELECT COUNT(*) AS c FROM applications'), items: one('SELECT COUNT(*) AS c FROM application_items'),
+        members: one("SELECT COUNT(*) AS c FROM users WHERE role = 'CUSTOMER'"), smsSent: one('SELECT COUNT(*) AS c FROM sms_log'),
+      },
+      current: sum(series), previous, today: { visitors: Number(todayVisits.v), pageviews: Number(todayVisits.p) },
+      byStatus: group('status'), byHandling: group('handling_type'), byCategory: group('category'), series,
     };
     ok(res, stats);
   }));

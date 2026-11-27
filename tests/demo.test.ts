@@ -1,0 +1,37 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import { ADMIN_PW, client, startServer } from './helpers.js';
+import { DEMO_COUNT, DEMO_PIN, demoPhotoLoader, seedDemoData } from '../src/server/demo.js';
+
+test('예시 데이터: 접수 목록·진행 조회·사진·통계에 나오고, 한 번만 들어간다', async () => {
+  const s = startServer(undefined, { demoData: true, publicDir: path.join(process.cwd(), 'public'), testAccount: true });
+  try {
+    const admin = client(s.base);
+    await admin.call('POST', '/api/admin/login', { loginId: 'admin', password: ADMIN_PW });
+    const list = (await admin.call('GET', '/api/admin/applications?page=1')).json.data;
+    assert.equal(list.total, DEMO_COUNT);
+    assert.ok(list.kpis.movingSoonApplications >= 1 && list.kpis.deadlineAlertItems >= 1 && list.kpis.pendingItems >= 1, '목록 위 경보 숫자가 0이 아니다');
+
+    // 고객은 연락처와 PIN으로 조회하고 자기 사진을 본다
+    const guest = client(s.base);
+    const found = await guest.call('POST', '/api/applications/lookup', { identifier: '010-2965-3174', pin: DEMO_PIN });
+    assert.equal(found.status, 200);
+    const photo = found.json.data.applications[0].items[0].photos[0].url as string;
+    const img = await guest.call('GET', photo);
+    assert.equal(img.status, 200);
+    assert.equal(img.headers.get('content-type'), 'image/jpeg');
+
+    // 테스트 회원(abcd)의 마이페이지에 연결된 예시 접수가 있다
+    const member = client(s.base);
+    await member.call('POST', '/api/auth/login', { identifier: 'abcd', password: '1234' });
+    assert.equal((await member.call('GET', '/api/my/applications')).json.data.applications.length, 2);
+
+    const st = (await admin.call('GET', '/api/admin/stats?period=12m')).json.data;
+    assert.ok(st.current.visitors > 1000 && st.current.pageviews > st.current.visitors, '방문 기록');
+    assert.ok(Object.values(st.byStatus as Record<string, number>).reduce((a, b) => a + b, 0) > 0);
+
+    assert.equal(await seedDemoData(s.db, path.join(s.dir, 'uploads'), demoPhotoLoader(path.join(process.cwd(), 'public'))), false, '두 번째는 넣지 않는다');
+    assert.equal((s.db.prepare('SELECT COUNT(*) AS c FROM applications').get() as { c: number }).c, DEMO_COUNT);
+  } finally { s.close(); }
+});
