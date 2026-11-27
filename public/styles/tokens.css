@@ -1700,6 +1700,11 @@ textarea.inp {
 :root,
 html[data-theme="light"] {
   color-scheme: light;
+  /* 디자인 기준 값 (DESIGN_AUDIT.md): 새 스타일은 이 값만 쓴다 */
+  --fs-caption: 13px; --fs-label: 14px; --fs-body: 16px; --fs-title: 18px;
+  --fw-regular: 400; --fw-medium: 600; --fw-bold: 700;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px; --space-8: 32px;
+  --control-h: 38px; --control-h-touch: 44px;
   --font-display: var(--font-sans);
   --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
