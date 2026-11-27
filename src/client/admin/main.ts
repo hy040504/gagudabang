@@ -284,7 +284,7 @@ async function scheduleView() {
       .cal-cell{min-height:76px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;font:inherit;color:var(--text-1);cursor:pointer;transition:background .15s ease-out,border-color .15s ease-out}
       .cal-cell:hover{background:var(--bg-hover)}
       .cal-cell.sel{background:var(--primary-soft);border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-ring)}
-      .cal-cell.today .cal-n{color:var(--primary-fg);background:var(--primary);border-radius:999px;padding:0 7px}
+      .cal-cell.today .cal-n{color:var(--primary-fg);background:var(--primary);border-radius:999px;padding:0 8px}
       .cal-blank{border:0;background:none;cursor:default}
       .cal-n{font-size:13px;font-weight:600;align-self:flex-start}
       .cal-dots{display:flex;gap:4px;align-items:center;min-height:10px}
@@ -292,7 +292,7 @@ async function scheduleView() {
       .cal-dots small{font-size:12px;color:var(--text-3)}
       .cal-ev{display:flex;gap:8px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--border)}
       .cal-ev i{width:9px;height:9px;border-radius:50%;margin-top:6px;flex-shrink:0}
-      @media (max-width:900px){.cal-wrap{grid-template-columns:1fr}.cal-cell{min-height:56px;padding:4px 5px}}
+      @media (max-width:900px){.cal-wrap{grid-template-columns:1fr}.cal-cell{min-height:56px;padding:4px 4px}}
       @media (prefers-reduced-motion:reduce){.cal-cell{transition:none}}
     </style>
     <div class="row" style="gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
@@ -301,7 +301,7 @@ async function scheduleView() {
       <button class="btn outline sm" data-shift="1" aria-label="다음 달">→</button>
       <button class="btn ghost sm" id="calToday">오늘</button>
       <span style="flex:1"></span>
-      ${Object.values(KIND).map((k) => `<span class="small" style="display:flex;gap:5px;align-items:center"><i style="width:9px;height:9px;border-radius:50%;background:${k.color};display:block"></i>${k.label}</span>`).join('')}
+      ${Object.values(KIND).map((k) => `<span class="small" style="display:flex;gap:4px;align-items:center"><i style="width:9px;height:9px;border-radius:50%;background:${k.color};display:block"></i>${k.label}</span>`).join('')}
     </div>
     <div class="cal-wrap">
       <section class="card" style="padding:14px"><div class="cal-grid" role="group" aria-label="${y}년 ${m}월 달력">

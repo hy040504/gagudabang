@@ -248,9 +248,9 @@ img, svg { max-width: 100%; }
 .pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   height: 24px;
-  padding: 0 9px;
+  padding: 0 8px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
@@ -382,7 +382,7 @@ button.pill.active:hover {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   margin-bottom: 12px;
 }
 .field > label {
@@ -396,7 +396,7 @@ button.pill.active:hover {
 .inp {
   width: 100%;
   min-height: 38px;
-  padding: 8px 11px;
+  padding: 8px 12px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--bg-input);
@@ -507,7 +507,7 @@ textarea.inp {
   margin: 14px 0;
 }
 .note {
-  padding: 11px 13px;
+  padding: 12px 12px;
   border-radius: 8px;
   background: var(--bg-subtle);
   border: 1px solid var(--border);
@@ -535,7 +535,7 @@ textarea.inp {
 .kv {
   display: grid;
   grid-template-columns: 108px minmax(0, 1fr);
-  gap: 7px 12px;
+  gap: 8px 12px;
   font-size: 13px;
   margin: 0;
 }
@@ -600,7 +600,7 @@ textarea.inp {
   color: var(--text-2);
   font-size: 14px;
   font-weight: 600;
-  padding: 7px 12px;
+  padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;
   display: inline-flex;
@@ -725,7 +725,7 @@ textarea.inp {
   gap: 6px;
 }
 .cat-tabs button {
-  padding: 7px 12px;
+  padding: 8px 12px;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--bg-subtle);
@@ -771,7 +771,7 @@ textarea.inp {
   position: absolute;
   left: 6px;
   bottom: 6px;
-  padding: 2px 7px;
+  padding: 2px 8px;
   border-radius: 8px;
   border: 0;
   background: rgba(15, 22, 18, 0.8);
@@ -829,7 +829,7 @@ textarea.inp {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 13px 16px;
+  padding: 12px 16px;
   margin-bottom: 8px;
 }
 .faq-list summary {
@@ -894,7 +894,7 @@ textarea.inp {
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -945,10 +945,10 @@ textarea.inp {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
   width: 100%;
   height: 40px;
-  padding: 0 15px;
+  padding: 0 16px;
   border-radius: 8px;
   border: 0;
   background: transparent;
@@ -998,7 +998,7 @@ textarea.inp {
   background: var(--bg-subtle);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 10px 11px;
+  padding: 10px 12px;
   font-size: 12px;
   color: var(--text-2);
   white-space: nowrap;
@@ -1008,7 +1008,7 @@ textarea.inp {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 5px 8px;
+  padding: 4px 8px;
   border-radius: 8px;
   white-space: nowrap;
   overflow: hidden;
@@ -1032,7 +1032,7 @@ textarea.inp {
   gap: 8px;
   width: 100%;
   height: 34px;
-  padding: 0 11px;
+  padding: 0 12px;
   border-radius: 8px;
   border: 1px dashed var(--border-strong);
   background: transparent;
@@ -1073,7 +1073,7 @@ textarea.inp {
     padding: 0 4px;
     font-size: 12px;
   }
-  .side:not(.open) .prof { padding: 5px 9px; }
+  .side:not(.open) .prof { padding: 4px 8px; }
   .side:not(.open) .demo-reset { justify-content: center; padding: 0; }
 }
 
@@ -1092,7 +1092,7 @@ textarea.inp {
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
-  padding: 9px 14px;
+  padding: 8px 14px;
   border-radius: 10px;
   background: var(--primary-soft);
   border: 1px solid rgba(31, 92, 67, 0.2);
@@ -1112,7 +1112,7 @@ textarea.inp {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 15px 16px;
+  padding: 16px 16px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1162,7 +1162,7 @@ textarea.inp {
 .rank-row {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   margin-bottom: 10px;
 }
 .rank-bar {
@@ -1186,7 +1186,7 @@ textarea.inp {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  padding: 3px;
+  padding: 4px;
   border-radius: 8px;
   background: var(--bg-muted);
   border: 1px solid var(--border);
@@ -1194,7 +1194,7 @@ textarea.inp {
 .tbl-toggle button {
   border: 0;
   background: transparent;
-  padding: 5px 10px;
+  padding: 4px 10px;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
@@ -1234,7 +1234,7 @@ textarea.inp {
   background: var(--bg-card);
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   text-align: left;
   cursor: pointer;
   transition: border-color .14s var(--ease), background .14s var(--ease);
@@ -1258,7 +1258,7 @@ textarea.inp {
 .cal-ev {
   font-size: 12px;
   font-weight: 600;
-  padding: 2px 5px;
+  padding: 2px 4px;
   border-radius: 4px;
   white-space: nowrap;
   overflow: hidden;
@@ -1361,7 +1361,7 @@ textarea.inp {
   position: absolute;
   right: 8px;
   bottom: 8px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 8px;
   background: rgba(12, 18, 15, 0.76);
   color: #ffffff;
@@ -1397,7 +1397,7 @@ textarea.inp {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  padding: 3px;
+  padding: 4px;
   border-radius: 8px;
   background: var(--bg-muted);
   border: 1px solid var(--border);
@@ -1405,7 +1405,7 @@ textarea.inp {
 .vw-seg button {
   border: 0;
   background: transparent;
-  padding: 5px 11px;
+  padding: 4px 12px;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
@@ -1413,7 +1413,7 @@ textarea.inp {
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 .vw-seg button.active {
   background: var(--bg-card);
@@ -1516,7 +1516,7 @@ textarea.inp {
   position: fixed;
   z-index: 130;
   pointer-events: none;
-  padding: 5px 9px;
+  padding: 4px 8px;
   border-radius: 8px;
   background: var(--text-1);
   color: var(--bg-card);
@@ -1657,7 +1657,7 @@ textarea.inp {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 4px;
     border-radius: 8px;
     cursor: pointer;
   }

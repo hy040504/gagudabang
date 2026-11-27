@@ -63,7 +63,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
     min-height: 52px;
     padding: 4px 4px;
     font-size: 12px;
@@ -92,7 +92,7 @@
   .gd-top-mob-brand {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     border: 0;
     background: transparent;
     padding: 0;
@@ -133,7 +133,7 @@
   }
   .gd-studio-btn {
     height: 34px;
-    padding: 0 11px;
+    padding: 0 12px;
     font-size: 12px;
   }
   .gd-icon-btn {
