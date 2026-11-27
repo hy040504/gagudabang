@@ -301,3 +301,9 @@ html[data-theme="dark"] .btn.danger { color: var(--bg-app); }
   .gd-sms summary { padding: 12px 0; }
   .field > label:has(input[type="checkbox"]) { min-height: var(--control-h-touch); }
 }
+
+/* R1: 좁은 화면에서 접수번호와 날짜가 글자 중간에서 끊겼다. 끊지 않고, 넘치면 표 안에서 옆으로 민다 */
+.tbl-wrap { overflow-x: auto; }
+.tbl td:first-child a, .tbl td:nth-child(3) { white-space: nowrap; }
+/* B3: 달력의 이전·다음 버튼은 폭도 44px 이상으로 */
+@media (max-width: 768px) { [data-shift] { min-width: var(--control-h-touch); } }
