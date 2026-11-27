@@ -1,5 +1,5 @@
 import { api, ApiError } from '../common/api.js';
-import { $, confirmDialog, decorate, ICON_ATTRS, logo,CATEGORY_LABEL, CONDITION_LABEL, HANDLING_LABEL, PREFERENCE_LABEL, STATUS_LABEL, esc, initTheme, themeButton, options, registerServiceWorker, showError, toast } from '../common/ui.js';
+import { $, confirmDialog, decorate, ICON_ATTRS, logo, CATEGORY_LABEL, CONDITION_LABEL, HANDLING_LABEL, PREFERENCE_LABEL, STATUS_LABEL, esc, initTheme, themeButton, options, registerServiceWorker, showError, toast } from '../common/ui.js';
 import { BRAND_NAME, DEFAULT_PUBLIC_NOTICE, TRANSITIONS } from '../../shared/types.js';
 import type { AdminApplicationDetailDto, AdminApplicationSummaryDto, AdminItemDto, AdminKpis, AdminStatsDto, ItemStatus, PublicConfig, ScheduleCalendarEventDto, StatsPeriod, StatusHistoryDto } from '../../shared/types.js';
 import { donut, hbars, stack, xyChart, type Part } from './charts.js';

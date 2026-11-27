@@ -437,6 +437,7 @@ node --env-file=.env dist/server/index.js
 
 - 접수 데이터(SQLite)와 사진은 서버의 `data/` 폴더에 남는다. 이 폴더를 백업한다.
 - `HOST=127.0.0.1`은 서버 안에서만 접속을 받게 하고, 바깥 주소는 Cloudflare Tunnel이나 리버스 프록시가 이 포트로 이어 준다. 그때 `TRUST_PROXY=1`을 함께 쓴다.
+- 링크 공유 정보(`og:url`, `og:image`)는 HTML에 Vercel 주소로 적혀 있지만, 이 서버는 화면을 내보낼 때 들어온 주소(예: `https://gagudabang.mib.dpdns.org`)로 바꿔 준다. `TRUST_PROXY=1`이 있어야 `https`로 적힌다.
 
 ### Vercel 무료 배포 (`vercel.json`, `src/index.ts`)
 
