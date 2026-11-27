@@ -7,7 +7,7 @@ const app = document.getElementById('app')!;
 let loggedIn = false;
 const wire: { fn: (() => void) | null } = { fn: null };
 const resetWire = () => { wire.fn = null; }; // 함수 호출로 감싸 TS의 대입 후 타입 좁힘을 피한다 // 뷰가 등록하고 render()가 innerHTML 설정 뒤에 실행
-const filter = { status: '', handling: '', q: '', hideDemo: true, page: 1 };
+const filter = { status: '', handling: '', q: '', page: 1 };
 
 const TABS = [['dashboard', '접수 목록'], ['schedule', '일정'], ['settings', '설정']] as const;
 // 같은 목적지를 넓은 화면에서는 상단 링크로, 640px 이하에서는 하단 탭으로 보여 준다 (전환은 admin.css)
@@ -18,7 +18,7 @@ const nav = () => {
   return `<header class="gd-admin-top gd-admin-bar"><div class="gd-admin-bar-in">
   <img src="/assets/brand/logo.svg" alt="가구다방" width="85" height="32"><strong>파트너스 스튜디오</strong>
   <span style="flex:1"></span>${links('btn ghost sm gd-top-link')}
-  <a class="btn ghost sm" href="/api/admin/export/csv?hideDemo=${filter.hideDemo ? 1 : 0}">CSV</a>
+  <a class="btn ghost sm" href="/api/admin/export/csv">CSV</a>
   ${themeButton()}<button class="btn outline sm" id="logout">로그아웃</button></div></header>
   <nav class="gd-tabbar" aria-label="주요 메뉴">${links('')}</nav>`;
 };
@@ -42,7 +42,7 @@ function loginView() {
 const ddayBadge = (d: number | null, label = '') => (d === null ? '' : `<b style="color:var(${d <= 3 ? '--bad' : '--text-3'})">${label}D${d >= 0 ? '-' + d : '+' + -d}</b>`);
 
 async function dashboardView() {
-  const qs = new URLSearchParams({ sort: 'moving_asc', page: String(filter.page), hideDemo: filter.hideDemo ? '1' : '0' });
+  const qs = new URLSearchParams({ sort: 'moving_asc', page: String(filter.page) });
   if (filter.status) qs.set('status', filter.status);
   if (filter.handling) qs.set('handling', filter.handling);
   if (filter.q) qs.set('q', filter.q);
@@ -52,7 +52,7 @@ async function dashboardView() {
     form.addEventListener('submit', (ev) => {
       ev.preventDefault();
       const v = (n: string) => (form.elements.namedItem(n) as HTMLInputElement).value;
-      Object.assign(filter, { status: v('status'), handling: v('handling'), q: v('q').trim(), hideDemo: (form.elements.namedItem('hideDemo') as HTMLInputElement).checked, page: 1 });
+      Object.assign(filter, { status: v('status'), handling: v('handling'), q: v('q').trim(), page: 1 });
       render();
     });
     document.querySelectorAll<HTMLElement>('[data-page]').forEach((b) => b.addEventListener('click', () => { filter.page = Number(b.dataset.page); render(); }));
@@ -69,7 +69,6 @@ async function dashboardView() {
       <select name="status" aria-label="상태" style="width:auto;min-width:150px"><option value="">전체 상태</option>${options(STATUS_LABEL, filter.status)}</select>
       <select name="handling" aria-label="처리구분" style="width:auto;min-width:150px"><option value="">전체 처리구분</option>${options({ RESALE: HANDLING_LABEL.RESALE, DISPOSE: HANDLING_LABEL.DISPOSE, UNDECIDED: HANDLING_LABEL.UNDECIDED }, filter.handling)}</select>
       <input name="q" value="${esc(filter.q)}" placeholder="이름·연락처·접수번호·주소·품목" style="flex:1;min-width:200px">
-      <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" name="hideDemo"${filter.hideDemo ? ' checked' : ''}> 시연 데이터 제외</label>
       <button class="btn primary sm">검색</button></form>
     <div class="tbl-wrap"><table class="tbl"><thead><tr><th>접수번호</th><th>신청자</th><th>이사일</th><th>품목 상태</th></tr></thead><tbody>
       ${d.items.map((a) => `<tr><td><a href="#detail/${a.id}" class="tabular">${esc(a.requestCode)}</a></td><td>${esc(a.applicantName)}<div class="muted small">${esc(a.phone)}</div></td>
@@ -213,7 +212,7 @@ async function detailView(id: number) {
   };
   return `<main class="main"><div class="main-inner">
     <a href="#dashboard" class="btn ghost sm">← 목록</a>
-    <section class="card" style="padding:20px;margin:12px 0"><h1 class="card-title tabular">${esc(a.requestCode)}${a.isDemo ? ' <span class="muted small">(시연)</span>' : ''}</h1>
+    <section class="card" style="padding:20px;margin:12px 0"><h1 class="card-title tabular">${esc(a.requestCode)}</h1>
       <p>${esc(a.applicantName)} · <a href="tel:${esc(a.phone)}">${esc(a.phone)}</a><br>${esc(a.zipcode)} ${esc(a.address)} ${esc(a.addressDetail)}<br>
       이사일 ${esc(a.movingDate)} · 희망 반출일 ${esc(a.preferredPickupDate)}</p>
       <p class="muted">고객 요청: ${esc(a.customerMemo) || '없음'}</p>
@@ -245,7 +244,7 @@ function shiftMonth(month: string, delta: number) {
 }
 
 async function scheduleView() {
-  const { events } = await api.get<{ month: string; events: ScheduleCalendarEventDto[] }>(`/api/admin/schedule?month=${cal.month}&hideDemo=${filter.hideDemo ? 1 : 0}`);
+  const { events } = await api.get<{ month: string; events: ScheduleCalendarEventDto[] }>(`/api/admin/schedule?month=${cal.month}`);
   const byDate = new Map<string, ScheduleCalendarEventDto[]>();
   for (const e of events) (byDate.get(e.date) ?? byDate.set(e.date, []).get(e.date)!).push(e);
   const [y, m] = cal.month.split('-').map(Number) as [number, number];
@@ -338,7 +337,7 @@ async function settingsView() {
   };
   return `<main class="main"><div class="main-inner" style="max-width:720px">
     <form id="siteForm" class="card" style="padding:24px;margin-bottom:16px" novalidate><h1 class="card-title">고객 화면 사업자 정보</h1>
-      <p class="muted small">고객 포털 하단에 표시됩니다. 확정되지 않은 값은 [TBD]로 두세요.</p>
+      <p class="muted small">고객 화면 아래쪽에 표시됩니다. 비워 둔 항목은 표시되지 않습니다.</p>
       <div class="grid2">${SITE_FIELDS.map(([k, l]) => `<div class="field"><label>${l}</label><input name="${k}" value="${esc(c[k])}" maxlength="200"></div>`).join('')}</div>
       <button class="btn primary">저장</button></form>
     <form id="pwForm" class="card" style="padding:24px" novalidate><h2 class="card-title">관리자 비밀번호 변경</h2>

@@ -29,7 +29,7 @@ function shell(body: string) {
     <main class="main"><div class="main-inner">${body}</div></main>
     <footer class="gd-footer"><div class="gd-footer-in">
       <div><b>${esc(config?.companyName ?? '가구다방')}</b><p>이사 전 가구 위탁 판매 · 방문 수거</p>${biz ? `<p>${biz}</p>` : ''}${contact ? `<p>${contact}</p>` : ''}</div>
-      <nav aria-label="약관"><a href="#terms">이용약관</a><a class="strong" href="#privacy">개인정보 처리방침</a><a href="https://www.pexels.com/photo/close-up-shot-of-men-carrying-a-couch-7464662/" target="_blank" rel="noopener">사진 출처 Pexels</a></nav>
+      <nav aria-label="약관"><a href="#terms">이용약관</a><a class="strong" href="#privacy">개인정보 처리방침</a></nav>
     </div></footer>`;
 }
 // 홈의 가구 종류 아이콘 (24 격자, 선 굵기 1.5, 색은 글자색을 따른다)

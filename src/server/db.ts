@@ -110,9 +110,9 @@ CREATE INDEX IF NOT EXISTS idx_items_status_deadline ON application_items(status
 CREATE INDEX IF NOT EXISTS idx_history_app_time ON status_history(application_id, created_at DESC);
 `;
 
-// 미확정 사업자 정보는 지어내지 않고 [TBD]로 둔다 (운영자 설정 화면에서 입력).
+// 미확정 사업자 정보는 지어내지 않고 비워 둔다 (운영자 설정 화면에서 입력). 빈 값은 고객 화면에 표시하지 않는다.
 const DEFAULT_SETTINGS: Record<string, string> = {
-  companyName: BRAND_NAME, ceoName: '[TBD]', bizNo: '[TBD]', phone: '[TBD]', hours: '[TBD]', address: '[TBD]',
+  companyName: BRAND_NAME, ceoName: '', bizNo: '', phone: '', hours: '', address: '',
 };
 
 export type Db = DatabaseSync;
