@@ -118,6 +118,9 @@ async function copyText(ta: HTMLTextAreaElement) {
   toast('문구를 복사했습니다.', 'ok');
 }
 
+// 변경 이력의 종류를 화면에서는 한글로 보여 준다
+const HISTORY_LABEL: Record<string, string> = { CREATED: '접수', ITEM_UPDATED: '품목 변경', MEMO_UPDATED: '운영 메모 변경', CUSTOMER_CANCELED: '고객 취소', CLAIMED: '회원 계정에 연결', SMS_SENT: '' };
+
 async function detailView(id: number) {
   const d = await api.get<{ application: AdminApplicationDetailDto; history: StatusHistoryDto[]; smsEnabled: boolean }>(`/api/admin/applications/${id}`);
   const a = d.application;
@@ -219,7 +222,7 @@ async function detailView(id: number) {
       <form id="memoForm" novalidate><div class="field"><label>운영 메모 (고객 비공개)</label><input name="adminMemo" value="${esc(a.adminMemo)}" maxlength="2000"></div><button class="btn outline sm">메모 저장</button></form></section>
     ${a.items.map((it) => itemForm(it, d.smsEnabled)).join('')}
     <section class="card" style="padding:18px"><h2 class="card-title">변경 이력</h2>
-      ${d.history.map((h) => `<div class="small" style="padding:6px 0;border-top:1px solid var(--border)">${esc(h.createdAt)} · ${esc(h.actorName)} · ${esc(h.actionType)} ${esc(h.note)}</div>`).join('')}</section>
+      ${d.history.map((h) => `<div class="small" style="padding:6px 0;border-top:1px solid var(--border)">${esc(h.createdAt)} · ${esc(h.actorName)} · ${esc(HISTORY_LABEL[h.actionType] ?? h.actionType)} ${esc(h.note)}</div>`).join('')}</section>
     <dialog id="photoDlg" class="gd-lightbox" aria-label="사진 크게 보기"><div class="gd-lightbox-in">
       <img alt="">
       <div class="row"><button type="button" class="btn outline" data-step="-1">이전</button><button type="button" class="btn outline" data-step="1">다음</button>

@@ -1180,5 +1180,7 @@ html[data-theme="dark"] .gd-theme-icon .i-sun { display: block; }
   /* 휴대폰에서는 메뉴를 오른쪽으로 모은다 (진행 조회, 로그인, 테마 버튼이 가구 접수 버튼 옆에 붙는다) */
   .gd-site nav { width: 100%; justify-content: flex-end; }
   .gd-site nav .btn.primary { margin-left: 6px; }
+  .gd-site nav .btn { height: 40px; }
+  .gd-site nav .btn.gd-theme-icon { width: 40px; }
   .gd-footer-in { padding-top: 24px; padding-bottom: 36px; }
 }

@@ -355,6 +355,8 @@ npm run perf
 
 ### 단계별 진행 현황
 
+처음 쓰는 분을 위한 안내는 [docs/guides/](docs/guides/README.md)에 있습니다(고객 이용 가이드, 관리자 이용 가이드. 컴퓨터와 휴대폰 화면 그림 포함).
+
 상세 이력과 잔여 항목은 [docs/DEVELOPMENT_STATUS.md](docs/DEVELOPMENT_STATUS.md)와 [docs/프로토타입_분리_기획안.md](docs/프로토타입_분리_기획안.md)에서 관리합니다.
 
 | 단계 / TASK | 내용 | 상태 | 주요 산출물 |
@@ -409,6 +411,7 @@ gagudabang/
 ├── scripts/split-demo.mjs                 # 로컬 demo.html을 고객 화면과 관리자 화면 파일로 나눔 (결과물 demo/는 저장소에 올리지 않음)
 └── docs/                                  # 기획서·벤치마킹·진행 현황 및 README 시각 자산
     ├── DEVELOPMENT_STATUS.md              # 단계별 개발 진행 현황 및 잔여 항목
+    ├── guides/                            # 고객·관리자 이용 가이드 (md, PDF). 그림은 assets/guide/, 다시 만드는 스크립트는 scripts/guide/
     ├── 프로토타입_분리_기획안.md              # 고객/관리자 분리 프로토타입 기획안 및 기준안
     ├── 기술_상세_기획서.{md,pdf}            # 화면·기능·SQL DDL·API 상세 기술 기획서
     ├── 서비스_종합_설계기획서.md              # 서비스 종합 설계기획서 마크다운
