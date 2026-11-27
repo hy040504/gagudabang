@@ -289,3 +289,15 @@ html[data-theme="dark"] .btn.danger { color: var(--bg-app); }
 /* T2: 입력 칸 이름, 오류 안내, 표 머리글이 12~13px로 작았다 */
 .field > label { font-size: var(--fs-label); }
 .err-msg, .tbl th, .cal-dow { font-size: var(--fs-caption); }
+
+/* B2: 나란히 놓이는 입력 칸(38px)과 기본 버튼(36px)의 높이를 맞춘다 */
+.btn { height: var(--control-h); }
+.btn.sm { height: 32px; }
+/* B3: 손가락으로 누르는 화면에서는 누르는 영역을 44px 이상으로 */
+@media (max-width: 768px) {
+  .inp, .btn, .btn.sm, .gd-file { min-height: var(--control-h-touch); }
+  .gd-site nav .btn.gd-theme-icon { min-width: var(--control-h-touch); }
+  .gd-footer nav a { display: inline-flex; align-items: center; min-height: var(--control-h-touch); }
+  .gd-sms summary { padding: 12px 0; }
+  .field > label:has(input[type="checkbox"]) { min-height: var(--control-h-touch); }
+}
