@@ -79,7 +79,7 @@
   <img src="https://img.shields.io/badge/Cloudflare-Tunnel-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare Tunnel">
   <img src="https://img.shields.io/badge/Ubuntu-Server-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Ubuntu Server">
 </p>
-<p>Vercel(서울 리전)에 시연용으로, 데이터를 보존하는 개인 서버(Ubuntu)에는 Cloudflare 터널로 도메인을 연결해 운영합니다.</p>
+<p>Vercel(서울 리전)에 시연용으로 배포합니다. 데이터를 보존하는 개인 서버(Ubuntu)에서도 돌릴 수 있고, 예전에는 Cloudflare 터널로 도메인을 연결해 운영했습니다(2026-11-29에 서버와 도메인 연결을 모두 내림).</p>
 
 <h4>외부 서비스</h4>
 <p>
@@ -437,7 +437,7 @@ node --env-file=.env dist/server/index.js
 
 - 접수 데이터(SQLite)와 사진은 서버의 `data/` 폴더에 남는다. 이 폴더를 백업한다.
 - `HOST=127.0.0.1`은 서버 안에서만 접속을 받게 하고, 바깥 주소는 Cloudflare Tunnel이나 리버스 프록시가 이 포트로 이어 준다. 그때 `TRUST_PROXY=1`을 함께 쓴다.
-- 링크 공유 정보(`og:url`, `og:image`)는 HTML에 Vercel 주소로 적혀 있지만, 이 서버는 화면을 내보낼 때 들어온 주소(예: `https://gagudabang.mib.dpdns.org`)로 바꿔 준다. `TRUST_PROXY=1`이 있어야 `https`로 적힌다.
+- 링크 공유 정보(`og:url`, `og:image`)는 HTML에 Vercel 주소로 적혀 있지만, 이 서버는 화면을 내보낼 때 들어온 주소(예: 직접 운영하는 서버의 도메인)로 바꿔 준다. `TRUST_PROXY=1`이 있어야 `https`로 적힌다.
 
 ### Vercel 무료 배포 (`vercel.json`, `src/index.ts`)
 
@@ -448,7 +448,7 @@ node --env-file=.env dist/server/index.js
 3. 화면 파일(`public/`)은 Vercel이 직접 내보내고, `/api` 요청은 `src/index.ts`가 내보낸 Express 앱이 함수 하나로 처리합니다. 첫 화면(`/`)은 `vercel.json`의 `routes`가 `public/index.html`로 이어 줍니다.
 4. 명령줄로 올릴 때는 `npx vercel login` 뒤에 `npx vercel deploy --prod`를 실행합니다.
 
-- 배포 주소: `https://gagudabang.vercel.app` (관리자 화면은 주소 끝에 `/admin`). 데이터가 보존되는 개인 서버 주소는 `https://gagudabang.mib.dpdns.org`
+- 배포 주소: `https://gagudabang.vercel.app` (관리자 화면은 주소 끝에 `/admin`). 개인 서버 주소(`https://gagudabang.mib.dpdns.org`)는 2026-11-29에 해제해 지금은 접속되지 않는다
 - 테스트용 회원 계정 `abcd` / `1234`가 서버가 뜰 때 자동으로 만들어집니다. 실제 고객을 받기 전에 `src/index.ts`와 `src/server/index.ts`의 `testAccount: true`를 빼세요.
 - 올릴 파일은 `.vercelignore`가 `src`, `public`, 설정 파일로 한정합니다.
 
